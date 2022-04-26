@@ -1,0 +1,395 @@
+Storymatic {
+  Script = StatementBlock
+
+  WrappedStatementBlock = "{" StatementBlock "}"
+
+  StatementBlock
+    = WrappedStatementBlock
+    | Statement* -- statements
+
+  SingleStatementBlock<prefix>
+    = WrappedStatementBlock
+    | prefix #(space+) Statement -- single_statement
+
+  UnprefixedSingleStatementBlock
+    = WrappedStatementBlock
+    | Statement -- single_statement
+
+  IfStatement = ("if" | "unless") #(space+) Expression SingleStatementBlock<thenOrDo> ElseIfStatement* ElseStatement?
+  ElseIfStatement = ElseIfKeyword #(space+) Expression SingleStatementBlock<thenOrDo>
+  ElseStatement = "else" #(space+) UnprefixedSingleStatementBlock
+  thenOrDo = "then" | "do"
+
+  SwitchStatement = "switch" #(space+) Expression "{" CaseStatement* DefaultStatement? "}"
+  CaseClause = "case" #(space+) Expression CaseTerminator
+  CaseStatement = CaseClause+ UnprefixedSingleStatementBlock
+  DefaultStatement = "default" #(space+) UnprefixedSingleStatementBlock
+
+  CaseTerminator
+    = #colonTerminator -- terminator
+    | &"{" -- final
+
+  TryStatement = "try" #(space+) UnprefixedSingleStatementBlock CatchStatement? FinallyStatement?
+  CatchStatement = "catch" #(space+) (identifier #(space+) "of" #(space+))? UnprefixedSingleStatementBlock
+  FinallyStatement = "finally" #(space+) UnprefixedSingleStatementBlock
+
+  ElseIfKeyword
+    = "else" "if" -- else_if
+    | "else" #(space+) "unless" -- else_unless
+    | "elif" -- elif
+
+  Statement
+    = ~("{" "}") Expression #statementTerminator -- expression
+    | IfStatement
+    | TryStatement
+    | BlockFunction
+    | ClassDeclaration
+    | SwitchStatement
+    | "print" #(space+) Expression #statementTerminator -- print
+    | "throw" #(space+) Expression #statementTerminator -- throw
+    | "repeat" #(space+) Expression SingleStatementBlock<"do"> -- repeat
+    | "while" #(space+) Expression SingleStatementBlock<"do"> -- while
+    | "until" #(space+) Expression SingleStatementBlock<"do"> -- until
+    | "do" #(space+) UnprefixedSingleStatementBlock #(space+) "while" #(space+) Expression #statementTerminator -- do_while
+    | "do" #(space+) UnprefixedSingleStatementBlock #(space+) "until" #(space+) Expression #statementTerminator -- do_until
+    | "for" #(space+) NonCapturingAssignable #(space+) "in" #(space+) Expression SingleStatementBlock<"do"> -- for_in
+    | "for" #(space+) NonCapturingAssignable #(space+) "of" #(space+) Expression SingleStatementBlock<"do"> -- for_of
+    | "for" #(space+) "await" #(space+) NonCapturingAssignable #(space+) "of" #(space+) Expression SingleStatementBlock<"do"> -- for_await_of
+    | "for" #(space+) identifier
+      (#(space+) "from" #(space+) Expression)? (#(space+) "down")?
+      (#(space+) ("to" | "through") #(space+) Expression)?
+      (#(space+) "step" #(space+) Expression)? SingleStatementBlock<"do"> -- for_range
+    | "break" #statementTerminator -- break
+    | "continue" #statementTerminator -- continue
+    | "return" #(space+) Expression #statementTerminator -- return
+    | "await" #(space+) (Assignable "=")? Expression SingleStatementBlock<"do"> -- await_new_thread
+    | "when" #(space+) Expression (#(space+) "with" #(space+) ParameterList)? SingleStatementBlock<"do"> -- when_callback
+    | "import" #(space+) importLocation #statementTerminator -- empty_import
+    | "import" #(space+) NonemptyListOf<ImportableItemName, ","> #(space+) "from" #(space+) importLocation #statementTerminator -- import
+    | "import" "*" "as" #(space+) identifier #(space+) "from" #(space+) importLocation #statementTerminator -- import_all
+    | "import" "*" identifier #(space+) "from" #(space+) importLocation #statementTerminator -- import_default
+    | "export" ~(ClassDeclaration | VariableAssignment | BlockFunction) #statementTerminator -- empty_export
+    | "export" #(space+) NonemptyListOf<ExportableItemName, ","> #(space+) "from" #(space+) importLocation #statementTerminator -- export_from
+    | "export" "*" "from" #(space+) importLocation #statementTerminator -- export_all_from
+    | "export" #(space+) NonemptyListOf<ExportableItemName, ","> #statementTerminator -- export
+    | "export" "*" Expression #statementTerminator -- export_default
+    | "export" #(space+) ClassDeclaration -- export_class
+    | "export" #(space+) VariableAssignment -- export_variable
+    | "export" #(space+) BlockFunction -- export_function
+    | "rescope" #(space+) NonemptyListOf<identifier, ","> #statementTerminator -- rescope
+    | "rescope" #(space+) VariableAssignment #statementTerminator -- rescope_assign
+
+  ClassDeclaration = "class" #(space+) identifier (#(space+) "extends" #(space+) Expression)? "{" ClassElement* "}"
+
+  ClassElement
+    = Method<"@"> -- method
+    | Method<"@@"> -- static_method
+    | "@" MethodName "=" Expression #statementTerminator -- property
+    | "@@" MethodName "=" Expression #statementTerminator -- static_property
+
+  importLocation
+    = (~(space | "\\" | "\"" | "\'" | statementTerminator) any)+ &statementTerminator -- filename
+    | string_non_interpolatable
+
+  ImportableItemName
+    = (identifier | string_non_interpolatable) #(space+) "as" #(space+) identifier -- rewrite
+    | identifier
+
+  ExportableItemName
+    = identifier #(space+) "as" #(space+) (identifier | string_non_interpolatable) -- rewrite
+    | identifier
+
+  statementTerminator
+    = spaces ";" -- semicolon
+    | spaces &reserved_block -- keyword
+    | spaces &"}" -- block_end
+    | spaces end -- script_end
+    | lineTerminator -- newline
+
+  expressionTerminator
+    = spaces "," -- comma
+    | spaces &reserved_block -- keyword
+    | spaces &"}" -- block_end
+    | spaces end -- script_end
+    | lineTerminator -- newline
+
+  colonTerminator
+    = spaces ":" -- comma
+    | spaces &reserved_block -- keyword
+    | spaces &"}" -- block_end
+    | spaces end -- script_end
+    | lineTerminator -- newline
+
+  lineTerminator = whitespace? ("\r\n" | "\n")+ spaces ~lineContinuer
+  lineContinuer
+    = "+" | "-" | "*" | "/" | "^" | "%" | "==" | "!=" | "[" | "(" | "." | "?." | "?" | ":" | "<" | ">" | "&&" | "||" | "??" | reserved_operators
+
+  Expression = AssignmentExp
+
+  LiteralExp
+    = "(" Expression ")" -- parenthesized
+    | "[" listOf<ArrayEntry, expressionTerminator> ","? "]" -- array
+    | "{" listOf<ObjectEntry, expressionTerminator> ","? "}" -- object
+    | InlineClassDeclaration
+    | InlineFunction
+    | decimalNumber
+    | unitNumber
+    | hexNumber
+    | bigint
+    | identifier
+    | StaticProperty
+    | Property
+    | undefined
+    | boolean
+    | Symbol
+    | string_non_interpolatable
+    | string
+    | null
+
+  InlineClassDeclaration = "class" (#(space+) "extends" #(space+) Expression)? "{" ClassElement* "}"
+
+  ArrayEntry
+    = Expression
+    | "..." Expression -- spread_operator
+
+  InlineFunction
+    = "fn" FunctionBody -- no_params
+    | "fn" #(space+) "of" #(space+) ParameterList FunctionBody -- with_params
+
+  BlockFunction
+    = "fn" #(space+) identifier FunctionBody -- no_params
+    | "fn" #(space+) identifier #(space+) "of" #(space+) ParameterList FunctionBody -- with_params
+
+  Method<prefix>
+    = "fn" #(space+) prefix MethodName FunctionBody -- no_params
+    | "fn" #(space+) prefix MethodName #(space+) "of" #(space+) ParameterList FunctionBody -- with_params
+
+  FunctionBody
+    = ":" Expression -- expression
+    | WrappedStatementBlock
+
+  MethodName
+    = identOrWord -- identifier
+    | Symbol -- symbol
+    | string_non_interpolatable -- string_key
+    | string -- computed_string_key
+    | digit+ -- numerical_key
+    | "[" Expression "]" -- computed_key
+
+  ObjectEntry
+    = identifier ~":" -- restructure
+    | MethodName ":" Expression -- key_value
+    | "..." Expression -- spread_operator
+    | Method<""> -- object_method
+    | Method<"@"> -- object_method_with_self
+
+  ClassCreationExp
+    = "new" #(space+) ClassCreationExp "(" ArgumentList ")" -- class_creation_symbolic
+    | "new" #(space+) ClassCreationExp ~"(" #((~("\r\n" | "\n") space)+) ~(identifier | "+" | "-" | "{" "}") ArgumentList -- class_creation_implied
+    | "new" #(space+) ClassCreationExp -- class_creation_no_args
+    | LiteralExp
+
+  MemberAccessExp
+    = MemberAccessExp "." identOrWord -- member_access
+    | MemberAccessExp "?." identOrWord -- optional_chaining_member_access
+    | MemberAccessExp "." Symbol -- symbol_access
+    | MemberAccessExp "?." Symbol -- optional_chaining_symbol_access
+    | MemberAccessExp "[" MemberAccessExp "]" -- computed_member_access
+    | MemberAccessExp "?." "[" MemberAccessExp "]" -- optional_chaining_computed_member_access
+    | MemberAccessExp "(" ArgumentList ")" -- function_call
+    | MemberAccessExp "?." "(" ArgumentList ")" -- optional_chaining_function_call
+    | MemberAccessExp #((~("\r\n" | "\n") space)+) ~(identifier | "+" | "-" | "{" "}") NonEmptyArgumentList -- function_call_implied
+    | ClassCreationExp
+
+  ArgumentList = ListOf<Argument, ",">
+  NonEmptyArgumentList = NonemptyListOf<Argument, ",">
+
+  Argument
+    = Expression
+    | "..." Expression -- spread_operator
+
+  ParameterList = ListOf<Parameter, ","> ","?
+
+  Parameter
+    = AssignableWithDefault<NonCapturingAssignable>
+    | "..." NonCapturingAssignable -- rest_operator
+
+  NotExp
+    = "!" NotExp -- logical_not_symbolic
+    | "not" #(space+) NotExp -- logical_not_worded
+    | "+" ~digit NotExp -- unary_plus
+    | "-" ~digit NotExp -- unary_minus
+    | "type" "of" #(space+) NotExp -- typeof
+    | "await" #(space+) NotExp -- await
+    | MemberAccessExp
+
+  ExpExp
+    = ExpExp "^" NotExp -- exponentiate
+    | NotExp
+
+  MulExp
+    = MulExp "*" ExpExp -- multiplication
+    | MulExp "/" ExpExp -- division
+    | MulExp "%" ExpExp -- modulus
+    | ExpExp
+
+  AddExp
+    = AddExp "+" MulExp -- addition
+    | AddExp "-" MulExp -- subtraction
+    | MulExp
+
+  CompareExp
+    = CompareExp "<" AddExp -- less_than
+    | CompareExp "<=" AddExp -- less_than_equal
+    | CompareExp ">" AddExp -- greater_than
+    | CompareExp ">=" AddExp -- greater_than_equal
+    | CompareExp #(space+) ("is" #(space+))? "in" #(space+) AddExp -- within
+    | CompareExp #(space+) "isnt" #(space+) "in" #(space+) AddExp -- not_within
+    | CompareExp #(space+) "is" #(space+) ("a" | "an") #(space+) AddExp -- instanceof
+    | CompareExp #(space+) "isnt" #(space+) ("a" | "an") #(space+) AddExp -- not_instanceof
+    | AddExp
+
+  EqualityExp
+    = EqualityExp ("==" | #equalityExpWords<"is">) CompareExp -- equal_to
+    | EqualityExp ("!=" | #equalityExpWords<"isnt">) CompareExp -- not_equal_to
+    | CompareExp
+
+  equalityExpWords<keyword> = #(space+ keyword ~(space+ ("a" ~"n" | "an" | "in")) space+)
+
+  LogicalAndExp
+    = LogicalAndExp #(spaces "&&" spaces | space+ "and" space+) EqualityExp -- logical_and
+    | EqualityExp
+
+  LogicalOrExp
+    = LogicalOrExp #(spaces "||" spaces | space+ "or" space+) LogicalAndExp -- logical_or
+    | LogicalOrExp "??" LogicalAndExp -- logical_nullish_coalescing
+    | LogicalAndExp
+
+  TernaryExp
+    = LogicalOrExp "?" TernaryExp ":" TernaryExp -- symbolic
+    | LogicalOrExp
+
+  AssignmentExp
+    = AssignableOrAccessor "=" AssignmentExp -- assignment
+    | "yield" #(space+) AssignmentExp -- yield
+    | "yield" #(space+ "from" space+ | spaces "*" spaces) AssignmentExp -- yield_from
+    | TernaryExp
+
+  VariableAssignment = NonCapturingAssignable "=" Expression
+
+  AssignableOrAccessor = NonAssignableAccessor | ~"@" Assignable ~("." | "[")
+
+  AssignableWithDefault<AssignableType>
+    = AssignableType "=" Expression -- with_default
+    | AssignableType
+
+  AssignableKeyWithRewrite<AssignableType>
+    = MethodName ":" AssignableWithDefault<AssignableType> -- rewrite
+    | AssignableWithDefault<AssignableType>
+
+  Assignable
+    = identifier -- identifier
+    | "[" listOf<AssignableWithDefault<Assignable>, expressionTerminator>
+      ("," "..." Assignable)? ","? "]" -- array
+    | "{" listOf<AssignableKeyWithRewrite<Assignable>, expressionTerminator>
+      ("," "..." Assignable)? ","? "}" -- object
+
+  NonCapturingAssignable
+    = identifier
+    | "[" listOf<AssignableWithDefault<NonCapturingAssignable>, expressionTerminator>
+      ("," "..." NonCapturingAssignable)? ","? "]" -- array
+    | "{" listOf<AssignableKeyWithRewrite<NonCapturingAssignable>, expressionTerminator>
+      ("," "..." NonCapturingAssignable)? ","? "}" -- object
+
+  AccessorBase
+    = identifier
+    | Property
+    | StaticProperty
+
+  AccessorPropertyBase = Property | StaticProperty
+
+  AccessorAddon
+    = "." identOrWord -- member_access
+    | "." Symbol -- symbol_access
+    | "[" Expression "]" -- computed_member_access
+
+  Accessor = AccessorBase AccessorAddon*
+
+  NonAssignableAccessor
+    = ~"@" AccessorBase AccessorAddon+
+    | AccessorPropertyBase AccessorAddon*
+
+  whitespace = (~("\r\n" | "\n") space)+
+
+  sign = ("+" | "-")?
+  number = digit+
+  fullNumber = sign digit+ ("." digit+)? ("e" sign digit+)?
+  unitNumber = ~"0x" fullNumber ~("n" ~id_continue) identifierWord
+  decimalNumber = ~"0x" fullNumber ~char
+  hexNumber = sign "0x" hexDigit+
+  bigint = ~"0x" sign digit+ "n"
+
+  boolean = "true" | "false"
+  null = "null"
+  undefined = "undefined"
+
+  id_continue = letter | digit
+
+  string_bit<delimeter>
+    = ~("\\" | "{" | delimeter) any -- character
+    | "\\" ("\\" | "{" | "\"" | "'") -- escape
+    | "\\" ("b" | "f" | "n" | "r" | "t" | "v" | ("0" ~digit)) -- escape_sequence
+    | "\\x" hexDigit hexDigit -- hex_sequence
+    | "\\u" hexDigit hexDigit hexDigit hexDigit -- unicode_sequence
+    | "\\u{" hexDigit+ "}" -- unicode_code_point_sequence
+
+  string_interpolatable_bit<delimeter>
+    = string_bit<delimeter>
+    | "{" applySyntactic<Expression> "}" -- interpolated
+
+  string_interpolatable<delimeter> = delimeter string_interpolatable_bit<delimeter>* delimeter
+  string_full<delimeter> = delimeter string_bit<delimeter>* delimeter
+  string = string_interpolatable<"\""> | string_interpolatable<"'">
+  string_non_interpolatable = string_full<"\""> | string_full<"'">
+
+  reserved_block = ("if" | "elif" | "else" ~"if" | "elseif" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "step" | "to" | "through" | "return" | "break" | "continue" | "fn" | "when" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "rescope" | "down") ~id_continue
+  reserved_operators = ("and" | "or" | "not" | "is" ~"nt" | "isnt" | "with") ~id_continue
+  reserved_inline = ("new" | "in" | "type" ~"of" | "of" | "from" | "typeof" | "as" | "extends" | "await") ~id_continue
+  reserved_primitive = ("true" | "false" | "null" | "undefined") ~id_continue
+
+  // `super` and `this` are omitted because they are valid names and used often.
+  // We assume JavaScript environments will disallow them from being used in the wrong places.
+  reserved_javascript = ("break" | "case" | "catch" | "class" | "const" | "continue" | "debugger" | "default" | "delete" | "do" | "else" | "enum" | "export" | "extends" | "false" | "finally" | "for" | "function" | "if" | "import" | "in" ~"stanceof" | "instanceof" | "new" | "null" | "return" | /* "super" | */ "switch" | /* "this" | */ "throw" | "true" | "try" | "typeof" | "var" | "void" | "while" | "with" | "implements" | "interface" | "let" | "package" | "private" | "protected" | "public" | "static" | "yield") ~id_continue
+  reserved = reserved_block | reserved_operators | reserved_inline | reserved_primitive | reserved_javascript
+
+  char = letter | "_"
+  word = char+ (number char*)*
+  identifierWord = ~reserved word
+  identifierNumber = char* (number char*)+
+  identifierWords = identifierWord (whitespace (identifierWord | identifierNumber))*
+  identifier = identifierWords
+  identOrWord = identifier | word
+
+  Property
+    = "@" identOrWord -- identifier
+    | "@" Symbol -- symbol
+    | "@" "[" Expression "]" -- computed
+
+  StaticProperty
+    = "@@" identOrWord -- identifier
+    | "@@" Symbol -- symbol
+    | "@@" "[" Expression "]" -- computed
+
+  Symbol
+    = "#" SymbolKey -- symbol_for
+    | "##" SymbolKey -- builtin_symbol
+
+  SymbolKey
+    = identOrWord -- name
+    | string -- string
+    | "[" Expression "]" -- computed
+
+  space += block_comment | line_comment
+  block_comment = "/*" (~"*/" any)* "*/"
+  line_comment = "//" (~("\r" | "\n") any)* &("\r" | "\n" | end)
+}
