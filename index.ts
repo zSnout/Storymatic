@@ -5,7 +5,7 @@ import ohm = require("ohm-js");
 let story = grammar as any as grammar.StorymaticGrammar;
 
 let semantics = story.createSemantics();
-export function js(text: string) {
+export function compile(text: string) {
   return semantics(story.match(text)).js();
 }
 
@@ -993,4 +993,4 @@ declare module "./grammar.js" {
   }
 }
 
-export { story, semantics };
+export { story as grammar, semantics };

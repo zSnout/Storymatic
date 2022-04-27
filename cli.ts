@@ -1,6 +1,6 @@
 import { Recoverable, start } from "repl";
 import { runInContext } from "vm";
-import { semantics, story } from "./index.js";
+import { semantics, grammar } from "./index.js";
 
 if (process.argv[2] == "-c" || process.argv[2] == "--compile") {
   console.log("Welcome to the Storymatic compiler REPL.");
@@ -10,7 +10,7 @@ if (process.argv[2] == "-c" || process.argv[2] == "--compile") {
     prompt: "\n> ",
     eval(cmd, _context, _file, cb) {
       try {
-        let match = story.match(cmd);
+        let match = grammar.match(cmd);
         if (match.failed()) {
           throw new Recoverable(new Error(match.shortMessage));
         }
@@ -39,7 +39,7 @@ if (process.argv[2] == "-c" || process.argv[2] == "--compile") {
     prompt: "> ",
     eval(cmd, context, _file, cb) {
       try {
-        let match = story.match(cmd);
+        let match = grammar.match(cmd);
         if (match.failed()) {
           cb(new Recoverable(new Error(match.shortMessage)), null);
           return;
