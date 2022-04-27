@@ -1,6 +1,8 @@
 import { randomUUID } from "crypto";
-import story, { StorymaticActionDict } from "./grammar.js";
+import * as grammar from "./grammar.js";
 import ohm = require("ohm-js");
+
+let story = grammar as any as grammar.StorymaticGrammar;
 
 let semantics = story.createSemantics();
 export function js(text: string) {
@@ -178,7 +180,7 @@ function sepBy(node: ohm.NonterminalNode, text = ", ") {
   return joinWith(node.asIteration().children, text);
 }
 
-let actions: StorymaticActionDict<Node> = {
+let actions: grammar.StorymaticActionDict<Node> = {
   _terminal() {
     return createNode(this.sourceString);
   },
