@@ -220,18 +220,15 @@ Storymatic {
     = Expression
     | "..." Expression -- spread_operator
 
-  Parameter = identifier "?"? ":" Type
-  RestParameter = "..." identifier ":" Type
+  Parameter = AssignableWithTypeOrDefault<NonCapturingAssignable>
   
+  RestParameter
+    = "..." NonCapturingAssignable ":" Type -- with_type
+    | "..." NonCapturingAssignable -- without_type
+
   ParameterList
     = NonemptyListOf<Parameter, #expressionTerminator> (#expressionTerminator RestParameter)? -- params
     | RestParameter -- rest_params
-
-  ParameterList = NonemptyListOf<Parameter, ","> ","?
-
-  Parameter
-    = AssignableWithDefault<NonCapturingAssignable> ("?"? ":" Type)? -- parameter
-    | "..." NonCapturingAssignable (":" Type)? -- rest_operator
 
   NotExp
     = "!" NotExp -- logical_not_symbolic
@@ -298,6 +295,12 @@ Storymatic {
   TypedVariableAssignment = NonCapturingAssignable ":" Type "=" Expression
 
   AssignableOrAccessor = NonAssignableAccessor | ~"@" Assignable ~("." | "[")
+
+  AssignableWithTypeOrDefault<AssignableType>
+    = AssignableType ":" Type "=" Expression -- type_and_default
+    | AssignableType "?"? ":" Type -- type_only
+    | AssignableType "=" Expression -- default_only
+    | AssignableType
 
   AssignableWithDefault<AssignableType>
     = AssignableType "=" Expression -- with_default
@@ -374,7 +377,7 @@ Storymatic {
   string_interpolatable<delimeter> = delimeter string_interpolatable_bit<delimeter>* delimeter
   string_type_interpolatable<delimeter> = delimeter string_type_interpolatable_bit<delimeter>* delimeter
   string_full<delimeter> = delimeter string_bit<delimeter>* delimeter
-  
+
   string = string_interpolatable<"\""> | string_interpolatable<"'">
   string_non_interpolatable = string_full<"\""> | string_full<"'">
   string_type = string_type_interpolatable<"\""> | string_type_interpolatable<"'">
@@ -478,7 +481,7 @@ Storymatic {
 
   TypeParameter = identifier "?"? ":" Type
   TypeRestParameter = "..." identifier ":" Type
-  
+
   TypeParameterList
     = NonemptyListOf<TypeParameter, #expressionTerminator> (#expressionTerminator TypeRestParameter)? -- params
     | TypeRestParameter -- rest_params
