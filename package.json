@@ -5,7 +5,7 @@
   "license": "GPL-3",
   "version": "1.0.0",
   "scripts": {
-    "build": "tsc -b; ohm generateBundles --withTypes grammar.ohm && mv grammar.ohm-bundle.js dist/grammar.js && mv grammar.ohm-bundle.d.ts grammar.d.ts"
+    "build": "tsc -b; ohm generateBundles --withTypes src/grammar.ohm && mv src/grammar.ohm-bundle.js dist/grammar.js && mv src/grammar.ohm-bundle.d.ts dist/grammar.d.ts"
   },
   "repository": {
     "type": "git",
