@@ -24,6 +24,10 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   ElseIfStatement?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   ElseStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   thenOrDo?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  ElseIfKeyword_else_if?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode) => T;
+  ElseIfKeyword_else_unless?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
+  ElseIfKeyword_elif?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  ElseIfKeyword?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   SwitchStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode) => T;
   CaseClause?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   CaseStatement?: (this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) => T;
@@ -34,10 +38,10 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TryStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode) => T;
   CatchStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: NonterminalNode) => T;
   FinallyStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
-  ElseIfKeyword_else_if?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode) => T;
-  ElseIfKeyword_else_unless?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
-  ElseIfKeyword_elif?: (this: NonterminalNode, arg0: TerminalNode) => T;
-  ElseIfKeyword?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  EnumStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: IterationNode, arg5: TerminalNode) => T;
+  EnumMember_auto_assign?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  EnumMember_assigned?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
+  EnumMember?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Statement_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   Statement_print?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_throw?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;

@@ -20,6 +20,11 @@ Storymatic {
   ElseStatement = "else" #(space+) UnprefixedSingleStatementBlock
   thenOrDo = "then" | "do"
 
+    ElseIfKeyword
+    = "else" "if" -- else_if
+    | "else" #(space+) "unless" -- else_unless
+    | "elif" -- elif
+
   SwitchStatement = "switch" #(space+) Expression "{" CaseStatement* DefaultStatement? "}"
   CaseClause = "case" #(space+) Expression CaseTerminator
   CaseStatement = CaseClause+ UnprefixedSingleStatementBlock
@@ -33,10 +38,10 @@ Storymatic {
   CatchStatement = "catch" #(space+) (identifier #(space+) "of" #(space+))? UnprefixedSingleStatementBlock
   FinallyStatement = "finally" #(space+) UnprefixedSingleStatementBlock
 
-  ElseIfKeyword
-    = "else" "if" -- else_if
-    | "else" #(space+) "unless" -- else_unless
-    | "elif" -- elif
+  EnumStatement = "enum" #(space+) identifier "{" EnumMember* "}"
+  EnumMember
+    = MethodName #expressionTerminator -- auto_assign
+    | MethodName "=" Expression #expressionTerminator -- assigned
 
   Statement
     = ~("{" "}") Expression #statementTerminator -- expression
@@ -45,6 +50,7 @@ Storymatic {
     | BlockFunction
     | ClassDeclaration
     | SwitchStatement
+    | EnumStatement
     | "print" #(space+) Expression #statementTerminator -- print
     | "throw" #(space+) Expression #statementTerminator -- throw
     | "repeat" #(space+) Expression SingleStatementBlock<"do"> -- repeat

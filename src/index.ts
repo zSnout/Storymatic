@@ -377,6 +377,17 @@ let actions: grammar.StorymaticActionDict<Node> = {
   ElseStatement(_0, _1, node) {
     return makeNode` else ${node.js().trim()}`;
   },
+  EnumMember_assigned(key, _0, value, _1) {
+    return makeNode`${key.js()}: ${value.js()}`;
+  },
+  EnumMember_auto_assign(key, _) {
+    return makeNode`${key.js()}: Symbol()`;
+  },
+  EnumStatement(_0, _1, ident, _2, members, _3) {
+    return makeNode`let ${ident.js()} = {
+  ${indent(joinWith(members.children, ",\n"))}
+}`;
+  },
   EqualityExp_equal_to(nodeA, _, nodeB) {
     let [a, b] = createNodes(nodeA, nodeB);
     return makeNode`${a} === ${b}`;
