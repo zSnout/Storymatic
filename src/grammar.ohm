@@ -419,7 +419,7 @@ Storymatic {
     = "string" | "number" | "boolean" | "true" | "false" | "bigint" | "symbol"
     | "object" | "null" | "undefined" | "void" | "any" | "unknown"
 
-  FinalType
+  LiteralType
     = PrimitiveType ~(id_continue | ".")
     | string_non_interpolatable
     | string_type
@@ -436,7 +436,7 @@ Storymatic {
     | "[" ListOf<NamedTupleElement, #expressionTerminator> "]" -- named_tuple
     | "[" ListOf<TupleElement, #expressionTerminator> "]" -- tuple
     | "{" ListOf<TypeObjectEntry, #typeTerminator> "}" -- object
-    | FinalType
+    | LiteralType
 
   NamedTupleElement
     = identOrWord "?"? ":" Type -- name_value
