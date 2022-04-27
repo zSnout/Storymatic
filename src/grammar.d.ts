@@ -151,7 +151,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Argument_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   Argument?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ParameterList?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
-  Parameter_rest_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
+  Parameter_parameter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode) => T;
+  Parameter_rest_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode) => T;
   Parameter?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   NotExp_logical_not_symbolic?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   NotExp_logical_not_worded?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;

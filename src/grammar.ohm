@@ -172,7 +172,7 @@ Storymatic {
     | "fn" #(space+) prefix MethodName #(space+) "of" #(space+) ParameterList FunctionBody -- with_params
 
   FunctionBody
-    = ":" Expression -- expression
+    = "do" Expression -- expression
     | WrappedStatementBlock
 
   MethodName
@@ -218,8 +218,8 @@ Storymatic {
   ParameterList = ListOf<Parameter, ","> ","?
 
   Parameter
-    = AssignableWithDefault<NonCapturingAssignable>
-    | "..." NonCapturingAssignable -- rest_operator
+    = AssignableWithDefault<NonCapturingAssignable> ("?"? ":" Type)? -- parameter
+    | "..." NonCapturingAssignable (":" Type)? -- rest_operator
 
   NotExp
     = "!" NotExp -- logical_not_symbolic
