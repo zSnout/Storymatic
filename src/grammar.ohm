@@ -475,4 +475,11 @@ Storymatic {
 
   TypeDeclaration
     = "type" #(space+) identifier "=" Type #statementTerminator
+
+  TypeParameter = identifier "?"? ":" Type
+  TypeRestParameter = "..." identifier ":" Type
+  
+  TypeParameterList
+    = NonemptyListOf<TypeParameter, #expressionTerminator> (#expressionTerminator TypeRestParameter)? -- params
+    | TypeRestParameter -- rest_params
 }
