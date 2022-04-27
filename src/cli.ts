@@ -21,7 +21,8 @@ Options:
       try {
         ({ output } = compileText(cmd));
       } catch {
-        throw new Recoverable(new SyntaxError());
+        cb(new Recoverable(new SyntaxError()), null);
+        return;
       }
 
       cb(null, output.replace('"use strict";\n', ""));
