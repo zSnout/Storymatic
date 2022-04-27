@@ -2,7 +2,7 @@
   "compilerOptions": {
     "strict": true,
     "target": "ES6",
-    "lib": ["ES6", "DOM"],
+    "lib": ["ES6"],
     "module": "CommonJS",
     "outDir": "./dist",
     "moduleResolution": "node"
