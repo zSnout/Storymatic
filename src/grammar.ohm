@@ -38,7 +38,7 @@ Storymatic {
   CatchStatement = "catch" #(space+) (identifier #(space+) "of" #(space+))? UnprefixedSingleStatementBlock
   FinallyStatement = "finally" #(space+) UnprefixedSingleStatementBlock
 
-  EnumStatement = "enum" #(space+) identifier "{" EnumMember* "}" #statementTerminator
+  EnumStatement = "enum" #(space+) identifier "{" EnumMember* "}"
   EnumMember
     = MethodName #expressionTerminator -- auto_assign
     | MethodName "=" Expression #expressionTerminator -- assigned
@@ -474,7 +474,7 @@ Storymatic {
     | IntersectionType
 
   InterfaceDeclaration
-    = "interface" #(space+) identifier "{" ListOf<TypeObjectEntry, #typeTerminator> "}" #statementTerminator
+    = "interface" #(space+) identifier "{" ListOf<TypeObjectEntry, #typeTerminator> "}"
 
   TypeDeclaration
     = "type" #(space+) identifier "=" Type #statementTerminator

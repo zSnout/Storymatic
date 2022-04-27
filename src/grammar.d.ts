@@ -38,7 +38,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TryStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode) => T;
   CatchStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: NonterminalNode) => T;
   FinallyStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
-  EnumStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: IterationNode, arg5: TerminalNode, arg6: NonterminalNode) => T;
+  EnumStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: IterationNode, arg5: TerminalNode) => T;
   EnumMember_auto_assign?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   EnumMember_assigned?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   EnumMember?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -315,7 +315,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   IntersectionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnionType_union?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   UnionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  InterfaceDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: TerminalNode, arg6: NonterminalNode) => T;
+  InterfaceDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: TerminalNode) => T;
   TypeDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: NonterminalNode) => T;
   TypeParameter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
   TypeRestParameter?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
