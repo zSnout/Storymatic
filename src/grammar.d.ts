@@ -69,10 +69,11 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Statement_export?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_export_default?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_export_class?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
-  Statement_export_variable?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
+  Statement_export_variable?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_export_function?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   Statement_rescope?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_rescope_assign?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
+  Statement_typed_assignment?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: TerminalNode, arg8: IterationNode, arg9: TerminalNode) => T;
   ClassElement_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -192,7 +193,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   AssignmentExp_yield?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   AssignmentExp_yield_from?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode | NonterminalNode, arg2: TerminalNode, arg3: IterationNode | NonterminalNode, arg4: NonterminalNode) => T;
   AssignmentExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  VariableAssignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
+  VariableAssignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
+  TypedVariableAssignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
   AssignableOrAccessor?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AssignableWithDefault_with_default?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AssignableWithDefault?: (this: NonterminalNode, arg0: Node) => T;
