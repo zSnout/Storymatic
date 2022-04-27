@@ -899,6 +899,7 @@ let actions: grammar.StorymaticActionDict<Node> = {
   },
   string_bit_character(char) {
     if (char.sourceString == "$") return createNode("\\$");
+    if (char.sourceString == "`") return createNode("\\`");
     if (char.sourceString == "\n") return createNode("\\n");
     if (char.sourceString == "\r") return createNode("\\r");
     return createNode(char.sourceString);
