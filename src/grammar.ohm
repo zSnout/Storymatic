@@ -80,10 +80,11 @@ Storymatic {
     | "export" #(space+) NonemptyListOf<ExportableItemName, ","> #statementTerminator -- export
     | "export" "*" Expression #statementTerminator -- export_default
     | "export" #(space+) ClassDeclaration -- export_class
-    | "export" #(space+) VariableAssignment -- export_variable
+    | "export" #(space+) VariableAssignment #statementTerminator -- export_variable
     | "export" #(space+) BlockFunction -- export_function
     | "rescope" #(space+) NonemptyListOf<identifier, ","> #statementTerminator -- rescope
     | "rescope" #(space+) VariableAssignment #statementTerminator -- rescope_assign
+    | TypedVariableAssignment -- typed_assignment
 
   ClassDeclaration = "class" #(space+) identifier (#(space+) "extends" #(space+) Expression)? "{" ClassElement* "}"
 
@@ -107,24 +108,24 @@ Storymatic {
 
   statementTerminator
     = spaces ";" -- semicolon
-    | spaces &reserved_block -- keyword
-    | spaces &"}" -- block_end
-    | spaces end -- script_end
-    | lineTerminator -- newline
+    | terminator
 
   expressionTerminator
     = spaces "," -- comma
-    | spaces &reserved_block -- keyword
-    | spaces &"}" -- block_end
-    | spaces end -- script_end
-    | lineTerminator -- newline
+    | terminator
+
+  typeTerminator
+    = spaces "," -- comma
+    | spaces ";" -- semicolon
+    | terminator
 
   colonTerminator
-    = spaces ":" -- comma
-    | spaces &reserved_block -- keyword
-    | spaces &"}" -- block_end
-    | spaces end -- script_end
-    | lineTerminator -- newline
+    = spaces ":" -- colon
+    | terminator
+
+  terminator
+    = (spaces &reserved_block | spaces &"}" | spaces end) -- implied
+    | lineTerminator
 
   lineTerminator = whitespace? ("\r\n" | "\n")+ spaces ~lineContinuer
   lineContinuer
@@ -281,7 +282,8 @@ Storymatic {
     | "yield" #(space+ "from" space+ | spaces "*" spaces) AssignmentExp -- yield_from
     | TernaryExp
 
-  VariableAssignment = NonCapturingAssignable "=" Expression
+  VariableAssignment = NonCapturingAssignable (":" Type)? "=" Expression
+  TypedVariableAssignment = NonCapturingAssignable ":" Type "=" Expression
 
   AssignableOrAccessor = NonAssignableAccessor | ~"@" Assignable ~("." | "[")
 
@@ -353,10 +355,17 @@ Storymatic {
     = string_bit<delimeter>
     | "{" applySyntactic<Expression> "}" -- interpolated
 
+  string_type_interpolatable_bit<delimeter>
+    = string_bit<delimeter>
+    | "{" applySyntactic<Type> "}" -- interpolated
+
   string_interpolatable<delimeter> = delimeter string_interpolatable_bit<delimeter>* delimeter
+  string_type_interpolatable<delimeter> = delimeter string_type_interpolatable_bit<delimeter>* delimeter
   string_full<delimeter> = delimeter string_bit<delimeter>* delimeter
+  
   string = string_interpolatable<"\""> | string_interpolatable<"'">
   string_non_interpolatable = string_full<"\""> | string_full<"'">
+  string_type = string_type_interpolatable<"\""> | string_type_interpolatable<"'">
 
   reserved_block = ("if" | "elif" | "else" ~"if" | "elseif" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "step" | "to" | "through" | "return" | "break" | "continue" | "fn" | "when" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "rescope" | "down") ~id_continue
   reserved_operators = ("and" | "or" | "not" | "is" ~"nt" | "isnt" | "with") ~id_continue
@@ -398,4 +407,53 @@ Storymatic {
   space += block_comment | line_comment
   block_comment = "/*" (~"*/" any)* "*/"
   line_comment = "//" (~("\r" | "\n") any)* &("\r" | "\n" | end)
+
+  Type = UnionType
+
+  PrimitiveType
+    = "string" | "number" | "boolean" | "true" | "false" | "bigint" | "symbol"
+    | "object" | "null" | "undefined" | "void" | "any" | "unknown"
+
+  FinalType
+    = PrimitiveType ~(id_continue | ".")
+    | string_non_interpolatable
+    | string_type
+    | decimalNumber
+    | bigint
+    | identifier ~("." | "<") -- identifier
+    | "(" Type ")" -- parenthesized
+    | identifier "." &identifier Type -- namespace
+    | identifier "<" NonemptyListOf<Type, ","> ">" -- type_args
+
+  MemberAccessType
+    = MemberAccessType "[" Type "]" -- member_access
+    | MemberAccessType "[" "]" -- array
+    | "[" ListOf<NamedTupleElement, #expressionTerminator> "]" -- named_tuple
+    | "[" ListOf<TupleElement, #expressionTerminator> "]" -- tuple
+    | "{" ListOf<TypeObjectEntry, #typeTerminator> "}" -- object
+    | FinalType
+
+  NamedTupleElement
+    = identOrWord "?"? ":" Type -- name_value
+    | "..." identOrWord ":" Type -- spread_operator
+
+  TupleElement
+    = Type "?"? -- value
+    | "..." Type -- spread_operator
+
+  TypeObjectKey
+    = identOrWord -- identifier
+    | string_non_interpolatable -- string
+    | string_type -- template_literal
+    | "[" Accessor "]" -- computed_accessor
+
+  TypeObjectEntry = TypeObjectKey ":" Type
+
+  IntersectionType
+    = IntersectionType "&" PrimitiveType -- intersection
+    | MemberAccessType
+
+  UnionType
+    = UnionType "|" IntersectionType -- union
+    | IntersectionType
 }
