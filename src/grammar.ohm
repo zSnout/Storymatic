@@ -220,7 +220,7 @@ Storymatic {
     = Expression
     | "..." Expression -- spread_operator
 
-  ParameterList = ListOf<Parameter, ","> ","?
+  ParameterList = NonemptyListOf<Parameter, ","> ","?
 
   Parameter
     = AssignableWithDefault<NonCapturingAssignable> ("?"? ":" Type)? -- parameter
