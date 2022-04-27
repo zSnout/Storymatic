@@ -3,7 +3,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "GPL-3",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "build": "tsc -b; ohm generateBundles --withTypes src/grammar.ohm; mv src/grammar.ohm-bundle.js dist/grammar.js; cat src/grammar.ohm-bundle.d.ts > src/grammar.d.ts; mv src/grammar.ohm-bundle.d.ts src/grammar.d.ts"
   },
