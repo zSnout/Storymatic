@@ -4,6 +4,10 @@
     "grammar": "mkdir dist; ohm generateBundles --withTypes grammar.ohm && mv grammar.ohm-bundle.js dist/grammar.js && mv grammar.ohm-bundle.d.ts grammar.d.ts",
     "build": "npm run grammar; tsc -b"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zsnout/storymatic"
+  },
   "bin": {
     "sm": "./bin/sm"
   },
