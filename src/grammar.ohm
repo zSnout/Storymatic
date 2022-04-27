@@ -220,6 +220,13 @@ Storymatic {
     = Expression
     | "..." Expression -- spread_operator
 
+  Parameter = identifier "?"? ":" Type
+  RestParameter = "..." identifier ":" Type
+  
+  ParameterList
+    = NonemptyListOf<Parameter, #expressionTerminator> (#expressionTerminator RestParameter)? -- params
+    | RestParameter -- rest_params
+
   ParameterList = NonemptyListOf<Parameter, ","> ","?
 
   Parameter
