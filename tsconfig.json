@@ -4,7 +4,9 @@
     "target": "ES6",
     "lib": ["ES6"],
     "module": "CommonJS",
+    "rootDir": "./src",
     "outDir": "./dist",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "declaration": true
   }
 }
