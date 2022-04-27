@@ -5,9 +5,16 @@ import ohm = require("ohm-js");
 let story = grammar as any as grammar.StorymaticGrammar;
 let semantics = story.createSemantics();
 
-export function compileText(text: string) {
+export function compileText(text: string, options: CompileOptions = {}) {
+  flags = Object.create(null, {
+    commonjs: { value: options.commonjs || false },
+    typescript: { value: options.typescript || false },
+  });
+
   return semantics(story.match(text)).js();
 }
+
+export interface CompileOptions extends Partial<Flags> {}
 
 interface Node {
   output: string;
@@ -109,7 +116,13 @@ interface Scope {
   contains: string[];
 }
 
+interface Flags {
+  commonjs: boolean;
+  typescript: boolean;
+}
+
 let scopeMap: Record<string, Scope> = Object.create(null);
+let flags: Flags = Object.create(null);
 
 function scopeVars(node: Node) {
   let uuid = randomUUID();
@@ -220,11 +233,27 @@ let actions: grammar.StorymaticActionDict<Node> = {
   Argument_spread_operator(_, node) {
     return makeNode`...${node.js()}`;
   },
+  AssignableKeyWithRewrite_rewrite(key, _, assignable) {
+    return makeNode`${key.js()}: ${assignable.js()}`;
+  },
   AssignableWithDefault_with_default(assignable, _, expression) {
     return makeNode`${assignable.js()} = ${expression.js()}`;
   },
-  AssignableKeyWithRewrite_rewrite(key, _, assignable) {
-    return makeNode`${key.js()}: ${assignable.js()}`;
+  AssignableWithTypeOrDefault_default_only(assignable, _, expr) {
+    return makeNode`${assignable.js()} = ${expr.js()}`;
+  },
+  AssignableWithTypeOrDefault_type_and_default(assignable, _0, type, _1, expr) {
+    if (flags.typescript)
+      return makeNode`${assignable.js()}: ${type.js()} = ${expr.js()}`;
+
+    return makeNode`/** @type {${type.js()}} */ ${assignable.js()} = ${expr.js()}`;
+  },
+  AssignableWithTypeOrDefault_type_only(assignable, optMark, _, type) {
+    if (flags.typescript)
+      return makeNode`${assignable.js()}${optMark.sourceString}: ${type.js()}`;
+
+    let union = optMark.sourceString && " | undefined";
+    return makeNode`/** @type {${type.js()}${union}} */ ${assignable.js()}`;
   },
   Assignable_array(_0, varNodes, _1, _2, spreadNode, _3, _4) {
     let nodes = createNodes(...varNodes.asIteration().children);
@@ -654,11 +683,11 @@ let actions: grammar.StorymaticActionDict<Node> = {
   ObjectEntry_spread_operator(_, expr) {
     return makeNode`...${expr.js()}`;
   },
-  ParameterList(node, _) {
-    return sepBy(node);
+  ParameterList_params(params, _, rest) {
+    return makeNode`${sepBy(params, ", ")}, ${rest.js()}`;
   },
-  Parameter_rest_operator(_, node) {
-    return makeNode`...${node.js()}`;
+  ParameterList_rest_params(rest) {
+    return rest.js();
   },
   Property_computed(_0, _1, node, _2) {
     return makeNode`$self[${node.js()}]`;
@@ -668,6 +697,13 @@ let actions: grammar.StorymaticActionDict<Node> = {
   },
   Property_symbol(_, node) {
     return makeNode`$self[${node.js()}]`;
+  },
+  RestParameter_with_type(_0, assignable, _1, type) {
+    if (flags.typescript) return makeNode`...${assignable.js()}: ${type.js()}`;
+    return makeNode`/** @type {${type.js()}} */ ...${assignable.js()}`;
+  },
+  RestParameter_without_type(_, assignable) {
+    return makeNode`...${assignable.js()}`;
   },
   Script(node) {
     scopeMap = Object.create(null);
