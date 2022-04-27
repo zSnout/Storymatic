@@ -1,8 +1,8 @@
 {
   "name": "storymatic",
+  "main": "dist/index.js",
   "scripts": {
-    "grammar": "mkdir dist; ohm generateBundles --withTypes grammar.ohm && mv grammar.ohm-bundle.js dist/grammar.js && mv grammar.ohm-bundle.d.ts grammar.d.ts",
-    "build": "npm run grammar; tsc -b"
+    "build": "tsc -b; ohm generateBundles --withTypes grammar.ohm && mv grammar.ohm-bundle.js dist/grammar.js && mv grammar.ohm-bundle.d.ts grammar.d.ts"
   },
   "repository": {
     "type": "git",
