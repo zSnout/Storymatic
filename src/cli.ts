@@ -115,14 +115,14 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
 
       try {
         node = compile(cmd);
-        output = transpile(node, args);
+        if (mode != "ast")
+          output = transpile(node, args).replace('"use strict";\n', "");
       } catch (e) {
         if (args.debug) console.log(e);
         cb(new Recoverable(new SyntaxError()), null);
         return;
       }
 
-      output = output.replace('"use strict";\n', "");
       if (mode == "repl") output = runInContext(output, context);
       if (mode == "ast") output = node;
       cb(null, output);
