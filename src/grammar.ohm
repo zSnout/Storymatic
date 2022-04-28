@@ -458,6 +458,7 @@ Storymatic {
     | JSXAttributeKey "=" string_non_interpolatable -- value_string
     | JSXAttributeKey "=" string -- value_computed_string
     | JSXAttributeKey "=" "{" Expression "}" -- value_expression
+    | "{" "..." Expression "}" -- spread_attributes
 
   JSXAttributeKey = NonemptyListOf<word, "-">
 
