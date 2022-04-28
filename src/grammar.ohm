@@ -91,13 +91,21 @@ Storymatic {
     | "rescope" #(space+) VariableAssignment #statementTerminator -- rescope_assign
     | TypedVariableAssignment -- typed_assignment
 
-  ClassDeclaration = "class" #(space+) identifier (#(space+) "extends" #(space+) Expression)? "{" ClassElement* "}"
+  ClassDeclaration
+    = "class" #(space+) identifier GenericTypeParameterList?
+      (#(space+) "extends" #(space+) Expression)?
+      (#(space+) "implements" #(space+) NonemptyListOf<Implementable, #expressionTerminator>)?
+      "{" ClassElement* "}"
 
   ClassElement
     = Method<"@"> -- method
     | Method<"@@"> -- static_method
-    | "@" MethodName "=" Expression #statementTerminator -- property
-    | "@@" MethodName "=" Expression #statementTerminator -- static_property
+    | (("public" | "protected" | "private") #(space+))? ("readonly" #(space+))?
+      "@" MethodName ("!"? ":" Type)? ("=" Expression)? #statementTerminator -- property
+    | (("public" | "protected" | "private") #(space+))? ("readonly" #(space+))?
+      "@@" MethodName ("!"? ":" Type)? ("=" Expression)? #statementTerminator -- static_property
+    | ("readonly" #(space+))? "@" IndexSignatureType #statementTerminator -- index_signature
+    | ("readonly" #(space+))? "@@" IndexSignatureType #statementTerminator -- static_index_signature
 
   importLocation
     = (~(space | "\\" | "\"" | "\'" | statementTerminator) any)+ &statementTerminator -- filename
@@ -166,19 +174,22 @@ Storymatic {
     | "..." Expression -- spread_operator
 
   InlineFunction
-    = "fn" FunctionBody -- no_params
-    | "fn" #(space+) "of" #(space+) ParameterList FunctionBody -- with_params
+    = "fn" GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
+    | "fn" GenericTypeParameterList? #(space+)
+      "of" #(space+) ParameterList ("=>" Type)? FunctionBody -- with_params
 
   BlockFunction
-    = "fn" #(space+) identifier FunctionBody -- no_params
-    | "fn" #(space+) identifier #(space+) "of" #(space+) ParameterList FunctionBody -- with_params
+    = "fn" #(space+) identifier GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
+    | "fn" #(space+) identifier GenericTypeParameterList? #(space+)
+      "of" #(space+) ParameterList ("=>" Type)? FunctionBody -- with_params
 
   Method<prefix>
-    = "fn" #(space+) prefix MethodName FunctionBody -- no_params
-    | "fn" #(space+) prefix MethodName #(space+) "of" #(space+) ParameterList FunctionBody -- with_params
+    = "fn" #(space+) prefix MethodName GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
+    | "fn" #(space+) prefix MethodName GenericTypeParameterList? #(space+)
+      "of" #(space+) ParameterList ("=>" Type)? FunctionBody -- with_params
 
   FunctionBody
-    = "do" Expression -- expression
+    = "return" #(space+) Expression -- expression
     | WrappedStatementBlock
 
   MethodName
@@ -197,8 +208,10 @@ Storymatic {
     | Method<"@"> -- object_method_with_self
 
   ClassCreationExp
-    = "new" #(space+) ClassCreationExp "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #(space+) ClassCreationExp ~"(" #((~("\r\n" | "\n") space)+) ~(identifier | "+" | "-" | "<" | "{" "}") ArgumentList -- class_creation_implied
+    = "new" #(space+) ClassCreationExp GenericTypeArgumentList?
+      "(" ArgumentList ")" -- class_creation_symbolic
+    | "new" #(space+) ClassCreationExp ~"(" #((~("\r\n" | "\n") space)+)
+      ~(identifier | "+" | "-" | "<" | "{" "}") ArgumentList -- class_creation_implied
     | "new" #(space+) ClassCreationExp -- class_creation_no_args
     | LiteralExp
 
@@ -209,7 +222,7 @@ Storymatic {
     | MemberAccessExp "?." Symbol -- optional_chaining_symbol_access
     | MemberAccessExp "[" MemberAccessExp "]" -- computed_member_access
     | MemberAccessExp "?." "[" MemberAccessExp "]" -- optional_chaining_computed_member_access
-    | MemberAccessExp "(" ArgumentList ")" -- function_call
+    | MemberAccessExp GenericTypeArgumentList? "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?." "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp #((~("\r\n" | "\n") space)+) ~(identifier | "+" | "-" | "<" | "{" "}") NonEmptyArgumentList -- function_call_implied
     | ClassCreationExp
@@ -455,7 +468,12 @@ Storymatic {
 
   PrimitiveType
     = "string" | "number" | "boolean" | "true" | "false" | "bigint" | "symbol"
-    | "object" | "null" | "undefined" | "void" | "any" | "unknown"
+    | "object" | "null" | "undefined" | "void" | "any" | "unknown" | "this"
+
+  Implementable
+    = identifier ~("." | "<") -- identifier
+    | identifier "." &identifier Type -- qualified_name
+    | identifier "<" NonemptyListOf<Type, ","> ">" -- type_args
 
   LiteralType
     = PrimitiveType ~(id_continue | ".")
@@ -464,9 +482,11 @@ Storymatic {
     | decimalNumber
     | bigint
     | identifier ~("." | "<") -- identifier
-    | "(" Type ")" -- parenthesized
-    | identifier "." &identifier Type -- namespace
+    | identifier "." &identifier Type -- qualified_name
     | identifier "<" NonemptyListOf<Type, ","> ">" -- type_args
+    | "fn" #(space+) "=>" Type -- function_no_params
+    | "fn" #(space+) "of" #(space+) TypeParameterList "=>" Type -- function_with_params
+    | "(" Type ")" -- parenthesized
 
   MemberAccessType
     = MemberAccessType "[" Type "]" -- member_access
@@ -491,7 +511,8 @@ Storymatic {
     | "[" Accessor "]" -- computed_accessor
 
   TypeObjectEntry
-    = ("readonly" #(space+))? TypeObjectKey ":" Type
+    = ("readonly" #(space+))? TypeObjectKey ":" Type -- key_value
+    | IndexSignatureType
 
   IntersectionType
     = IntersectionType "&" PrimitiveType -- intersection
@@ -502,10 +523,14 @@ Storymatic {
     | IntersectionType
 
   InterfaceDeclaration
-    = "interface" #(space+) identifier "{" ListOf<TypeObjectEntry, #typeTerminator> "}"
+    = "interface" #(space+) identifier GenericTypeParameterList?
+      (#(space+) "extends" #(space+) NonemptyListOf<Implementable, #expressionTerminator>)?
+      "{" ListOf<TypeObjectEntry, #typeTerminator> "}"
+
+  IndexSignatureType = "[" identifier ":" Type "]" ":" Type
 
   TypeDeclaration
-    = "type" #(space+) identifier "=" Type #statementTerminator
+    = "type" #(space+) identifier GenericTypeParameterList? "=" Type #statementTerminator
 
   TypeParameter = identifier "?"? ":" Type
   TypeRestParameter = "..." identifier ":" Type
@@ -513,4 +538,8 @@ Storymatic {
   TypeParameterList
     = NonemptyListOf<TypeParameter, #expressionTerminator> (#expressionTerminator TypeRestParameter)? -- params
     | TypeRestParameter -- rest_params
+
+  GenericTypeParameter = identifier (":" Type)? ("=" Type)?
+  GenericTypeParameterList = "<" NonemptyListOf<GenericTypeParameter, #expressionTerminator> ">"
+  GenericTypeArgumentList = "<" NonemptyListOf<Type, #expressionTerminator> ">"
 }
