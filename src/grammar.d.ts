@@ -13,7 +13,7 @@ import {
 
 export interface StorymaticActionDict<T> extends ActionDict<T> {
   Script?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WrappedStatementBlock?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
+  WrappedStatementBlock?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
   StatementBlock_statements?: (this: NonterminalNode, arg0: IterationNode) => T;
   StatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   SingleStatementBlock_single_statement?: (this: NonterminalNode, arg0: Node, arg1: IterationNode, arg2: NonterminalNode) => T;
@@ -302,6 +302,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   JSXAttribute_value_string?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   JSXAttribute_value_computed_string?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   JSXAttribute_value_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
+  JSXAttribute_spread_attributes?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
   JSXAttribute?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   JSXAttributeKey?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   JSXTagName_property_access?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
