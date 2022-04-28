@@ -144,6 +144,7 @@ Storymatic {
     | "{" listOf<ObjectEntry, expressionTerminator> ","? "}" -- object
     | InlineClassDeclaration
     | InlineFunction
+    | JSXElement
     | decimalNumber
     | unitNumber
     | hexNumber
@@ -197,7 +198,7 @@ Storymatic {
 
   ClassCreationExp
     = "new" #(space+) ClassCreationExp "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #(space+) ClassCreationExp ~"(" #((~("\r\n" | "\n") space)+) ~(identifier | "+" | "-" | "{" "}") ArgumentList -- class_creation_implied
+    | "new" #(space+) ClassCreationExp ~"(" #((~("\r\n" | "\n") space)+) ~(identifier | "+" | "-" | "<" | "{" "}") ArgumentList -- class_creation_implied
     | "new" #(space+) ClassCreationExp -- class_creation_no_args
     | LiteralExp
 
@@ -210,7 +211,7 @@ Storymatic {
     | MemberAccessExp "?." "[" MemberAccessExp "]" -- optional_chaining_computed_member_access
     | MemberAccessExp "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?." "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp #((~("\r\n" | "\n") space)+) ~(identifier | "+" | "-" | "{" "}") NonEmptyArgumentList -- function_call_implied
+    | MemberAccessExp #((~("\r\n" | "\n") space)+) ~(identifier | "+" | "-" | "<" | "{" "}") NonEmptyArgumentList -- function_call_implied
     | ClassCreationExp
 
   ArgumentList = ListOf<Argument, ",">
@@ -422,6 +423,31 @@ Storymatic {
   space += block_comment | line_comment
   block_comment = "/*" (~"*/" any)* "*/"
   line_comment = "//" (~("\r" | "\n") any)* &("\r" | "\n" | end)
+
+  JSXElement = "<" JSXTagName (#(space+) JSXAttribute*)? ">" JSXChild* "</" JSXTagName ">"
+
+  jsx_string_bit
+    = space+ -- space
+    | ~("<" | "{" | space) any -- character
+
+  jsx_string = jsx_string_bit+
+
+  JSXChild
+    = "{" Expression "}" -- interpolation
+    | JSXElement
+    | jsx_string
+
+  JSXAttribute
+    = JSXAttributeKey -- value_true
+    | JSXAttributeKey "=" string_non_interpolatable -- value_string
+    | JSXAttributeKey "=" string -- value_computed_string
+    | JSXAttributeKey "=" "{" Expression "}" -- value_expression
+
+  JSXAttributeKey = NonemptyListOf<word, "-">
+
+  JSXTagName
+    = JSXTagName "." word -- property_access
+    | word
 
   Type = UnionType
 
