@@ -237,7 +237,7 @@ Storymatic {
     | "..." Expression -- spread_operator
 
   Parameter = AssignableWithTypeOrDefault<NonCapturingAssignable>
-  
+
   RestParameter
     = "..." NonCapturingAssignable ":" Type -- with_type
     | "..." NonCapturingAssignable -- without_type
@@ -382,6 +382,10 @@ Storymatic {
     | "\\u" hexDigit hexDigit hexDigit hexDigit -- unicode_sequence
     | "\\u{" hexDigit+ "}" -- unicode_code_point_sequence
 
+  string_interpolatable_head<delimeter> = string_bit<delimeter>*
+  string_interpolatable_span<delimeter, interpolated>
+    = "{" interpolated "}" string_bit<delimeter>*
+
   string_interpolatable_bit<delimeter>
     = string_bit<delimeter>
     | "{" applySyntactic<Expression> "}" -- interpolated
@@ -390,13 +394,20 @@ Storymatic {
     = string_bit<delimeter>
     | "{" applySyntactic<Type> "}" -- interpolated
 
-  string_interpolatable<delimeter> = delimeter string_interpolatable_bit<delimeter>* delimeter
-  string_type_interpolatable<delimeter> = delimeter string_type_interpolatable_bit<delimeter>* delimeter
+  string_interpolatable<delimeter, interpolated>
+    = delimeter string_interpolatable_head<delimeter> string_interpolatable_span<delimeter, interpolated>* delimeter
+
   string_full<delimeter> = delimeter string_bit<delimeter>* delimeter
 
-  string = string_interpolatable<"\""> | string_interpolatable<"'">
   string_non_interpolatable = string_full<"\""> | string_full<"'">
-  string_type = string_type_interpolatable<"\""> | string_type_interpolatable<"'">
+
+  string
+    = string_interpolatable<"\"", applySyntactic<Expression>>
+    | string_interpolatable<"'", applySyntactic<Expression>>
+
+  string_type
+    = string_interpolatable<"\"", applySyntactic<Type>>
+    | string_interpolatable<"'", applySyntactic<Type>>
 
   reserved_block = ("if" | "elif" | "else" ~"if" | "elseif" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "step" | "to" | "through" | "return" | "break" | "continue" | "fn" | "when" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "rescope" | "down" | "type" | "interface") ~id_continue
   reserved_operators = ("and" | "or" | "not" | "is" ~"nt" | "isnt" | "with") ~id_continue
