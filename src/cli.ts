@@ -1,64 +1,107 @@
 import { Recoverable, start } from "repl";
-import { runInContext } from "vm";
+import { runInContext, runInNewContext } from "vm";
+import * as yargs from "yargs";
 import { compileText } from "./index.js";
 
-if (process.argv[2] == "-h" || process.argv[2] == "-help") {
-  console.log(`Usage: sm [options]
+let args = yargs
+  .scriptName("sm")
+  .option("typescript", {
+    alias: "t",
+    desc: "compile code to TypeScript",
+    type: "boolean",
+  })
+  .option("commonjs", {
+    alias: "c",
+    conflicts: "typescript",
+    desc: "compile modules to CommonJS",
+    type: "boolean",
+  })
+  .option("interactive", {
+    alias: "i",
+    desc: "enter the REPL",
+    type: "boolean",
+  })
+  .option("output", {
+    alias: "o",
+    desc: "show the transpiled code without executing",
+    type: "boolean",
+  })
+  .option("eval", {
+    alias: "e",
+    desc: "evaluate code",
+    type: "array",
+  })
+  .option("print", {
+    alias: "p",
+    desc: "evaluate script and print result",
+    type: "array",
+  })
+  .option("help", {
+    alias: "h",
+    desc: "open this help menu",
+  })
+  .option("src", {
+    alias: "s",
+    desc: "location of input files",
+    type: "string",
+  })
+  .option("dist", {
+    alias: "d",
+    desc: "location of output files",
+    type: "string",
+  })
+  .parseSync();
 
-Options:
-  -i, --interactive, no args               open the interactive REPL
-  -c, --compiler                           open the compiler REPL
-  -h, --help                               display this help menu`);
-} else if (process.argv[2] == "-c" || process.argv[2] == "--compile") {
-  console.log("Welcome to the Storymatic compiler REPL.");
-  console.log("Enter any expression to compile it and output the result.");
+if (process.stdin.isTTY) {
+  startREPL(args.output ? "noeval" : "repl");
+} else if (args.eval?.length || args.print?.length) {
+  let code = "";
+  if (args.eval?.length) code = `${args.eval[args.eval.length - 1]}`;
+  if (args.print?.length) code = `${args.print[args.print.length - 1]}`;
 
-  let repl = start({
-    prompt: "\n> ",
-    eval(cmd, _context, _file, cb) {
-      let output: string;
+  let compiled = compile(code);
 
-      try {
-        ({ output } = compileText(cmd));
-      } catch {
-        cb(new Recoverable(new SyntaxError()), null);
-        return;
-      }
+  if (args.output) {
+    if (args.print) console.log(compiled);
+  } else {
+    let result = execute(compiled);
+    if (args.print) console.log(result);
+  }
+} else {
+  // compile given files
+}
 
-      cb(null, output.replace('"use strict";\n', ""));
-    },
-    writer: (obj) => ("" + obj).trim(),
-  });
+function compile(text: string) {
+  return compileText(text, args);
+}
 
-  repl.defineCommand("clear", () => {
-    console.clear();
-    console.log("Welcome to the Storymatic compiler REPL.");
-    console.log("Enter any expression to compile it and output the result.");
-    process.stdout.write("\n> ");
-  });
-} else if (
-  process.argv[2] == "-i" ||
-  process.argv[2] == "--interactive" ||
-  process.argv.length == 2
-) {
+function execute(node: ReturnType<typeof compile>) {
+  if (args.typescript) {
+    throw "not implemented";
+  } else {
+    runInNewContext(node.output, undefined);
+  }
+}
+
+function startREPL(mode: "repl" | "noeval" = "repl") {
   console.log("Welcome to the Storymatic REPL.");
   console.log("Enter any expression to run it and output the result.");
 
   let repl = start({
     prompt: "> ",
     eval(cmd, context, _file, cb) {
-      let output: string;
+      let output: any;
 
       try {
-        ({ output } = compileText(cmd));
+        ({ output } = compile(cmd));
       } catch {
         cb(new Recoverable(new SyntaxError()), null);
         return;
       }
 
       output = output.replace('"use strict";\n', "");
-      let result = runInContext(output, context);
-      cb(null, result);
+      if (mode == "repl") output = runInContext(output, context);
+      cb(null, output);
     },
   });
 
