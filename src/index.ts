@@ -222,6 +222,41 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  MemberAccessExp_optional_chaining_member_access(target, qDot, key) {
+    return setTextRange(
+      ts.factory.createPropertyAccessChain(
+        target.ts() as any,
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+          qDot
+        ),
+        key.ts() as any
+      ),
+      this
+    );
+  },
+  MemberAccessExp_optional_chaining_symbol_access(target, qDot, symbol) {
+    return setTextRange(
+      ts.factory.createElementAccessChain(
+        target.ts() as any,
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+          qDot
+        ),
+        symbol.ts() as any
+      ),
+      this
+    );
+  },
+  MemberAccessExp_symbol_access(target, _, symbol) {
+    return setTextRange(
+      ts.factory.createElementAccessExpression(
+        target.ts() as any,
+        symbol.ts() as any
+      ),
+      this
+    );
+  },
   number(number) {
     return setTextRange(
       ts.factory.createNumericLiteral(number.sourceString),
@@ -268,6 +303,63 @@ semantics.addOperation<ts.Node>("ts", {
         0
       ),
       this
+    );
+  },
+  Symbol(node) {
+    return node.ts();
+  },
+  SymbolKey(node) {
+    return node.ts();
+  },
+  SymbolKey_computed(_0, expr, _1) {
+    return setTextRange(expr.ts(), this);
+  },
+  SymbolKey_name(ident) {
+    return setTextRange(
+      ts.factory.createStringLiteralFromNode(ident.ts() as ts.Identifier),
+      this
+    );
+  },
+  SymbolKey_string(str) {
+    return str.ts();
+  },
+  Symbol_builtin_symbol(hashMarks, key) {
+    return setTextRange(
+      ts.factory.createElementAccessExpression(
+        setTextRange(ts.factory.createIdentifier("Symbol"), hashMarks),
+        key.ts() as any
+      ),
+      this
+    );
+  },
+  Symbol_symbol_for(hashMark, key) {
+    let Symbol = setTextRange(ts.factory.createIdentifier("Symbol"), hashMark);
+    let _for = setTextRange(ts.factory.createIdentifier("for"), hashMark);
+    let Symbol_for = setTextRange(
+      ts.factory.createPropertyAccessExpression(Symbol, _for),
+      hashMark
+    );
+
+    return setTextRange(
+      ts.factory.createCallExpression(Symbol_for, undefined, [key.ts() as any]),
+      this
+    );
+  },
+  sign(_) {
+    throw new Error("`sign` nodes should never be evaluated directly.");
+  },
+  space(_) {
+    throw new Error("`space` nodes should never be evaluated directly.");
+  },
+  statementTerminator(_) {
+    return setTextRange(
+      ts.factory.createToken(ts.SyntaxKind.SemicolonToken),
+      this
+    );
+  },
+  statementTerminator_semicolon(_0, _1) {
+    throw new Error(
+      "`statementTerminator_semicolon` nodes should never be evaluated directly."
     );
   },
   unitNumber(number, identifier) {
