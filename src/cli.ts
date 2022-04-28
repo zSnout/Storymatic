@@ -48,12 +48,12 @@ let args = yargs
   .option("eval", {
     alias: "e",
     desc: "evaluate code",
-    type: "array",
+    type: "string",
   })
   .option("print", {
     alias: "p",
     desc: "evaluate script and print result",
-    type: "array",
+    type: "boolean",
   })
   .option("help", {
     alias: "h",
@@ -71,21 +71,20 @@ let args = yargs
   })
   .parseSync();
 
-if (process.stdin.isTTY) {
-  startREPL(args.output ? "noeval" : args.ast ? "ast" : "repl");
-} else if (args.eval?.length || args.print?.length) {
-  let code = "";
-  if (args.eval?.length) code = `${args.eval[args.eval.length - 1]}`;
-  if (args.print?.length) code = `${args.print[args.print.length - 1]}`;
-
+if (args.eval) {
+  let code = args.eval;
   let compiled = compile(code, args);
 
   if (args.output) {
+    if (args.print) console.log(transpile(compiled, args));
+  } else if (args.ast) {
     if (args.print) console.log(compiled);
   } else {
     let result = execute(compiled);
     if (args.print) console.log(result);
   }
+} else if (process.stdin.isTTY) {
+  startREPL(args.output ? "noeval" : args.ast ? "ast" : "repl");
 } else {
   // compile given files
 }
@@ -94,7 +93,7 @@ function execute(node: Node) {
   if (args.typescript) {
     throw "not implemented";
   } else {
-    runInNewContext(transpile(node, args), undefined);
+    return runInNewContext(transpile(node, args), undefined);
   }
 }
 
