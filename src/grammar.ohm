@@ -464,7 +464,7 @@ Storymatic {
 
   JSXTagName
     = JSXTagName "." word -- property_access
-    | word
+    | word -- standard
 
   Type = ConditionalType
 
