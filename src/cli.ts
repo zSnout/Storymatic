@@ -24,7 +24,7 @@ let args = yargs
     type: "boolean",
   })
   .option("debug", {
-    alias: "d",
+    alias: "D",
     desc: "output extra debug information",
     type: "boolean",
   })
