@@ -5,11 +5,7 @@ import ohm = require("ohm-js");
 let story = grammar as any as grammar.StorymaticGrammar;
 let semantics = story.createSemantics();
 
-export function compile(
-  text: string,
-  { commonjs = false, typescript = false, jsx = false }: Partial<Flags> = {}
-) {
-  flags = { commonjs, typescript, jsx };
+export function compile(text: string, _flags: Partial<Flags> = {}) {
   return semantics(story.match(text)).ts();
 }
 
@@ -32,9 +28,6 @@ interface Flags {
   jsx: boolean;
 }
 
-let flags: Flags = Object.create(null);
-flags;
-
 function setTextRange<T extends ts.TextRange>(range: T, location: ohm.Node) {
   return ts.setTextRange(range, {
     pos: location.source.startIdx,
@@ -47,15 +40,10 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
     throw new Error(".tsa() must not be called on a TerminalNode.");
   },
   _nonterminal(...children) {
-    if (children.length != 1)
-      throw new Error(
-        ".tsa() must only be called on NonterminalNodes with a single child."
-      );
-
     try {
       if (children[0].isIteration()) return children[0].tsa();
 
-      let iterNode = children[0].asIteration();
+      let iterNode = this.asIteration();
       iterNode.source = this.source;
       return iterNode.tsa();
     } catch {
@@ -69,6 +57,16 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
       ts.factory.createNodeArray(children.map((e) => e.ts())),
       this
     );
+  },
+
+  GenericTypeArgumentList(node) {
+    return node.tsa();
+  },
+  GenericTypeArgumentList_with_args(_0, typeArgs, _1) {
+    return setTextRange(typeArgs.tsa(), this);
+  },
+  GenericTypeArgumentList_empty() {
+    return setTextRange(ts.factory.createNodeArray([]), this);
   },
 });
 
@@ -239,6 +237,16 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  MemberAccessExp_tagged_template_literal(tag, generics, template) {
+    return setTextRange(
+      ts.factory.createTaggedTemplateExpression(
+        tag.ts(),
+        generics.tsa(),
+        template.ts()
+      ),
+      this
+    );
+  },
   number(number) {
     return setTextRange(
       ts.factory.createNumericLiteral(number.sourceString),
@@ -394,6 +402,14 @@ semantics.addOperation<ts.Node>("ts", {
   string_interpolatable(_0, headNode, _1, spansNode, _2) {
     let head = headNode.ts<ts.TemplateHead>();
     let spans = spansNode.tsa<ts.TemplateSpan>();
+
+    if (spans.length == 0) {
+      return setTextRange(
+        ts.factory.createNoSubstitutionTemplateLiteral(head.text, head.rawText),
+        this
+      );
+    }
+
     return setTextRange(ts.factory.createTemplateExpression(head, spans), this);
   },
   string_interpolatable_head(content) {
