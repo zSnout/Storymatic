@@ -46,12 +46,21 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   _terminal() {
     throw new Error(".tsa() must not be called on a TerminalNode.");
   },
-  _nonterminal() {
+  _nonterminal(...children) {
+    if (children.length != 1)
+      throw new Error(
+        ".tsa() must only be called on NonterminalNodes with a single child."
+      );
+
     try {
-      return this.asIteration().tsa();
+      if (children[0].isIteration()) return children[0].tsa();
+
+      let iterNode = children[0].asIteration();
+      iterNode.source = this.source;
+      return iterNode.tsa();
     } catch {
       throw new Error(
-        ".tsa() must only be called on TerminalNodes with a defined .asIteration() method."
+        ".tsa() must only be called on NonterminalNodes with a defined .asIteration() method or whose first child is an IterationNode."
       );
     }
   },
