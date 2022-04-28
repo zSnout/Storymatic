@@ -391,7 +391,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  string_interpolatable(_0, headNode, spansNode, _1) {
+  string_interpolatable(_0, headNode, _1, spansNode, _2) {
     let head = headNode.ts<ts.TemplateHead>();
     let spans = spansNode.tsa<ts.TemplateSpan>();
     return setTextRange(ts.factory.createTemplateExpression(head, spans), this);
