@@ -1,7 +1,8 @@
 import { Recoverable, start } from "repl";
+import { Node } from "typescript";
 import { runInContext, runInNewContext } from "vm";
 import * as yargs from "yargs";
-import { compileText } from "./index.js";
+import { compile, transpile } from "./index.js";
 
 let args = yargs
   .scriptName("sm")
@@ -14,6 +15,12 @@ let args = yargs
     alias: "c",
     conflicts: "typescript",
     desc: "compile modules to CommonJS",
+    type: "boolean",
+  })
+  .option("jsx", {
+    alias: "j",
+    conflicts: "typescript",
+    desc: "compile JSX code to `h(tag, props, ...children)`",
     type: "boolean",
   })
   .option("interactive", {
@@ -59,7 +66,7 @@ if (process.stdin.isTTY) {
   if (args.eval?.length) code = `${args.eval[args.eval.length - 1]}`;
   if (args.print?.length) code = `${args.print[args.print.length - 1]}`;
 
-  let compiled = compile(code);
+  let compiled = compile(code, args);
 
   if (args.output) {
     if (args.print) console.log(compiled);
@@ -71,15 +78,11 @@ if (process.stdin.isTTY) {
   // compile given files
 }
 
-function compile(text: string) {
-  return compileText(text, args);
-}
-
-function execute(node: ReturnType<typeof compile>) {
+function execute(node: Node) {
   if (args.typescript) {
     throw "not implemented";
   } else {
-    runInNewContext(node.output, undefined);
+    runInNewContext(transpile(node, args), undefined);
   }
 }
 
@@ -93,7 +96,8 @@ function startREPL(mode: "repl" | "noeval" = "repl") {
       let output: any;
 
       try {
-        ({ output } = compile(cmd));
+        let node = compile(cmd);
+        output = transpile(node, args);
       } catch {
         cb(new Recoverable(new SyntaxError()), null);
         return;
