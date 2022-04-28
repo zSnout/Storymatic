@@ -226,7 +226,7 @@ Storymatic {
     | MemberAccessExp "?." GenericTypeArgumentList? "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp #whitespace
       ~(identifier | "+" | "-" | "<" | "\"" | "'" | "{" "}") NonEmptyArgumentList -- function_call_implied
-    | MemberAccessExp string -- tagged_template_literal
+    | MemberAccessExp GenericTypeArgumentList? string -- tagged_template_literal
     | MemberAccessExp "!" -- non_null_assertion
     | ClassCreationExp
 
