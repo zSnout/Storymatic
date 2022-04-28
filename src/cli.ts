@@ -35,7 +35,14 @@ let args = yargs
   })
   .option("output", {
     alias: "o",
+    conflicts: "ast",
     desc: "show the transpiled code without executing",
+    type: "boolean",
+  })
+  .option("ast", {
+    alias: "a",
+    conflicts: "output",
+    desc: "show the parsed AST nodes",
     type: "boolean",
   })
   .option("eval", {
@@ -65,7 +72,7 @@ let args = yargs
   .parseSync();
 
 if (process.stdin.isTTY) {
-  startREPL(args.output ? "noeval" : "repl");
+  startREPL(args.output ? "noeval" : args.ast ? "ast" : "repl");
 } else if (args.eval?.length || args.print?.length) {
   let code = "";
   if (args.eval?.length) code = `${args.eval[args.eval.length - 1]}`;
@@ -91,17 +98,24 @@ function execute(node: Node) {
   }
 }
 
-function startREPL(mode: "repl" | "noeval" = "repl") {
+function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
   console.log("Welcome to the Storymatic REPL.");
-  console.log("Enter any expression to run it and output the result.");
+
+  let help = {
+    repl: "Enter any expression to run it and output the result.",
+    noeval: "Enter any expression to compile it and view the output code.",
+    ast: "Enter any expression to compile its AST and output it.",
+  }[mode];
+  console.log(help);
 
   let repl = start({
     prompt: "> ",
     eval(cmd, context, _file, cb) {
       let output: any;
+      let node: Node;
 
       try {
-        let node = compile(cmd);
+        node = compile(cmd);
         output = transpile(node, args);
       } catch (e) {
         if (args.debug) console.log(e);
@@ -111,15 +125,16 @@ function startREPL(mode: "repl" | "noeval" = "repl") {
 
       output = output.replace('"use strict";\n', "");
       if (mode == "repl") output = runInContext(output, context);
+      if (mode == "ast") output = node;
       cb(null, output);
     },
-    writer: mode == "repl" ? undefined : (x) => "" + x,
+    writer: mode == "noeval" ? (x) => "" + x : undefined,
   });
 
   repl.defineCommand("clear", () => {
     console.clear();
     console.log("Welcome to the Storymatic REPL.");
-    console.log("Enter any expression to run it and output the result.");
+    console.log(help);
     process.stdout.write("> ");
   });
 }
