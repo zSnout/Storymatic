@@ -224,7 +224,8 @@ Storymatic {
     | MemberAccessExp "?." "[" MemberAccessExp "]" -- optional_chaining_computed_member_access
     | MemberAccessExp GenericTypeArgumentList? "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?." "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp #((~("\r\n" | "\n") space)+) ~(identifier | "+" | "-" | "<" | "{" "}") NonEmptyArgumentList -- function_call_implied
+    | MemberAccessExp #((~("\r\n" | "\n") space)+)
+      ~(identifier | "+" | "-" | "<" | "{" "}") NonEmptyArgumentList -- function_call_implied
     | MemberAccessExp "!" -- non_null_assertion
     | ClassCreationExp
 
