@@ -249,8 +249,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   string_bit_unicode_code_point_sequence?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
   string_bit?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   string_interpolatable_head?: (this: NonterminalNode, arg0: IterationNode) => T;
-  string_interpolatable_span?: (this: NonterminalNode, arg0: TerminalNode, arg1: Node, arg2: TerminalNode, arg3: IterationNode) => T;
-  string_interpolatable?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode, arg2: IterationNode, arg3: Node) => T;
+  string_interpolatable_span?: (this: NonterminalNode, arg0: TerminalNode, arg1: Node, arg2: TerminalNode, arg3: IterationNode, arg4: IterationNode) => T;
+  string_interpolatable?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode, arg2: TerminalNode, arg3: IterationNode, arg4: Node) => T;
   string_full?: (this: NonterminalNode, arg0: Node, arg1: IterationNode, arg2: Node) => T;
   string_non_interpolatable?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   string?: (this: NonterminalNode, arg0: NonterminalNode) => T;

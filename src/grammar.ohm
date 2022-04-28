@@ -383,11 +383,13 @@ Storymatic {
     | "\\u{" hexDigit+ "}" -- unicode_code_point_sequence
 
   string_interpolatable_head<delimeter> = string_bit<delimeter>*
+
   string_interpolatable_span<delimeter, interpolated>
-    = "{" interpolated "}" string_bit<delimeter>*
+    = "{" interpolated "}" string_bit<delimeter>* (&delimeter)?
 
   string_interpolatable<delimeter, interpolated>
-    = delimeter string_interpolatable_head<delimeter> string_interpolatable_span<delimeter, interpolated>* delimeter
+    = delimeter string_interpolatable_head<delimeter>
+      "" string_interpolatable_span<delimeter, interpolated>* delimeter
 
   string_full<delimeter> = delimeter string_bit<delimeter>* delimeter
 
