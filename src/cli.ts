@@ -1,5 +1,5 @@
 import { Recoverable, start } from "repl";
-import { Node } from "typescript";
+import * as ts from "typescript";
 import { runInContext, runInNewContext } from "vm";
 import * as yargs from "yargs";
 import { compile, transpile } from "./index.js";
@@ -11,20 +11,40 @@ let args = yargs
     desc: "compile code to TypeScript",
     type: "boolean",
   })
-  .option("commonjs", {
-    alias: "c",
+  .option("module", {
+    alias: "m",
     conflicts: "typescript",
-    desc: "compile modules to CommonJS",
-    type: "boolean",
+    desc: "the module type to compile to (default: esm)",
+    default: ts.ModuleKind.ESNext,
+    coerce(module) {
+      let name = ("" + module).toLowerCase();
+
+      let moduleType: Record<string, ts.ModuleKind> = {
+        esm: ts.ModuleKind.ESNext,
+        esnext: ts.ModuleKind.ESNext,
+        es2015: ts.ModuleKind.ES2015,
+        es2020: ts.ModuleKind.ES2020,
+        es2022: ts.ModuleKind.ES2022,
+        system: ts.ModuleKind.System,
+        amd: ts.ModuleKind.AMD,
+        commonjs: ts.ModuleKind.CommonJS,
+        cjs: ts.ModuleKind.CommonJS,
+        node12: ts.ModuleKind.Node12,
+        nodenext: ts.ModuleKind.NodeNext,
+        node: ts.ModuleKind.NodeNext,
+      };
+
+      return moduleType[name] || ts.ModuleKind.ESNext;
+    },
   })
   .option("jsx", {
     alias: "j",
     conflicts: "typescript",
-    desc: "compile JSX code to `h(tag, props, ...children)`",
-    type: "boolean",
+    desc: "compile JSX code",
+    type: "string",
   })
   .option("debug", {
-    alias: "D",
+    alias: "d",
     desc: "output extra debug information",
     type: "boolean",
   })
@@ -60,12 +80,10 @@ let args = yargs
     desc: "open this help menu",
   })
   .option("src", {
-    alias: "s",
     desc: "location of input files",
     type: "string",
   })
   .option("dist", {
-    alias: "d",
     desc: "location of output files",
     type: "string",
   })
@@ -89,12 +107,8 @@ if (args.eval) {
   // compile given files
 }
 
-function execute(node: Node) {
-  if (args.typescript) {
-    throw "not implemented";
-  } else {
-    return runInNewContext(transpile(node, args), undefined);
-  }
+function execute(node: ts.Node) {
+  return runInNewContext(transpile(node, args), undefined);
 }
 
 function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
@@ -111,7 +125,7 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
     prompt: "> ",
     eval(cmd, context, _file, cb) {
       let output: any;
-      let node: Node;
+      let node: ts.Node;
 
       try {
         node = compile(cmd);
