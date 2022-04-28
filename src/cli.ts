@@ -107,6 +107,7 @@ function startREPL(mode: "repl" | "noeval" = "repl") {
       if (mode == "repl") output = runInContext(output, context);
       cb(null, output);
     },
+    writer: mode == "repl" ? undefined : (x) => "" + x,
   });
 
   repl.defineCommand("clear", () => {
