@@ -385,7 +385,7 @@ Storymatic {
   string_interpolatable_head<delimeter> = string_bit<delimeter>*
 
   string_interpolatable_span<delimeter, interpolated>
-    = "{" interpolated "}" string_bit<delimeter>* (&delimeter)?
+    = "{" interpolated "}" string_bit<delimeter>* &(delimeter?)
 
   string_interpolatable<delimeter, interpolated>
     = delimeter string_interpolatable_head<delimeter>
