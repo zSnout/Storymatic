@@ -88,6 +88,9 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  Argument(node) {
+    return node.ts();
+  },
   bigint(_0, _1, _2) {
     return setTextRange(
       ts.factory.createBigIntLiteral(this.sourceString),
@@ -166,7 +169,56 @@ semantics.addOperation<ts.Node>("ts", {
   },
   MemberAccessExp_member_access(target, _, key) {
     return setTextRange(
-      ts.factory.createPropertyAccessExpression(target as any, key.ts() as any),
+      ts.factory.createPropertyAccessExpression(
+        target.ts() as any,
+        key.ts() as any
+      ),
+      this
+    );
+  },
+  MemberAccessExp_non_null_assertion(target, _) {
+    return setTextRange(
+      ts.factory.createNonNullExpression(target.ts() as any),
+      this
+    );
+  },
+  MemberAccessExp_optional_chaining_computed_member_access(
+    target,
+    qDot,
+    _0,
+    index,
+    _1
+  ) {
+    return setTextRange(
+      ts.factory.createElementAccessChain(
+        target.ts() as any,
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+          qDot
+        ),
+        index.ts() as any
+      ),
+      this
+    );
+  },
+  MemberAccessExp_optional_chaining_function_call(
+    target,
+    qDot,
+    typeArgs,
+    _0,
+    args,
+    _1
+  ) {
+    return setTextRange(
+      ts.factory.createCallChain(
+        target.ts() as any,
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+          qDot
+        ),
+        typeArgs.tsa() as any,
+        args.tsa() as any
+      ),
       this
     );
   },
