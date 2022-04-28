@@ -440,7 +440,7 @@ Storymatic {
     | jsx_string
 
   JSXAttribute
-    = JSXAttributeKey -- value_true
+    = JSXAttributeKey ~"=" -- value_true
     | JSXAttributeKey "=" string_non_interpolatable -- value_string
     | JSXAttributeKey "=" string -- value_computed_string
     | JSXAttributeKey "=" "{" Expression "}" -- value_expression
