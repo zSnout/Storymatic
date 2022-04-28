@@ -312,6 +312,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Implementable_qualified_name?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Implementable_type_args?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
   Implementable?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  LiteralType_infer?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   LiteralType_identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   LiteralType_qualified_name?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   LiteralType_type_args?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
@@ -342,6 +343,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   IntersectionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnionType_union?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   UnionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  ConditionalType_conditional?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: NonterminalNode, arg5: TerminalNode, arg6: NonterminalNode, arg7: TerminalNode, arg8: NonterminalNode) => T;
+  ConditionalType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   InterfaceDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: TerminalNode, arg9: NonterminalNode, arg10: TerminalNode) => T;
   IndexSignatureType?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: TerminalNode, arg6: NonterminalNode) => T;
   TypeDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: NonterminalNode) => T;

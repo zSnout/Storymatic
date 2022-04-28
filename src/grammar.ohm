@@ -465,7 +465,7 @@ Storymatic {
     = JSXTagName "." word -- property_access
     | word
 
-  Type = UnionType
+  Type = ConditionalType
 
   PrimitiveType
     = "string" | "number" | "boolean" | "true" | "false" | "bigint" | "symbol"
@@ -482,7 +482,8 @@ Storymatic {
     | string_type
     | decimalNumber
     | bigint
-    | identifier ~("." | "<") -- identifier
+    | "infer" #(space+) identifier -- infer
+    | ~("infer" #space) identifier ~("." | "<") -- identifier
     | identifier "." &identifier Type -- qualified_name
     | identifier "<" NonemptyListOf<Type, ","> ">" -- type_args
     | "fn" #(space+) "=>" Type -- function_no_params
@@ -522,6 +523,10 @@ Storymatic {
   UnionType
     = UnionType "|" IntersectionType -- union
     | IntersectionType
+
+  ConditionalType
+    = Type #(space+) "is" #(space+) Type "?" Type ":" Type -- conditional
+    | UnionType
 
   InterfaceDeclaration
     = "interface" #(space+) identifier GenericTypeParameterList?
