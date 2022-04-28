@@ -1,6 +1,6 @@
+import * as ohm from "ohm-js";
 import * as ts from "typescript";
 import * as grammar from "./grammar.js";
-import ohm = require("ohm-js");
 
 let story = grammar as any as grammar.StorymaticGrammar;
 let semantics = story.createSemantics();
