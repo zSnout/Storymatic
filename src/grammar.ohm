@@ -181,7 +181,7 @@ Storymatic {
   BlockFunction
     = "fn" #(space+) identifier GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
     | "fn" #(space+) identifier GenericTypeParameterList? #(space+)
-      "of" #(space+) ParameterList ("=>" Type)? FunctionBody -- with_params
+      "of" #(space+) TypeParameterList ("=>" Type)? FunctionBody -- with_params
 
   Method<prefix>
     = "fn" #(space+) prefix MethodName GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
@@ -489,6 +489,8 @@ Storymatic {
     | identifier "<" NonemptyListOf<Type, ","> ">" -- type_args
     | "fn" #(space+) "=>" Type -- function_no_params
     | "fn" #(space+) "of" #(space+) TypeParameterList "=>" Type -- function_with_params
+    | "new" #(space+) "fn" #(space+) "=>" Type -- construct_no_params
+    | "new" #(space+) "fn" #(space+) "of" #(space+) TypeParameterList "=>" Type -- construct_with_params
     | "(" Type ")" -- parenthesized
 
   MemberAccessType
@@ -515,7 +517,20 @@ Storymatic {
 
   TypeObjectEntry
     = ("readonly" #(space+))? TypeObjectKey ":" Type -- key_value
+    | "new" #(space+) InlineFunctionType -- construct_signature
+    | InlineFunctionType
+    | BlockFunctionType
     | IndexSignatureType
+
+  InlineFunctionType
+    = "fn" GenericTypeParameterList? "=>" Type -- no_params
+    | "fn" GenericTypeParameterList? #(space+)
+      "of" #(space+) TypeParameterList "=>" Type -- with_params
+
+  BlockFunctionType
+    = "fn" #(space+) TypeObjectKey GenericTypeParameterList? "=>" Type -- function_no_params
+    | "fn" #(space+) TypeObjectKey GenericTypeParameterList? #(space+)
+      "of" #(space+) TypeParameterList "=>" Type -- with_params
 
   IntersectionType
     = IntersectionType "&" PrimitiveType -- intersection

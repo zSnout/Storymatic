@@ -319,6 +319,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LiteralType_type_args?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
   LiteralType_function_no_params?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
   LiteralType_function_with_params?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: NonterminalNode, arg5: TerminalNode, arg6: NonterminalNode) => T;
+  LiteralType_construct_no_params?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
+  LiteralType_construct_with_params?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: IterationNode, arg6: NonterminalNode, arg7: TerminalNode, arg8: NonterminalNode) => T;
   LiteralType_parenthesized?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   LiteralType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MemberAccessType_member_access?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
@@ -339,7 +341,14 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TypeObjectKey_computed_accessor?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   TypeObjectKey?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectEntry_key_value?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
+  TypeObjectEntry_construct_signature?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   TypeObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  InlineFunctionType_no_params?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
+  InlineFunctionType_with_params?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: TerminalNode, arg4: IterationNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: NonterminalNode) => T;
+  InlineFunctionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  BlockFunctionType_function_no_params?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
+  BlockFunctionType_with_params?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: TerminalNode, arg6: IterationNode, arg7: NonterminalNode, arg8: TerminalNode, arg9: NonterminalNode) => T;
+  BlockFunctionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   IntersectionType_intersection?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   IntersectionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnionType_union?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
