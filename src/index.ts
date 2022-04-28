@@ -77,16 +77,10 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   AddExp_addition(left, _, right) {
-    return setTextRange(
-      ts.factory.createAdd(left.ts() as any, right.ts() as any),
-      this
-    );
+    return setTextRange(ts.factory.createAdd(left.ts(), right.ts()), this);
   },
   AddExp_subtraction(left, _, right) {
-    return setTextRange(
-      ts.factory.createSubtract(left.ts() as any, right.ts() as any),
-      this
-    );
+    return setTextRange(ts.factory.createSubtract(left.ts(), right.ts()), this);
   },
   Argument(node) {
     return node.ts();
@@ -125,9 +119,8 @@ semantics.addOperation<ts.Node>("ts", {
     return word.ts();
   },
   identifierWords(firstWord, _, otherWords) {
-    let first = firstWord.ts() as ts.Identifier;
-    // prettier-ignore
-    let idents = otherWords.tsa() as ts.NodeArray<ts.Identifier | ts.NumericLiteral>;
+    let first = firstWord.ts<ts.Identifier>();
+    let idents = otherWords.tsa<ts.Identifier | ts.NumericLiteral>();
     let others = idents.map((e) => e.text[0].toUpperCase() + e.text.slice(1));
 
     return setTextRange(
@@ -141,46 +134,35 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExp_computed_member_access(target, _0, index, _1) {
     return setTextRange(
       ts.factory.createElementAccessExpression(
-        target.ts() as any,
-        index.ts() as any
+        target.ts(),
+        index.ts<ts.Expression>()
       ),
       this
     );
   },
   MemberAccessExp_function_call(target, typeArgs, _0, args, _1) {
     return setTextRange(
-      ts.factory.createCallExpression(
-        target.ts() as any,
-        typeArgs.tsa() as any,
-        args.tsa() as any
-      ),
+      ts.factory.createCallExpression(target.ts(), typeArgs.tsa(), args.tsa()),
       this
     );
   },
   MemberAccessExp_function_call_implied(target, _, args) {
     return setTextRange(
-      ts.factory.createCallExpression(
-        target.ts() as any,
-        undefined,
-        args.tsa() as any
-      ),
+      ts.factory.createCallExpression(target.ts(), undefined, args.tsa()),
       this
     );
   },
   MemberAccessExp_member_access(target, _, key) {
     return setTextRange(
       ts.factory.createPropertyAccessExpression(
-        target.ts() as any,
-        key.ts() as any
+        target.ts(),
+        key.ts<ts.MemberName>()
       ),
       this
     );
   },
   MemberAccessExp_non_null_assertion(target, _) {
-    return setTextRange(
-      ts.factory.createNonNullExpression(target.ts() as any),
-      this
-    );
+    return setTextRange(ts.factory.createNonNullExpression(target.ts()), this);
   },
   MemberAccessExp_optional_chaining_computed_member_access(
     target,
@@ -191,12 +173,12 @@ semantics.addOperation<ts.Node>("ts", {
   ) {
     return setTextRange(
       ts.factory.createElementAccessChain(
-        target.ts() as any,
+        target.ts(),
         setTextRange(
           ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
           qDot
         ),
-        index.ts() as any
+        index.ts<ts.Expression>()
       ),
       this
     );
@@ -211,13 +193,13 @@ semantics.addOperation<ts.Node>("ts", {
   ) {
     return setTextRange(
       ts.factory.createCallChain(
-        target.ts() as any,
+        target.ts(),
         setTextRange(
           ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
           qDot
         ),
-        typeArgs.tsa() as any,
-        args.tsa() as any
+        typeArgs.tsa(),
+        args.tsa()
       ),
       this
     );
@@ -225,12 +207,12 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExp_optional_chaining_member_access(target, qDot, key) {
     return setTextRange(
       ts.factory.createPropertyAccessChain(
-        target.ts() as any,
+        target.ts(),
         setTextRange(
           ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
           qDot
         ),
-        key.ts() as any
+        key.ts<ts.MemberName>()
       ),
       this
     );
@@ -238,12 +220,12 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExp_optional_chaining_symbol_access(target, qDot, symbol) {
     return setTextRange(
       ts.factory.createElementAccessChain(
-        target.ts() as any,
+        target.ts(),
         setTextRange(
           ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
           qDot
         ),
-        symbol.ts() as any
+        symbol.ts<ts.Expression>()
       ),
       this
     );
@@ -251,8 +233,8 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExp_symbol_access(target, _, symbol) {
     return setTextRange(
       ts.factory.createElementAccessExpression(
-        target.ts() as any,
-        symbol.ts() as any
+        target.ts(),
+        symbol.ts<ts.Expression>()
       ),
       this
     );
@@ -281,21 +263,18 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   Statement_export_default(_0, _1, expression, _2) {
-    return setTextRange(
-      ts.factory.createExportDefault(expression.ts() as any),
-      this
-    );
+    return setTextRange(ts.factory.createExportDefault(expression.ts()), this);
   },
   Statement_expression(expression, _) {
     return setTextRange(
-      ts.factory.createExpressionStatement(expression.ts() as any),
+      ts.factory.createExpressionStatement(expression.ts()),
       this
     );
   },
   StatementBlock_statements(statements) {
     return setTextRange(
       ts.factory.createSourceFile(
-        statements.tsa() as any,
+        statements.tsa(),
         ts.setTextRange(ts.factory.createToken(ts.SyntaxKind.EndOfFileToken), {
           pos: this.source.endIdx,
           end: this.source.endIdx,
@@ -316,7 +295,7 @@ semantics.addOperation<ts.Node>("ts", {
   },
   SymbolKey_name(ident) {
     return setTextRange(
-      ts.factory.createStringLiteralFromNode(ident.ts() as ts.Identifier),
+      ts.factory.createStringLiteralFromNode(ident.ts()),
       this
     );
   },
@@ -327,7 +306,7 @@ semantics.addOperation<ts.Node>("ts", {
     return setTextRange(
       ts.factory.createElementAccessExpression(
         setTextRange(ts.factory.createIdentifier("Symbol"), hashMarks),
-        key.ts() as any
+        key.ts<ts.Expression>()
       ),
       this
     );
@@ -341,7 +320,7 @@ semantics.addOperation<ts.Node>("ts", {
     );
 
     return setTextRange(
-      ts.factory.createCallExpression(Symbol_for, undefined, [key.ts() as any]),
+      ts.factory.createCallExpression(Symbol_for, undefined, [key.ts()]),
       this
     );
   },
@@ -362,13 +341,92 @@ semantics.addOperation<ts.Node>("ts", {
       "`statementTerminator_semicolon` nodes should never be evaluated directly."
     );
   },
+  string(node) {
+    return node.ts();
+  },
+  string_bit(node) {
+    let char = node.sourceString;
+    if (char.length == 1 && "$\"'`".indexOf(char) > -1) char = "\\" + char;
+    if (char == "\n") char = "\\n";
+    if (char == "\r") char = "\\r";
+    return ts.factory.createStringLiteral(char);
+  },
+  string_bit_character(_) {
+    throw new Error(
+      "`string_bit_character` nodes should never be evaluated directly."
+    );
+  },
+  string_bit_escape(_0, _1) {
+    throw new Error(
+      "`string_bit_escape` nodes should never be evaluated directly."
+    );
+  },
+  string_bit_escape_sequence(_0, _1) {
+    throw new Error(
+      "`string_bit_escape_sequence` nodes should never be evaluated directly."
+    );
+  },
+  string_bit_hex_sequence(_0, _1, _2) {
+    throw new Error(
+      "`string_bit_hex_sequence` nodes should never be evaluated directly."
+    );
+  },
+  string_bit_unicode_code_point_sequence(_0, _1, _2) {
+    throw new Error(
+      "`string_bit_unicode_code_point_sequence` nodes should never be evaluated directly."
+    );
+  },
+  string_bit_unicode_sequence(_0, _1, _2, _3, _4) {
+    throw new Error(
+      "`string_bit_unicode_sequence` nodes should never be evaluated directly."
+    );
+  },
+  string_full(open, content, _) {
+    let bits = content.tsa<ts.StringLiteral>();
+    return setTextRange(
+      ts.factory.createStringLiteral(
+        bits.map((e) => e.text).join(""),
+        open.sourceString == "'"
+      ),
+      this
+    );
+  },
+  string_interpolatable(_0, headNode, spansNode, _1) {
+    let head = headNode.ts<ts.TemplateHead>();
+    let spans = spansNode.tsa<ts.TemplateSpan>();
+    return setTextRange(ts.factory.createTemplateExpression(head, spans), this);
+  },
+  string_interpolatable_head(content) {
+    let bits = content.tsa<ts.StringLiteral>();
+    return setTextRange(
+      ts.factory.createTemplateHead(bits.map((e) => e.text).join("")),
+      this
+    );
+  },
+  string_interpolatable_span(_0, expression, _1, content, isTail) {
+    let bits = content
+      .tsa<ts.StringLiteral>()
+      .map((e) => e.text)
+      .join("");
+
+    let text = isTail.sourceString
+      ? ts.factory.createTemplateTail(bits, content.sourceString)
+      : ts.factory.createTemplateMiddle(bits, content.sourceString);
+
+    text = setTextRange(text, content);
+
+    return setTextRange(
+      ts.factory.createTemplateSpan(expression.ts(), text),
+      this
+    );
+  },
   unitNumber(number, identifier) {
-    let num = number.ts() as ts.NumericLiteral;
+    let num = number.ts<ts.NumericLiteral>();
     let str = setTextRange(
       ts.factory.createStringLiteral(number.sourceString),
       number
     );
-    let ident = identifier.ts() as ts.Identifier;
+    let ident = identifier.ts<ts.Identifier>();
 
     let numEl = setTextRange(
       ts.factory.createPropertyAssignment("number", num),
@@ -389,7 +447,7 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   WrappedStatementBlock(_0, statements, _1) {
-    return setTextRange(ts.factory.createBlock(statements.tsa() as any), this);
+    return setTextRange(ts.factory.createBlock(statements.tsa()), this);
   },
   word(_0, _1, _2) {
     return setTextRange(ts.factory.createIdentifier(this.sourceString), this);
@@ -398,16 +456,16 @@ semantics.addOperation<ts.Node>("ts", {
 
 declare module "ohm-js" {
   export interface Node {
-    ts(): ts.Node;
-    tsa(): ts.NodeArray<ts.Node>;
+    ts<T extends ts.Node = ts.Node>(): T;
+    tsa<T extends ts.Node = ts.Node>(): ts.NodeArray<T>;
     asIteration(): ohm.IterationNode;
   }
 }
 
 declare module "./grammar.js" {
   export interface StorymaticDict {
-    ts(): ts.Node;
-    tsa(): ts.NodeArray<ts.Node>;
+    ts<T extends ts.Node = ts.Node>(): T;
+    tsa<T extends ts.Node = ts.Node>(): ts.NodeArray<T>;
     asIteration(): ohm.IterationNode;
   }
 
