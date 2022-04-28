@@ -386,14 +386,6 @@ Storymatic {
   string_interpolatable_span<delimeter, interpolated>
     = "{" interpolated "}" string_bit<delimeter>*
 
-  string_interpolatable_bit<delimeter>
-    = string_bit<delimeter>
-    | "{" applySyntactic<Expression> "}" -- interpolated
-
-  string_type_interpolatable_bit<delimeter>
-    = string_bit<delimeter>
-    | "{" applySyntactic<Type> "}" -- interpolated
-
   string_interpolatable<delimeter, interpolated>
     = delimeter string_interpolatable_head<delimeter> string_interpolatable_span<delimeter, interpolated>* delimeter
 
