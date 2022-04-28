@@ -424,7 +424,9 @@ Storymatic {
   block_comment = "/*" (~"*/" any)* "*/"
   line_comment = "//" (~("\r" | "\n") any)* &("\r" | "\n" | end)
 
-  JSXElement = "<" JSXTagName (#(space+) JSXAttribute*)? ">" JSXChild* "</" JSXTagName ">"
+  JSXElement
+    = "<" JSXTagName (#(space+) JSXAttribute*)? ">" JSXChild* "</" JSXTagName ">" -- open_close
+    | "<" JSXTagName (#(space+) JSXAttribute*)? "/" ">" -- self_closing
 
   jsx_string_bit
     = space+ -- space
