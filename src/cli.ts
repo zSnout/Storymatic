@@ -23,6 +23,11 @@ let args = yargs
     desc: "compile JSX code to `h(tag, props, ...children)`",
     type: "boolean",
   })
+  .option("debug", {
+    alias: "d",
+    desc: "output extra debug information",
+    type: "boolean",
+  })
   .option("interactive", {
     alias: "i",
     desc: "enter the REPL",
@@ -98,7 +103,8 @@ function startREPL(mode: "repl" | "noeval" = "repl") {
       try {
         let node = compile(cmd);
         output = transpile(node, args);
-      } catch {
+      } catch (e) {
+        if (args.debug) console.log(e);
         cb(new Recoverable(new SyntaxError()), null);
         return;
       }
