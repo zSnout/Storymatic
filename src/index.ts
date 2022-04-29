@@ -183,6 +183,42 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  CaseClause(_0, _1, expr, _2) {
+    return setTextRange(ts.factory.createCaseClause(expr.ts(), []), this);
+  },
+  CaseStatement(clauseNodes, blockNode) {
+    let clauses = [...clauseNodes.tsa<ts.CaseClause>()];
+    let finalClause = clauses.pop()!;
+
+    let breakStatement = ts.setTextRange(ts.factory.createBreakStatement(), {
+      pos: blockNode.source.startIdx,
+      end: blockNode.source.endIdx,
+    });
+
+    let block = blockNode.ts<ts.Block | ts.SourceFile>();
+    let statements = block.statements.concat(breakStatement);
+
+    let clause = ts.setTextRange(
+      ts.factory.createCaseClause(finalClause.expression, [
+        ts.setTextRange(ts.factory.createBlock(statements), block),
+      ]),
+      finalClause
+    );
+
+    return setTextRange(
+      ts.factory.createCaseBlock(clauses.concat(clause)),
+      this
+    );
+  },
+  CaseTerminator(_) {
+    throw "`CaseTerminator` nodes should never directly be evaluated.";
+  },
+  CaseTerminator_final(_) {
+    throw "`CaseTerminator_final` nodes should never directly be evaluated.";
+  },
+  CaseTerminator_terminator(_) {
+    throw "`CaseTerminator_terminator` nodes should never directly be evaluated.";
+  },
   char(_) {
     throw "`char` nodes should never directly be evaluated.";
   },
@@ -591,6 +627,18 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  MulExp(node) {
+    return node.ts();
+  },
+  MulExp_division(left, _, right) {
+    return setTextRange(ts.factory.createDivide(left.ts(), right.ts()), this);
+  },
+  MulExp_modulus(left, _, right) {
+    return setTextRange(ts.factory.createModulo(left.ts(), right.ts()), this);
+  },
+  MulExp_multiplication(left, _, right) {
+    return setTextRange(ts.factory.createMultiply(left.ts(), right.ts()), this);
+  },
   number(number) {
     return setTextRange(
       ts.factory.createNumericLiteral(number.sourceString),
@@ -665,6 +713,12 @@ semantics.addOperation<ts.Node>("ts", {
   },
   reserved_primitive(_) {
     throw "`reserved_primitive` nodes should never directly be evaluated.";
+  },
+  SingleStatementBlock(node) {
+    return node.ts();
+  },
+  SingleStatementBlock_single_statement(_0, _1, statement) {
+    return setTextRange(ts.factory.createBlock([statement.ts()]), this);
   },
   Statement_break(_0, _1) {
     return setTextRange(ts.factory.createBreakStatement(), this);
@@ -894,6 +948,22 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  SwitchStatement(_0, _1, target, open, cases, defaultNode, close) {
+    let blocks: readonly ts.CaseBlock[] = cases.tsa();
+    if (defaultNode.sourceString) {
+      blocks = blocks.concat(defaultNode.ts<ts.CaseBlock>());
+    }
+
+    let block = ts.setTextRange(
+      ts.factory.createCaseBlock(blocks.flatMap((e) => e.clauses)),
+      { pos: open.source.endIdx, end: close.source.startIdx }
+    );
+
+    return setTextRange(
+      ts.factory.createSwitchStatement(target.ts(), block),
+      this
+    );
+  },
   Symbol(node) {
     return node.ts();
   },
@@ -1057,6 +1127,12 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  string_non_interpolatable(node) {
+    return node.ts();
+  },
+  string_type(node) {
+    return node.ts();
+  },
   TernaryExp(node) {
     return node.ts();
   },
@@ -1077,6 +1153,12 @@ semantics.addOperation<ts.Node>("ts", {
       ),
       this
     );
+  },
+  UnprefixedSingleStatementBlock(node) {
+    return node.ts();
+  },
+  UnprefixedSingleStatementBlock_single_statement(statement) {
+    return setTextRange(ts.factory.createBlock([statement.ts()]), this);
   },
   unitNumber(number, identifier) {
     let num = number.ts<ts.NumericLiteral>();
