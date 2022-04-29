@@ -456,7 +456,7 @@ Storymatic {
   jsx_string = jsx_string_bit+
 
   JSXChild
-    = "{" Expression "}" -- interpolation
+    = "{" "..."? Expression "}" -- interpolation
     | JSXElement
     | jsx_string
 
@@ -464,7 +464,7 @@ Storymatic {
     = JSXAttributeKey ~"=" -- value_true
     | JSXAttributeKey "=" string_non_interpolatable -- value_string
     | JSXAttributeKey "=" string -- value_computed_string
-    | JSXAttributeKey "=" "{" Expression "}" -- value_expression
+    | JSXAttributeKey "=" "{" "..."? Expression "}" -- value_expression
     | "{" "..." Expression "}" -- spread_attributes
 
   JSXAttributeKey = NonemptyListOf<word, "-">
