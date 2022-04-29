@@ -38,7 +38,8 @@ Storymatic {
   CatchStatement = "catch" #(space+) (identifier #(space+) "of" #(space+))? UnprefixedSingleStatementBlock
   FinallyStatement = "finally" #(space+) UnprefixedSingleStatementBlock
 
-  EnumStatement = "enum" #(space+) identifier "{" EnumMember* "}"
+  EnumStatement = ("export" #(space+))? "enum" #(space+) identifier "{" EnumMember* "}"
+
   EnumMember
     = MethodName #expressionTerminator -- auto_assign
     | MethodName "=" Expression #expressionTerminator -- assigned
@@ -76,23 +77,18 @@ Storymatic {
     | "import" #(space+) NonemptyListOf<ImportableItemName, ","> #(space+) "from" #(space+) importLocation #statementTerminator -- import
     | "import" "*" "as" #(space+) identifier #(space+) "from" #(space+) importLocation #statementTerminator -- import_all
     | "import" "*" identifier #(space+) "from" #(space+) importLocation #statementTerminator -- import_default
-    | "export" ~(ClassDeclaration | VariableAssignment | BlockFunction | TypeDeclaration | InterfaceDeclaration | EnumMember) #statementTerminator -- empty_export
+    | "export" #statementTerminator -- empty_export
     | "export" #(space+) NonemptyListOf<ExportableItemName, ","> #(space+) "from" #(space+) importLocation #statementTerminator -- export_from
     | "export" "*" "from" #(space+) importLocation #statementTerminator -- export_all_from
     | "export" #(space+) NonemptyListOf<ExportableItemName, ","> #statementTerminator -- export
     | "export" "*" Expression #statementTerminator -- export_default
-    | "export" #(space+) ClassDeclaration -- export_class
-    | "export" #(space+) VariableAssignment #statementTerminator -- export_variable
-    | "export" #(space+) BlockFunction -- export_function
-    | "export" #(space+) TypeDeclaration -- export_type
-    | "export" #(space+) InterfaceDeclaration -- export_interface
-    | "export" #(space+) EnumStatement -- export_enum
+    | ExportedVariableAssignment #statementTerminator -- export_variable
     | "rescope" #(space+) NonemptyListOf<identifier, ","> #statementTerminator -- rescope
     | "rescope" #(space+) VariableAssignment #statementTerminator -- rescope_assign
     | TypedVariableAssignment -- typed_assignment
 
   ClassDeclaration
-    = "class" #(space+) identifier GenericTypeParameterList?
+    = ("export" #(space+))? "class" #(space+) identifier GenericTypeParameterList?
       (#(space+) "extends" #(space+) Expression)?
       (#(space+) "implements" #(space+) NonemptyListOf<Implementable, #expressionTerminator>)?
       "{" ClassElement* "}"
@@ -179,8 +175,8 @@ Storymatic {
       "of" #(space+) ParameterList ("=>" Type)? FunctionBody -- with_params
 
   BlockFunction
-    = "fn" #(space+) identifier GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
-    | "fn" #(space+) identifier GenericTypeParameterList? #(space+)
+    = ("export" #(space+))? "fn" #(space+) identifier GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
+    | ("export" #(space+))? "fn" #(space+) identifier GenericTypeParameterList? #(space+)
       "of" #(space+) TypeParameterList ("=>" Type)? FunctionBody -- with_params
 
   Method<prefix>
@@ -309,6 +305,7 @@ Storymatic {
     | TernaryExp
 
   VariableAssignment = NonCapturingAssignable (":" Type)? "=" Expression
+  ExportedVariableAssignment = "export" #(space+) NonCapturingAssignable (":" Type)? "=" Expression
   TypedVariableAssignment = NonCapturingAssignable ":" Type "=" Expression
 
   AssignableOrAccessor = NonAssignableAccessor | ~"@" Assignable ~("." | "[")
@@ -548,14 +545,14 @@ Storymatic {
     | UnionType
 
   InterfaceDeclaration
-    = "interface" #(space+) identifier GenericTypeParameterList?
+    = ("export" #(space+))? "interface" #(space+) identifier GenericTypeParameterList?
       (#(space+) "extends" #(space+) NonemptyListOf<Implementable, #expressionTerminator>)?
       "{" ListOf<TypeObjectEntry, #typeTerminator> "}"
 
   IndexSignatureType = "[" identifier ":" Type "]" ":" Type
 
   TypeDeclaration
-    = "type" #(space+) identifier GenericTypeParameterList? "=" Type #statementTerminator
+    = ("export" #(space+))? "type" #(space+) identifier GenericTypeParameterList? "=" Type #statementTerminator
 
   TypeParameter = identifier "?"? ":" Type
   TypeRestParameter = "..." identifier ":" Type
