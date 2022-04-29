@@ -144,6 +144,141 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  JSXAttribute(node) {
+    return node.ts();
+  },
+  JSXAttributeKey(node) {
+    return node.ts();
+  },
+  JSXAttribute_spread_attributes(_0, _1, expression, _2) {
+    return setTextRange(
+      ts.factory.createJsxSpreadAttribute(expression.ts()),
+      this
+    );
+  },
+  JSXAttribute_value_computed_string(key, _, value) {
+    return setTextRange(
+      ts.factory.createJsxAttribute(
+        key.ts(),
+        setTextRange(
+          ts.factory.createJsxExpression(undefined, value.ts<ts.Expression>()),
+          value
+        )
+      ),
+      this
+    );
+  },
+  JSXAttribute_value_expression(key, _0, _1, dotDotDot, value, _2) {
+    let spread = dotDotDot.sourceString
+      ? setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          dotDotDot
+        )
+      : undefined;
+
+    return setTextRange(
+      ts.factory.createJsxAttribute(
+        key.ts(),
+        setTextRange(
+          ts.factory.createJsxExpression(spread, value.ts<ts.Expression>()),
+          value
+        )
+      ),
+      this
+    );
+  },
+  JSXAttribute_value_string(key, _, string) {
+    return setTextRange(
+      ts.factory.createJsxAttribute(key.ts(), string.ts<ts.StringLiteral>()),
+      this
+    );
+  },
+  JSXAttribute_value_true(key) {
+    return setTextRange(
+      ts.factory.createJsxAttribute(key.ts(), undefined),
+      this
+    );
+  },
+  JSXChild(node) {
+    return node.ts();
+  },
+  JSXChild_interpolation(_0, dotDotDot, expression, _1) {
+    let spread = dotDotDot.sourceString
+      ? setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          dotDotDot
+        )
+      : undefined;
+
+    return setTextRange(
+      ts.factory.createJsxExpression(spread, expression.ts<ts.Expression>()),
+      this
+    );
+  },
+  JSXElement(node) {
+    return node.ts();
+  },
+  JSXElement_open_close(
+    openLeft,
+    tag,
+    typeArgs,
+    attrNode,
+    openRight,
+    children,
+    closeLeft,
+    _,
+    closeRight
+  ) {
+    let attrs = setTextRange(
+      ts.factory.createJsxAttributes(attrNode.tsa()),
+      attrNode
+    );
+
+    let open = ts.setTextRange(
+      ts.factory.createJsxOpeningElement(tag.ts(), typeArgs.tsa(), attrs),
+      { pos: openLeft.source.startIdx, end: openRight.source.endIdx }
+    );
+
+    let close = ts.setTextRange(ts.factory.createJsxClosingElement(tag.ts()), {
+      pos: closeLeft.source.startIdx,
+      end: closeRight.source.endIdx,
+    });
+
+    return setTextRange(
+      ts.factory.createJsxElement(open, children.tsa(), close),
+      this
+    );
+  },
+  JSXElement_self_closing(_0, tag, typeArgs, attrNode, _1, _2) {
+    let attrs = setTextRange(
+      ts.factory.createJsxAttributes(attrNode.tsa()),
+      attrNode
+    );
+
+    return setTextRange(
+      ts.factory.createJsxSelfClosingElement(tag.ts(), typeArgs.tsa(), attrs),
+      this
+    );
+  },
+  JSXTagName(node) {
+    return node.ts();
+  },
+  JSXTagName_property_access(tag, _, key) {
+    return setTextRange(
+      ts.factory.createPropertyAccessExpression(
+        tag.ts(),
+        key.ts<ts.Identifier>()
+      ),
+      this
+    );
+  },
+  JSXTagName_standard(node) {
+    return node.ts();
+  },
+  jsx_string(bits) {
+    let source = bits.sourceString.trim().replace(/\s+/g, " ");
+    return setTextRange(ts.factory.createJsxText(source), this);
+  },
   MemberAccessExp(node) {
     return node.ts();
   },
