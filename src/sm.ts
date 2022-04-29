@@ -145,13 +145,7 @@ if (args.eval) {
 }
 
 function execute(node: ts.Node) {
-  let context = createContext(
-    { exports: Object.create(null) },
-    { codeGeneration: { strings: false } }
-  );
-
-  runInContext("let exports = Object.create(null);", context);
-  return runInContext(transpile(node, args), context);
+  return runInNewContext(transpile(node, args));
 }
 
 function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
@@ -164,14 +158,15 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
   }[mode];
   console.log(help);
 
-  let context = createContext(
-    { exports: Object.create(null) },
-    { codeGeneration: { strings: false } }
-  );
-
+  let first = true;
   let repl = start({
     prompt: "> ",
-    eval(cmd, _0, _1, cb) {
+    eval(cmd, context, _1, cb) {
+      if (first) {
+        first = false;
+        runInContext("exports = globalThis.module?.exports", context);
+      }
+
       let output: any;
       let node: ts.Node;
 
