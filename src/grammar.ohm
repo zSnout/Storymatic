@@ -449,9 +449,7 @@ Storymatic {
     = "<" JSXTagName GenericTypeArgumentList (#(space+) JSXAttribute*)? ">" JSXChild* "</" JSXTagName ">" -- open_close
     | "<" JSXTagName GenericTypeArgumentList (#(space+) JSXAttribute*)? "/" ">" -- self_closing
 
-  jsx_string_bit
-    = space+ -- space
-    | (~("<" | "{" | space) any)+ -- chars
+  jsx_string_bit = (~("<" | "{") any)+
 
   jsx_string = jsx_string_bit+
 

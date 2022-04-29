@@ -290,9 +290,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   JSXElement_open_close?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: TerminalNode, arg6: IterationNode, arg7: TerminalNode, arg8: NonterminalNode, arg9: TerminalNode) => T;
   JSXElement_self_closing?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: TerminalNode, arg6: TerminalNode) => T;
   JSXElement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  jsx_string_bit_space?: (this: NonterminalNode, arg0: IterationNode) => T;
-  jsx_string_bit_chars?: (this: NonterminalNode, arg0: IterationNode) => T;
-  jsx_string_bit?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  jsx_string_bit?: (this: NonterminalNode, arg0: IterationNode) => T;
   jsx_string?: (this: NonterminalNode, arg0: IterationNode) => T;
   JSXChild_interpolation?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
   JSXChild?: (this: NonterminalNode, arg0: NonterminalNode) => T;
