@@ -28,7 +28,7 @@ export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
     compilerOptions: {
       module: flags.module,
       jsx: flags.jsx ? ts.JsxEmit.React : ts.JsxEmit.Preserve,
-      jsxFactory: flags.jsx,
+      jsxFactory: flags.jsx || undefined,
       strict: true,
       moduleResolution: ts.ModuleResolutionKind.NodeJs,
       allowJs: true,
