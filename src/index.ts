@@ -406,6 +406,24 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  reserved(_) {
+    throw "`reserved` nodes should never directly be evaluated.";
+  },
+  reserved_block(_) {
+    throw "`reserved_block` nodes should never directly be evaluated.";
+  },
+  reserved_inline(_) {
+    throw "`reserved_inline` nodes should never directly be evaluated.";
+  },
+  reserved_javascript(_) {
+    throw "`reserved_javascript` nodes should never directly be evaluated.";
+  },
+  reserved_operators(_) {
+    throw "`reserved_operators` nodes should never directly be evaluated.";
+  },
+  reserved_primitive(_) {
+    throw "`reserved_primitive` nodes should never directly be evaluated.";
+  },
   Statement_break(_0, _1) {
     return setTextRange(ts.factory.createBreakStatement(), this);
   },
