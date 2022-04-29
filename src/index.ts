@@ -640,6 +640,27 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  Statement_print(consoleLog, _0, expr, _1) {
+    let console = setTextRange(
+      ts.factory.createIdentifier("console"),
+      consoleLog
+    );
+
+    let log = setTextRange(ts.factory.createIdentifier("log"), consoleLog);
+
+    let cLog = setTextRange(
+      ts.factory.createPropertyAccessExpression(console, log),
+      consoleLog
+    );
+
+    return setTextRange(
+      ts.factory.createCallExpression(cLog, undefined, [expr.ts()]),
+      this
+    );
+  },
+  Statement_typed_assignment(node) {
+    return node.ts();
+  },
   StatementBlock_statements(statements) {
     return setTextRange(
       ts.factory.createSourceFile(
