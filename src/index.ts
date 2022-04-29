@@ -86,6 +86,31 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   GenericTypeArgumentList_empty() {
     return setTextRange(ts.factory.createNodeArray([]), this);
   },
+
+  GenericTypeParameterList(_0, params, _1) {
+    return params.tsa();
+  },
+
+  ParameterList(node) {
+    return node.tsa();
+  },
+  ParameterList_params(paramNodes, _, rest) {
+    let params = paramNodes.tsa<ts.ParameterDeclaration>();
+
+    if (rest.sourceString) {
+      return setTextRange(
+        ts.factory.createNodeArray(
+          params.concat(rest.ts<ts.ParameterDeclaration>())
+        ),
+        this
+      );
+    } else {
+      return setTextRange(params, this);
+    }
+  },
+  ParameterList_rest_params(rest) {
+    return setTextRange(ts.factory.createNodeArray([rest.ts()]), this);
+  },
 });
 
 semantics.addOperation<ts.Node>("ts", {
@@ -158,6 +183,36 @@ semantics.addOperation<ts.Node>("ts", {
     return setTextRange(
       ts.factory.createNumericLiteral(this.sourceString),
       this
+    );
+  },
+  GenericTypeArgumentList(_) {
+    throw new Error(
+      "`GenericTypeArgumentList` nodes should never directly be evaluated."
+    );
+  },
+  GenericTypeArgumentList_empty() {
+    throw new Error(
+      "`GenericTypeArgumentList_empty` nodes should never directly be evaluated."
+    );
+  },
+  GenericTypeArgumentList_with_args(_0, _1, _2) {
+    throw new Error(
+      "`GenericTypeArgumentList_with_args` nodes should never directly be evaluated."
+    );
+  },
+  GenericTypeParameter(name, _0, constraint, _1, defaultType) {
+    return setTextRange(
+      ts.factory.createTypeParameterDeclaration(
+        name.ts<ts.Identifier>(),
+        constraint.ts<ts.TypeNode>(),
+        defaultType.ts<ts.TypeNode>()
+      ),
+      this
+    );
+  },
+  GenericTypeParameterList(_0, _1, _2) {
+    throw new Error(
+      "`GenericTypeParameterList` nodes should never directly be evaluated."
     );
   },
   ImportableItemName(node) {
@@ -480,6 +535,24 @@ semantics.addOperation<ts.Node>("ts", {
     return setTextRange(
       ts.factory.createNumericLiteral(number.sourceString),
       this
+    );
+  },
+  Parameter(node) {
+    return node.ts();
+  },
+  ParameterList(_) {
+    throw new Error(
+      "`ParameterList` nodes should never directly be evaluated."
+    );
+  },
+  ParameterList_params(_0, _1, _2) {
+    throw new Error(
+      "`ParameterList_params` nodes should never directly be evaluated."
+    );
+  },
+  ParameterList_rest_params(_) {
+    throw new Error(
+      "`ParameterList_rest_params` nodes should never directly be evaluated."
     );
   },
   reserved(_) {
