@@ -446,8 +446,10 @@ Storymatic {
   line_comment = "//" (~("\r" | "\n") any)* &("\r" | "\n" | end)
 
   JSXElement
-    = "<" JSXTagName GenericTypeArgumentList (#(space+) JSXAttribute*)? ">" JSXChild* "</" JSXTagName ">" -- open_close
-    | "<" JSXTagName GenericTypeArgumentList (#(space+) JSXAttribute*)? "/" ">" -- self_closing
+    = "<" JSXTagName GenericTypeArgumentList (#(space+) NonemptyListOf<JSXAttribute, #(space+)>)?
+      ">" JSXChild* "</" JSXTagName ">" -- open_close
+    | "<" JSXTagName GenericTypeArgumentList (#(space+) NonemptyListOf<JSXAttribute, #(space+)>)?
+      "/" ">" -- self_closing
 
   jsx_string_bit = (~("<" | "{") any)+
 
