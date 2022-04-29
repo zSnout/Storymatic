@@ -27,13 +27,14 @@ export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
   let transpiled = ts.transpileModule(text, {
     compilerOptions: {
       module: flags.module,
+      target: flags.target,
       jsx: flags.jsx ? ts.JsxEmit.React : ts.JsxEmit.Preserve,
       jsxFactory: flags.jsx || undefined,
       strict: true,
-      moduleResolution: ts.ModuleResolutionKind.NodeJs,
       allowJs: true,
       checkJs: true,
       skipLibCheck: true,
+      moduleResolution: ts.ModuleResolutionKind.NodeJs,
     },
   });
 
@@ -43,6 +44,7 @@ export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
 export interface Flags {
   typescript?: boolean;
   module?: ts.ModuleKind;
+  target?: ts.ScriptTarget;
   jsx?: string;
 }
 

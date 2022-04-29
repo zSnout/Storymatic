@@ -7,14 +7,14 @@ import { compile, transpile } from "./index.js";
 let args = yargs
   .scriptName("sm")
   .option("typescript", {
-    alias: "t",
+    alias: "ts",
     desc: "compile code to TypeScript",
     type: "boolean",
   })
   .option("module", {
     alias: "m",
     conflicts: "typescript",
-    desc: "the module type to compile to (default: esm)",
+    desc: "the module type to compile to",
     coerce(module) {
       let name = ("" + module).toLowerCase();
 
@@ -32,10 +32,42 @@ let args = yargs
         nodenext: ts.ModuleKind.NodeNext,
       };
 
-      if (moduleType[name]) return moduleType[name];
+      if (typeof moduleType[name] == "number") return moduleType[name];
+      if (!name || name == "undefined") return undefined;
 
       throw new Error(
         'Invalid value for --module. Choices: "commonjs", "amd", "umd", "system", "es2015", "es2020", "es2022", "esnext", "node12", "nodenext"'
+      );
+    },
+  })
+  .option("target", {
+    alias: "t",
+    conflicts: "typescript",
+    desc: "the ES version to compile to",
+    coerce(module) {
+      let name = ("" + module).toLowerCase();
+
+      let moduleType: Record<string, ts.ScriptTarget> = {
+        es3: ts.ScriptTarget.ES3,
+        es5: ts.ScriptTarget.ES5,
+        es2015: ts.ScriptTarget.ES2015,
+        es2016: ts.ScriptTarget.ES2016,
+        es2017: ts.ScriptTarget.ES2017,
+        es2018: ts.ScriptTarget.ES2018,
+        es2019: ts.ScriptTarget.ES2019,
+        es2020: ts.ScriptTarget.ES2020,
+        es2021: ts.ScriptTarget.ES2021,
+        es2022: ts.ScriptTarget.ES2022,
+        esnext: ts.ScriptTarget.ESNext,
+        latest: ts.ScriptTarget.Latest,
+        json: ts.ScriptTarget.JSON,
+      };
+
+      if (typeof moduleType[name] == "number") return moduleType[name];
+      if (!name || name == "undefined") return undefined;
+
+      throw new Error(
+        'Invalid value for --target. Choices: "es3", "es5", "es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "es2021", "es2022", "esnext", "latest", or "json"'
       );
     },
   })
@@ -92,6 +124,7 @@ let args = yargs
   .parseSync();
 
 if (!args.typescript && !args.module) args.module = ts.ModuleKind.ESNext;
+if (!args.typescript && !args.target) args.target = ts.ScriptTarget.Latest;
 
 if (args.eval) {
   let code = args.eval;
