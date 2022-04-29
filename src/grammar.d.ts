@@ -84,8 +84,10 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   importLocation_filename?: (this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) => T;
   importLocation?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ImportableItemName_rewrite?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: NonterminalNode) => T;
+  ImportableItemName_standard?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ImportableItemName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ExportableItemName_rewrite?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: NonterminalNode) => T;
+  ExportableItemName_standard?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ExportableItemName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   statementTerminator_semicolon?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode) => T;
   statementTerminator?: (this: NonterminalNode, arg0: NonterminalNode) => T;
