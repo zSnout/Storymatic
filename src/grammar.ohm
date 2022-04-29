@@ -108,11 +108,11 @@ Storymatic {
     | string_non_interpolatable
 
   ImportableItemName
-    = (identifier | string_non_interpolatable) #(space+) "as" #(space+) identifier -- rewrite
+    = identifier #(space+) "as" #(space+) identifier -- rewrite
     | identifier -- standard
 
   ExportableItemName
-    = identifier #(space+) "as" #(space+) (identifier | string_non_interpolatable) -- rewrite
+    = identifier #(space+) "as" #(space+) identifier -- rewrite
     | identifier -- standard
 
   statementTerminator
