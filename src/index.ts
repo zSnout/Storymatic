@@ -125,6 +125,12 @@ semantics.addOperation<ts.Node>("ts", {
   ElseIfKeyword_else_unless(_0, _1, _2) {
     throw "`ElseIfKeyword_else_unless` nodes should never directly be evaluated.";
   },
+  ExpExp(node) {
+    return node.ts();
+  },
+  ExpExp_exponentiate(left, _, right) {
+    return setTextRange(ts.factory.createExponent(left.ts(), right.ts()), this);
+  },
   ExportableItemName(node) {
     return node.ts();
   },
