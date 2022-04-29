@@ -15,26 +15,28 @@ let args = yargs
     alias: "m",
     conflicts: "typescript",
     desc: "the module type to compile to (default: esm)",
-    default: ts.ModuleKind.ESNext,
     coerce(module) {
       let name = ("" + module).toLowerCase();
 
       let moduleType: Record<string, ts.ModuleKind> = {
+        commonjs: ts.ModuleKind.CommonJS,
+        amd: ts.ModuleKind.AMD,
+        umd: ts.ModuleKind.UMD,
         esm: ts.ModuleKind.ESNext,
-        esnext: ts.ModuleKind.ESNext,
+        system: ts.ModuleKind.System,
         es2015: ts.ModuleKind.ES2015,
         es2020: ts.ModuleKind.ES2020,
         es2022: ts.ModuleKind.ES2022,
-        system: ts.ModuleKind.System,
-        amd: ts.ModuleKind.AMD,
-        commonjs: ts.ModuleKind.CommonJS,
-        cjs: ts.ModuleKind.CommonJS,
+        esnext: ts.ModuleKind.ESNext,
         node12: ts.ModuleKind.Node12,
         nodenext: ts.ModuleKind.NodeNext,
-        node: ts.ModuleKind.NodeNext,
       };
 
-      return moduleType[name] || ts.ModuleKind.ESNext;
+      if (moduleType[name]) return moduleType[name];
+
+      throw new Error(
+        'Invalid value for --module. Choices: "commonjs", "amd", "umd", "system", "es2015", "es2020", "es2022", "esnext", "node12", "nodenext"'
+      );
     },
   })
   .option("jsx", {
@@ -88,6 +90,8 @@ let args = yargs
     type: "string",
   })
   .parseSync();
+
+if (!args.typescript && !args.module) args.module = ts.ModuleKind.ESNext;
 
 if (args.eval) {
   let code = args.eval;
