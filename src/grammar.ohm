@@ -467,7 +467,7 @@ Storymatic {
     | JSXAttributeKey "=" "{" "..."? Expression "}" -- value_expression
     | "{" "..." Expression "}" -- spread_attributes
 
-  JSXAttributeKey = NonemptyListOf<word, "-">
+  JSXAttributeKey = word
 
   JSXTagName
     = JSXTagName "." word -- property_access
