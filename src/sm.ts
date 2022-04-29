@@ -123,7 +123,7 @@ let args = yargs
   })
   .parseSync();
 
-if (!args.typescript && !args.module) args.module = ts.ModuleKind.ESNext;
+if (!args.typescript && !args.module) args.module = ts.ModuleKind.CommonJS;
 if (!args.typescript && !args.target) args.target = ts.ScriptTarget.Latest;
 
 if (args.eval) {
