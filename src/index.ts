@@ -114,6 +114,48 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
 });
 
 semantics.addOperation<ts.Node>("ts", {
+  Accessor(base, addons) {
+    let expr = base.ts<ts.Expression>();
+
+    for (let addon of addons.tsa<ts.Expression | ts.Identifier>()) {
+      if (
+        addon.kind == ts.SyntaxKind.Identifier ||
+        addon.kind == ts.SyntaxKind.PrivateIdentifier
+      ) {
+        expr = ts.factory.createPropertyAccessExpression(
+          expr,
+          addon as ts.MemberName
+        );
+      } else {
+        expr = ts.factory.createElementAccessExpression(expr, addon);
+      }
+
+      expr = ts.setTextRange(expr, {
+        pos: base.source.startIdx,
+        end: addon.end,
+      });
+    }
+
+    return setTextRange(expr, this);
+  },
+  AccessorAddon(node) {
+    return node.ts();
+  },
+  AccessorAddon_computed_member_access(_0, expr, _1) {
+    return expr.ts();
+  },
+  AccessorAddon_member_access(_, prop) {
+    return prop.ts();
+  },
+  AccessorAddon_symbol_access(_, symbol) {
+    return symbol.ts();
+  },
+  AccessorBase(node) {
+    return node.ts();
+  },
+  AccessorPropertyBase(node) {
+    return node.ts();
+  },
   AddExp(node) {
     return node.ts();
   },
@@ -131,6 +173,15 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createBigIntLiteral(this.sourceString),
       this
     );
+  },
+  char(_) {
+    throw "`char` nodes should never directly be evaluated.";
+  },
+  colonTerminator(_) {
+    throw "`colonTerminator` nodes should never directly be evaluated.";
+  },
+  colonTerminator_colon(_0, _1) {
+    throw "`colonTerminator_colon` nodes should never directly be evaluated.";
   },
   decimalNumber(number) {
     return number.ts();
@@ -555,6 +606,39 @@ semantics.addOperation<ts.Node>("ts", {
       "`ParameterList_rest_params` nodes should never directly be evaluated."
     );
   },
+  PrimitiveType(node) {
+    return setTextRange(ts.factory.createIdentifier(node.sourceString), this);
+  },
+  Property(node) {
+    return node.ts();
+  },
+  Property_computed(atSymbol, _0, expr, _1) {
+    return setTextRange(
+      ts.factory.createElementAccessExpression(
+        setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
+        expr.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  Property_identifier(atSymbol, prop) {
+    return setTextRange(
+      ts.factory.createPropertyAccessExpression(
+        setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
+        prop.ts<ts.Identifier>()
+      ),
+      this
+    );
+  },
+  Property_symbol(atSymbol, symbol) {
+    return setTextRange(
+      ts.factory.createElementAccessExpression(
+        setTextRange(ts.factory.createIdentifier("self"), atSymbol),
+        symbol.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
   reserved(_) {
     throw "`reserved` nodes should never directly be evaluated.";
   },
@@ -749,6 +833,54 @@ semantics.addOperation<ts.Node>("ts", {
           end: this.source.endIdx,
         }),
         0
+      ),
+      this
+    );
+  },
+  StaticProperty(node) {
+    return node.ts();
+  },
+  StaticProperty_computed(atSymbol, _0, expr, _1) {
+    return setTextRange(
+      ts.factory.createElementAccessExpression(
+        setTextRange(
+          ts.factory.createPropertyAccessExpression(
+            setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
+            "constructor"
+          ),
+          atSymbol
+        ),
+        expr.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  StaticProperty_identifier(atSymbol, prop) {
+    return setTextRange(
+      ts.factory.createPropertyAccessExpression(
+        setTextRange(
+          ts.factory.createPropertyAccessExpression(
+            setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
+            "constructor"
+          ),
+          atSymbol
+        ),
+        prop.ts<ts.Identifier>()
+      ),
+      this
+    );
+  },
+  StaticProperty_symbol(atSymbol, symbol) {
+    return setTextRange(
+      ts.factory.createElementAccessExpression(
+        setTextRange(
+          ts.factory.createPropertyAccessExpression(
+            setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
+            "constructor"
+          ),
+          atSymbol
+        ),
+        symbol.ts<ts.Expression>()
       ),
       this
     );
