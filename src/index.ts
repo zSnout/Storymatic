@@ -10,22 +10,40 @@ export function compile(text: string, _flags: Partial<Flags> = {}) {
 }
 
 export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
-  if (flags.typescript && flags.commonjs)
-    throw new Error("CommonJS and TypeScript flags must not both be enabled.");
+  if (flags.typescript && flags.module)
+    throw new Error("Module and TypeScript options are mutually exclusive.");
+
   if (flags.typescript && flags.jsx)
-    throw new Error("JSX and TypeScript flags must not both be enabled.");
+    throw new Error("JSX and TypeScript options are mutually exclusive.");
+
+  let source = ts.createSourceFile("", "", ts.ScriptTarget.Latest);
+  source.languageVariant = ts.LanguageVariant.JSX;
 
   let printer = ts.createPrinter({});
-  let source = ts.createSourceFile("", "", ts.ScriptTarget.Latest);
   let text = printer.printNode(ts.EmitHint.Unspecified, node, source);
 
-  return text;
+  if (flags.typescript) return text;
+
+  let transpiled = ts.transpileModule(text, {
+    compilerOptions: {
+      module: flags.module,
+      jsx: flags.jsx ? ts.JsxEmit.React : ts.JsxEmit.Preserve,
+      jsxFactory: flags.jsx,
+      strict: true,
+      moduleResolution: ts.ModuleResolutionKind.NodeJs,
+      allowJs: true,
+      checkJs: true,
+      skipLibCheck: true,
+    },
+  });
+
+  return transpiled.outputText;
 }
 
-interface Flags {
-  commonjs: boolean;
-  typescript: boolean;
-  jsx: boolean;
+export interface Flags {
+  typescript?: boolean;
+  module?: ts.ModuleKind;
+  jsx?: string;
 }
 
 function setTextRange<T extends ts.TextRange>(range: T, location: ohm.Node) {
@@ -48,7 +66,7 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
       return iterNode.tsa();
     } catch {
       throw new Error(
-        ".tsa() must only be called on NonterminalNodes with a defined .asIteration() method or whose first child is an IterationNode."
+        "When .tsa() is called on a NonterminalNode, the node must have a .asIteration() method or have a single child of type IterationNode."
       );
     }
   },
@@ -471,11 +489,7 @@ semantics.addOperation<ts.Node>("ts", {
 });
 
 declare module "ohm-js" {
-  export interface Node {
-    ts<T extends ts.Node = ts.Node>(): T;
-    tsa<T extends ts.Node = ts.Node>(): ts.NodeArray<T>;
-    asIteration(): ohm.IterationNode;
-  }
+  export interface Node extends grammar.StorymaticDict {}
 }
 
 declare module "./grammar.js" {
