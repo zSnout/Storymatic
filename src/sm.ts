@@ -1,6 +1,6 @@
 import { Recoverable, start } from "repl";
 import * as ts from "typescript";
-import { runInContext, runInNewContext } from "vm";
+import { createContext, runInContext, runInNewContext } from "vm";
 import * as yargs from "yargs";
 import { compile, transpile } from "./index.js";
 
@@ -145,7 +145,13 @@ if (args.eval) {
 }
 
 function execute(node: ts.Node) {
-  return runInNewContext(transpile(node, args), undefined);
+  let context = createContext(
+    { exports: Object.create(null) },
+    { codeGeneration: { strings: false } }
+  );
+
+  runInContext("let exports = Object.create(null);", context);
+  return runInContext(transpile(node, args), context);
 }
 
 function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
@@ -158,9 +164,14 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
   }[mode];
   console.log(help);
 
+  let context = createContext(
+    { exports: Object.create(null) },
+    { codeGeneration: { strings: false } }
+  );
+
   let repl = start({
     prompt: "> ",
-    eval(cmd, context, _file, cb) {
+    eval(cmd, _0, _1, cb) {
       let output: any;
       let node: ts.Node;
 
