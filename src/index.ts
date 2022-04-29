@@ -111,11 +111,69 @@ semantics.addOperation<ts.Node>("ts", {
     return number.ts();
   },
   digit(_) {
-    throw "`digit` nodes should never directly be evaluated";
+    throw "`digit` nodes should never directly be evaluated.";
+  },
+  ElseIfKeyword(_) {
+    throw "`ElseIfKeyword` nodes should never directly be evaluated.";
+  },
+  ElseIfKeyword_elif(_) {
+    throw "`ElseIfKeyword_elif` nodes should never directly be evaluated.";
+  },
+  ElseIfKeyword_else_if(_0, _1) {
+    throw "`ElseIfKeyword_else_if` nodes should never directly be evaluated.";
+  },
+  ElseIfKeyword_else_unless(_0, _1, _2) {
+    throw "`ElseIfKeyword_else_unless` nodes should never directly be evaluated.";
+  },
+  ExportableItemName(node) {
+    return node.ts();
+  },
+  ExportableItemName_rewrite(scriptName, _0, _1, _2, exportName) {
+    return setTextRange(
+      ts.factory.createExportSpecifier(
+        false,
+        scriptName.ts<ts.Identifier>(),
+        exportName.ts<ts.Identifier>()
+      ),
+      this
+    );
+  },
+  ExportableItemName_standard(ident) {
+    return setTextRange(
+      ts.factory.createExportSpecifier(
+        false,
+        undefined,
+        ident.ts<ts.Identifier>()
+      ),
+      this
+    );
   },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
     return setTextRange(
       ts.factory.createNumericLiteral(this.sourceString),
+      this
+    );
+  },
+  ImportableItemName(node) {
+    return node.ts();
+  },
+  ImportableItemName_rewrite(exportName, _0, _1, _2, scriptName) {
+    return setTextRange(
+      ts.factory.createImportSpecifier(
+        false,
+        exportName.ts<ts.Identifier>(),
+        scriptName.ts<ts.Identifier>()
+      ),
+      this
+    );
+  },
+  ImportableItemName_standard(ident) {
+    return setTextRange(
+      ts.factory.createImportSpecifier(
+        false,
+        undefined,
+        ident.ts<ts.Identifier>()
+      ),
       this
     );
   },
@@ -141,6 +199,18 @@ semantics.addOperation<ts.Node>("ts", {
 
     return setTextRange(
       ts.factory.createIdentifier(first.text + others.join("")),
+      this
+    );
+  },
+  id_continue(_) {
+    throw new Error("`id_continue` nodes should never directly be evaluated.");
+  },
+  importLocation(node) {
+    return node.ts();
+  },
+  importLocation_filename(filename, _) {
+    return setTextRange(
+      ts.factory.createStringLiteral(filename.sourceString),
       this
     );
   },
@@ -430,6 +500,20 @@ semantics.addOperation<ts.Node>("ts", {
   Statement_continue(_0, _1) {
     return setTextRange(ts.factory.createContinueStatement(), this);
   },
+  Statement_do_until(_0, _1, block, _2, _3, _4, condition, _5) {
+    let cond = setTextRange(
+      ts.factory.createLogicalNot(condition.ts()),
+      condition
+    );
+
+    return setTextRange(ts.factory.createDoStatement(block.ts(), cond), this);
+  },
+  Statement_do_while(_0, _1, block, _2, _3, _4, condition, _5) {
+    return setTextRange(
+      ts.factory.createDoStatement(block.ts(), condition.ts()),
+      this
+    );
+  },
   Statement_empty_export(_0, _1) {
     return setTextRange(
       ts.factory.createExportDeclaration(
@@ -441,8 +525,54 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  Statement_empty_import(_0, _1, filename, _2) {
+    return setTextRange(
+      ts.factory.createImportDeclaration(
+        undefined,
+        undefined,
+        undefined,
+        filename.ts()
+      ),
+      this
+    );
+  },
+  Statement_export(_0, _1, exports, _2) {
+    return setTextRange(
+      ts.factory.createExportDeclaration(
+        undefined,
+        undefined,
+        false,
+        setTextRange(ts.factory.createNamedExports(exports.tsa()), exports)
+      ),
+      this
+    );
+  },
+  Statement_export_all_from(_0, _1, _2, _3, filename, _4) {
+    return setTextRange(
+      ts.factory.createExportDeclaration(
+        undefined,
+        undefined,
+        false,
+        undefined,
+        filename.ts<ts.StringLiteral>()
+      ),
+      this
+    );
+  },
   Statement_export_default(_0, _1, expression, _2) {
     return setTextRange(ts.factory.createExportDefault(expression.ts()), this);
+  },
+  Statement_export_from(_0, _1, exports, _2, _3, _4, filename, _5) {
+    return setTextRange(
+      ts.factory.createExportDeclaration(
+        undefined,
+        undefined,
+        false,
+        setTextRange(ts.factory.createNamedExports(exports.tsa()), exports),
+        filename.ts<ts.Expression>()
+      ),
+      this
+    );
   },
   Statement_expression(expression, _) {
     return setTextRange(
@@ -504,10 +634,10 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   sign(_) {
-    throw new Error("`sign` nodes should never be evaluated directly.");
+    throw new Error("`sign` nodes should never directly be evaluated.");
   },
   space(_) {
-    throw new Error("`space` nodes should never be evaluated directly.");
+    throw new Error("`space` nodes should never directly be evaluated.");
   },
   statementTerminator(_) {
     return setTextRange(
@@ -517,7 +647,7 @@ semantics.addOperation<ts.Node>("ts", {
   },
   statementTerminator_semicolon(_0, _1) {
     throw new Error(
-      "`statementTerminator_semicolon` nodes should never be evaluated directly."
+      "`statementTerminator_semicolon` nodes should never directly be evaluated."
     );
   },
   string(node) {
@@ -532,32 +662,32 @@ semantics.addOperation<ts.Node>("ts", {
   },
   string_bit_character(_) {
     throw new Error(
-      "`string_bit_character` nodes should never be evaluated directly."
+      "`string_bit_character` nodes should never directly be evaluated."
     );
   },
   string_bit_escape(_0, _1) {
     throw new Error(
-      "`string_bit_escape` nodes should never be evaluated directly."
+      "`string_bit_escape` nodes should never directly be evaluated."
     );
   },
   string_bit_escape_sequence(_0, _1) {
     throw new Error(
-      "`string_bit_escape_sequence` nodes should never be evaluated directly."
+      "`string_bit_escape_sequence` nodes should never directly be evaluated."
     );
   },
   string_bit_hex_sequence(_0, _1, _2) {
     throw new Error(
-      "`string_bit_hex_sequence` nodes should never be evaluated directly."
+      "`string_bit_hex_sequence` nodes should never directly be evaluated."
     );
   },
   string_bit_unicode_code_point_sequence(_0, _1, _2) {
     throw new Error(
-      "`string_bit_unicode_code_point_sequence` nodes should never be evaluated directly."
+      "`string_bit_unicode_code_point_sequence` nodes should never directly be evaluated."
     );
   },
   string_bit_unicode_sequence(_0, _1, _2, _3, _4) {
     throw new Error(
-      "`string_bit_unicode_sequence` nodes should never be evaluated directly."
+      "`string_bit_unicode_sequence` nodes should never directly be evaluated."
     );
   },
   string_full(open, content, _) {
