@@ -818,6 +818,27 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  TernaryExp(node) {
+    return node.ts();
+  },
+  TernaryExp_symbolic(condition, questionToken, ifTrue, colonToken, ifFalse) {
+    return setTextRange(
+      ts.factory.createConditionalExpression(
+        condition.ts(),
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+          questionToken
+        ),
+        ifTrue.ts(),
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.ColonToken),
+          colonToken
+        ),
+        ifFalse.ts()
+      ),
+      this
+    );
+  },
   unitNumber(number, identifier) {
     let num = number.ts<ts.NumericLiteral>();
     let str = setTextRange(
