@@ -959,7 +959,26 @@ semantics.addOperation<ts.Node>("ts", {
     if (char.length == 1 && "$\"'`".indexOf(char) > -1) char = "\\" + char;
     if (char == "\n") char = "\\n";
     if (char == "\r") char = "\\r";
-    return setTextRange(ts.factory.createStringLiteral(char), node);
+
+    if (char.length == 2 && char[0] == "\\") {
+      let res = {
+        "b": "\b",
+        "f": "\f",
+        "n": "\n",
+        "r": "\r",
+        "t": "\t",
+        "v": "\v",
+        0: "\0",
+        "\\": "\\",
+        "{": "{",
+        '"': '\\"',
+        "'": "\\'",
+      }[char[1]];
+
+      if (res) return setTextRange(ts.factory.createStringLiteral(res), this);
+    }
+
+    return setTextRange(ts.factory.createStringLiteral(char), this);
   },
   string_bit_character(_) {
     throw new Error(
