@@ -168,6 +168,12 @@ semantics.addOperation<ts.Node>("ts", {
   Argument(node) {
     return node.ts();
   },
+  ArgumentList(_) {
+    throw new Error("`ArgumentList` nodes should never directly be evaluated.");
+  },
+  Argument_spread_operator(_, expr) {
+    return setTextRange(ts.factory.createSpreadElement(expr.ts()), this);
+  },
   bigint(_0, _1, _2) {
     return setTextRange(
       ts.factory.createBigIntLiteral(this.sourceString),
