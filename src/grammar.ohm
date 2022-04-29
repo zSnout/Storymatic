@@ -451,7 +451,7 @@ Storymatic {
 
   jsx_string_bit
     = space+ -- space
-    | ~("<" | "{" | space) any -- character
+    | (~("<" | "{" | space) any)+ -- chars
 
   jsx_string = jsx_string_bit+
 
