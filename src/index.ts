@@ -580,6 +580,66 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  Statement_import(_0, _1, imports, _2, _3, _4, filename, _5) {
+    return setTextRange(
+      ts.factory.createImportDeclaration(
+        undefined,
+        undefined,
+        setTextRange(
+          ts.factory.createImportClause(
+            false,
+            undefined,
+            setTextRange(ts.factory.createNamedImports(imports.tsa()), imports)
+          ),
+          imports
+        ),
+        filename.ts()
+      ),
+      this
+    );
+  },
+  Statement_import_all(_0, star, _2, _3, ident, _4, _5, _6, filename, _7) {
+    return setTextRange(
+      ts.factory.createImportDeclaration(
+        undefined,
+        undefined,
+        ts.setTextRange(
+          ts.factory.createImportClause(
+            false,
+            undefined,
+            ts.setTextRange(ts.factory.createNamespaceImport(ident.ts()), {
+              pos: star.source.startIdx,
+              end: ident.source.endIdx,
+            })
+          ),
+          {
+            pos: star.source.startIdx,
+            end: ident.source.endIdx,
+          }
+        ),
+        filename.ts<ts.StringLiteral>()
+      ),
+      this
+    );
+  },
+  Statement_import_default(_0, _1, ident, _2, _3, _4, filename, _5) {
+    return setTextRange(
+      ts.factory.createImportDeclaration(
+        undefined,
+        undefined,
+        setTextRange(
+          ts.factory.createImportClause(
+            false,
+            ident.ts<ts.Identifier>(),
+            undefined
+          ),
+          ident
+        ),
+        filename.ts()
+      ),
+      this
+    );
+  },
   StatementBlock_statements(statements) {
     return setTextRange(
       ts.factory.createSourceFile(
@@ -658,7 +718,7 @@ semantics.addOperation<ts.Node>("ts", {
     if (char.length == 1 && "$\"'`".indexOf(char) > -1) char = "\\" + char;
     if (char == "\n") char = "\\n";
     if (char == "\r") char = "\\r";
-    return ts.factory.createStringLiteral(char);
+    return setTextRange(ts.factory.createStringLiteral(char), node);
   },
   string_bit_character(_) {
     throw new Error(
