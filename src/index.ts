@@ -617,6 +617,18 @@ semantics.addOperation<ts.Node>("ts", {
       "`GenericTypeParameterList` nodes should never directly be evaluated."
     );
   },
+  hexDigit(_) {
+    throw new Error("`hexDigit` nodes should never directly be evaluated.");
+  },
+  hexNumber(_0, _1, _2) {
+    return setTextRange(
+      ts.factory.createNumericLiteral(
+        this.sourceString,
+        ts.TokenFlags.HexSpecifier
+      ),
+      this
+    );
+  },
   ImportableItemName(node) {
     return node.ts();
   },
