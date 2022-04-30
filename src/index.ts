@@ -210,6 +210,17 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  block_comment(_0, _1, _2) {
+    throw new Error(
+      "`block_comment` nodes should never directly be evaluated."
+    );
+  },
+  boolean(value) {
+    return value.tsn({
+      true: ts.factory.createTrue(),
+      false: ts.factory.createFalse(),
+    })!;
+  },
   CaseClause(_0, _1, expr, _2) {
     return setTextRange(ts.factory.createCaseClause(expr.ts(), []), this);
   },
@@ -1069,6 +1080,9 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  null(_) {
+    return setTextRange(ts.factory.createNull(), _);
+  },
   ObjectEntry(node) {
     return node.ts();
   },
@@ -1687,6 +1701,9 @@ semantics.addOperation<ts.Node>("ts", {
   },
   UnprefixedSingleStatementBlock_single_statement(statement) {
     return setTextRange(ts.factory.createBlock([statement.ts()]), this);
+  },
+  undefined(_) {
+    return setTextRange(ts.factory.createVoidZero(), this);
   },
   unitNumber(number, identifier) {
     let num = number.ts<ts.NumericLiteral>();
