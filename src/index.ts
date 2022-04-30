@@ -225,6 +225,15 @@ semantics.addOperation<ts.Node>("ts", {
   CaseTerminator_terminator(_) {
     throw "`CaseTerminator_terminator` nodes should never directly be evaluated.";
   },
+  CatchStatement(_0, _1, ident, _2, _3, _4, block) {
+    return setTextRange(
+      ts.factory.createCatchClause(
+        ident.child(0)?.ts<ts.Identifier>(),
+        block.ts()
+      ),
+      this
+    );
+  },
   char(_) {
     throw "`char` nodes should never directly be evaluated.";
   },
@@ -280,6 +289,9 @@ semantics.addOperation<ts.Node>("ts", {
       ),
       this
     );
+  },
+  FinallyStatement(_0, _1, block) {
+    return block.ts();
   },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
     return setTextRange(
@@ -1252,6 +1264,57 @@ semantics.addOperation<ts.Node>("ts", {
         ifFalse.ts()
       ),
       this
+    );
+  },
+  TryStatement(_0, _1, block, _catch, _finally) {
+    let catchBlock = _catch.child(0)?.ts<ts.CatchClause>();
+    let finallyBlock = _finally.child(0)?.ts<ts.Block>();
+
+    if (!_catch.sourceString && !_finally.sourceString) {
+      catchBlock = ts.setTextRange(
+        ts.factory.createCatchClause(
+          undefined,
+          ts.setTextRange(ts.factory.createBlock([]), {
+            pos: this.source.endIdx,
+            end: this.source.endIdx,
+          })
+        ),
+        {
+          pos: this.source.endIdx,
+          end: this.source.endIdx,
+        }
+      );
+    }
+
+    return setTextRange(
+      ts.factory.createTryStatement(block.ts(), catchBlock, finallyBlock),
+      this
+    );
+  },
+  terminator(_) {
+    throw new Error("`terminator` nodes should never directly be evaluated.");
+  },
+  terminator_implied(_0, _1) {
+    throw new Error(
+      "`terminator_implied` nodes should never directly be evaluated."
+    );
+  },
+  thenOrDo(_) {
+    throw new Error("`thenOrDo` nodes should never directly be evaluated.");
+  },
+  typeTerminator(_) {
+    throw new Error(
+      "`typeTerminator` nodes should never directly be evaluated."
+    );
+  },
+  typeTerminator_comma(_0, _1) {
+    throw new Error(
+      "`typeTerminator_comma` nodes should never directly be evaluated."
+    );
+  },
+  typeTerminator_semicolon(_0, _1) {
+    throw new Error(
+      "`typeTerminator_semicolon` nodes should never directly be evaluated."
     );
   },
   UnprefixedSingleStatementBlock(node) {
