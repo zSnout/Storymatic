@@ -73,7 +73,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Statement_rescope_assign?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_typed_assignment?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ClassDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: IterationNode, arg12: IterationNode, arg13: TerminalNode, arg14: IterationNode, arg15: TerminalNode) => T;
+  ClassDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: IterationNode, arg12: IterationNode, arg13: IterationNode, arg14: TerminalNode, arg15: IterationNode, arg16: TerminalNode) => T;
   ClassElement_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassElement_static_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassElement_property?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: NonterminalNode) => T;
@@ -309,6 +309,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Type?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   PrimitiveType?: (this: NonterminalNode, arg0: TerminalNode) => T;
   Implementable?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
+  Extendable?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   LiteralType_infer?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   LiteralType_infer_constraint?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: NonterminalNode) => T;
   LiteralType_identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -358,7 +359,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TypeParameterList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   GenericTypeParameter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode) => T;
   GenericTypeParameterList?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
-  GenericTypeArgumentList_with_args?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
+  NonemptyGenericTypeArgumentList?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
+  GenericTypeArgumentList_with_args?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   GenericTypeArgumentList_empty?: (this: NonterminalNode, ) => T;
   GenericTypeArgumentList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ListOfTwo?: (this: NonterminalNode, arg0: Node, arg1: Node, arg2: NonterminalNode) => T;

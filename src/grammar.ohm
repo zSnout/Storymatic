@@ -89,8 +89,8 @@ Storymatic {
 
   ClassDeclaration
     = ("export" #space)? "class" #space identifier GenericTypeParameterList?
-      (#space "extends" #space (Implementable | Expression))?
-      ("implements" #space NonemptyListOf<Implementable, ",">)?
+      (#space "extends" #space (Extendable | Expression))?
+      (#space "implements" #space NonemptyListOf<Implementable, ",">)?
       "{" ClassElement* "}"
 
   ClassElement
@@ -481,6 +481,9 @@ Storymatic {
   Implementable
     = identifier ("." identOrWord)* GenericTypeArgumentList &("," | "implements" | "{")
 
+  Extendable
+    = identifier ("." identOrWord)* NonemptyGenericTypeArgumentList &("," | "implements" | "{")
+
   LiteralType
     = PrimitiveType ~(id_continue | ".")
     | string_non_interpolatable
@@ -561,8 +564,10 @@ Storymatic {
 
   GenericTypeParameter = identifier (":" Type)? ("=" Type)?
   GenericTypeParameterList = "<" NonemptyListOf<GenericTypeParameter, #expressionTerminator> ">"
+
+  NonemptyGenericTypeArgumentList = "<" NonemptyListOf<Type, #expressionTerminator> ">"
   GenericTypeArgumentList
-    = "<" NonemptyListOf<Type, #expressionTerminator> ">" -- with_args
+    = NonemptyGenericTypeArgumentList -- with_args
     | -- empty
 
   ListOfTwo<value, sep> = value sep NonemptyListOf<value, sep>
