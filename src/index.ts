@@ -34,8 +34,8 @@ export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
       allowJs: true,
       checkJs: true,
       skipLibCheck: true,
+      allowSyntheticDefaultImports: true,
       moduleResolution: ts.ModuleResolutionKind.NodeJs,
-      preserveValueImports: true,
     },
   });
 
