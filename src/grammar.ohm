@@ -524,10 +524,10 @@ Storymatic {
 
   TypeObjectEntry
     = ("readonly" #space)? TypeObjectKey ":" Type -- key_value
+    | ("readonly" #space)? IndexSignatureType<""> -- index_signature
     | "new" #space InlineFunctionType -- construct_signature
     | InlineFunctionType
     | BlockFunctionType
-    | IndexSignatureType<"">
 
   InlineFunctionType
     = "fn" GenericTypeParameterList? "=>" Type -- no_params
