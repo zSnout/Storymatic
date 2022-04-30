@@ -116,6 +116,27 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   },
 });
 
+semantics.addOperation<ts.Node | undefined>("tsn(map)", {
+  _terminal() {
+    let args = this.args.map as Record<string, ts.Node>;
+    let res = args[this.sourceString];
+    if (!res) return undefined;
+    return setTextRange(res, this);
+  },
+  _nonterminal() {
+    let args = this.args.map as Record<string, ts.Node>;
+    let res = args[this.sourceString];
+    if (!res) return undefined;
+    return setTextRange(res, this);
+  },
+  _iter() {
+    let args = this.args.map as Record<string, ts.Node>;
+    let res = args[this.sourceString];
+    if (!res) return undefined;
+    return setTextRange(res, this);
+  },
+});
+
 semantics.addOperation<ts.Node>("ts", {
   ArrayEntry(node) {
     return node.ts();
@@ -262,6 +283,141 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createNewExpression(target.ts(), typeArgs.tsa(), args.tsa()),
       this
     );
+  },
+  ClassDeclaration(
+    _export,
+    _0,
+    _1,
+    _2,
+    ident,
+    generics,
+    _3,
+    _4,
+    _5,
+    extendTargets,
+    _6,
+    _7,
+    _8,
+    implementTargets,
+    _9,
+    elements,
+    _10
+  ) {
+    return setTextRange(
+      ts.factory.createClassDeclaration(
+        undefined,
+        _export.sourceString
+          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+          : [],
+        ident.ts<ts.Identifier>(),
+        generics.tsa(),
+        extendTargets
+          .tsa<ts.HeritageClause>()
+          .concat(implementTargets.tsa<ts.HeritageClause>()),
+        elements.tsa()
+      ),
+      this
+    );
+  },
+  ClassElement(node) {
+    return node.ts();
+  },
+  ClassElement_index_signature(signature, _) {
+    return signature.ts();
+  },
+  ClassElement_method(method) {
+    return method.ts();
+  },
+  ClassElement_property(
+    privacy,
+    readonly,
+    _0,
+    _1,
+    name,
+    modifier,
+    _2,
+    type,
+    _3,
+    initializer,
+    _4
+  ) {
+    let modifiers: ts.Modifier[] = [];
+    if (privacy.sourceString) modifiers.push(privacy.ts());
+    if (readonly.sourceString)
+      modifiers.push(
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword),
+          readonly
+        )
+      );
+
+    let exclOrQues = modifier.child(0)?.tsn({
+      "!": ts.factory.createToken(ts.SyntaxKind.ExclamationToken),
+      "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+    });
+
+    return setTextRange(
+      ts.factory.createPropertyDeclaration(
+        undefined,
+        modifiers,
+        name.ts<ts.PropertyName>(),
+        exclOrQues,
+        type.child(0)?.ts<ts.TypeNode>(),
+        initializer.child(0)?.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  ClassElement_static_property(
+    privacy,
+    readonly,
+    _0,
+    atAt,
+    name,
+    modifier,
+    _2,
+    type,
+    _3,
+    initializer,
+    _4
+  ) {
+    let modifiers: ts.Modifier[] = [];
+    if (privacy.sourceString) modifiers.push(privacy.ts());
+    modifiers.push(
+      setTextRange(ts.factory.createToken(ts.SyntaxKind.StaticKeyword), atAt)
+    );
+    if (readonly.sourceString)
+      modifiers.push(
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword),
+          readonly
+        )
+      );
+
+    let ques = modifier.child(0)?.tsn({
+      "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+    });
+
+    return setTextRange(
+      ts.factory.createPropertyDeclaration(
+        undefined,
+        modifiers,
+        name.ts<ts.PropertyName>(),
+        ques,
+        type.child(0)?.ts<ts.TypeNode>(),
+        initializer.child(0)?.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  ClassElement_static_index_signature(signature, _) {
+    return signature.ts();
+  },
+  ClassElement_static_method(method) {
+    return method.ts();
+  },
+  CompareExp(node) {
+    return node.ts();
   },
   char(_) {
     throw "`char` nodes should never directly be evaluated.";
@@ -423,6 +579,45 @@ semantics.addOperation<ts.Node>("ts", {
   importLocation_filename(filename, _) {
     return setTextRange(
       ts.factory.createStringLiteral(filename.sourceString),
+      this
+    );
+  },
+  IndexSignatureType(readonly, prefix, _0, ident, _1, key, _2, _3, value) {
+    let modifiers: ts.Modifier[] = [];
+    if (prefix.sourceString == "@@")
+      modifiers.push(
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.StaticKeyword),
+          prefix
+        )
+      );
+    if (readonly.sourceString)
+      modifiers.push(
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword),
+          readonly
+        )
+      );
+
+    return setTextRange(
+      ts.factory.createIndexSignature(
+        undefined,
+        modifiers,
+        [
+          ts.setTextRange(
+            ts.factory.createParameterDeclaration(
+              undefined,
+              undefined,
+              undefined,
+              ident.ts<ts.Identifier>(),
+              undefined,
+              key.ts<ts.TypeNode>()
+            ),
+            { pos: ident.source.startIdx, end: key.source.endIdx }
+          ),
+        ],
+        value.ts()
+      ),
       this
     );
   },
@@ -814,6 +1009,32 @@ semantics.addOperation<ts.Node>("ts", {
   },
   PrimitiveType(node) {
     return setTextRange(ts.factory.createIdentifier(node.sourceString), this);
+  },
+  PrivacyLevel(node) {
+    return node.ts();
+  },
+  PrivacyLevel_none() {
+    throw new Error(
+      "`PrivacyLevel_none` nodes should never directly be evaluated."
+    );
+  },
+  PrivacyLevel_private(keyword, _) {
+    return setTextRange(
+      ts.factory.createToken(ts.SyntaxKind.PrivateKeyword),
+      keyword
+    );
+  },
+  PrivacyLevel_protected(keyword, _) {
+    return setTextRange(
+      ts.factory.createToken(ts.SyntaxKind.ProtectedKeyword),
+      keyword
+    );
+  },
+  PrivacyLevel_public(keyword, _) {
+    return setTextRange(
+      ts.factory.createToken(ts.SyntaxKind.PublicKeyword),
+      keyword
+    );
   },
   Property(node) {
     return node.ts();
@@ -1402,6 +1623,7 @@ declare module "./grammar.js" {
   export interface StorymaticDict {
     ts<T extends ts.Node = ts.Node>(): T;
     tsa<T extends ts.Node = ts.Node>(): ts.NodeArray<T>;
+    tsn<T extends ts.Node = ts.Node>(map: Record<string, T>): T | undefined;
     asIteration(): ohm.IterationNode;
   }
 
