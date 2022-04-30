@@ -218,10 +218,11 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   AssignableWithDefault?: (this: NonterminalNode, arg0: Node) => T;
   AssignableKeyWithRewrite_rewrite?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AssignableKeyWithRewrite?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  Assignable_identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  Assignable_accessor?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Assignable_array?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode) => T;
   Assignable_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode) => T;
   Assignable?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  NonCapturingAssignable_accessor?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   NonCapturingAssignable_array?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode) => T;
   NonCapturingAssignable_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode) => T;
   NonCapturingAssignable?: (this: NonterminalNode, arg0: NonterminalNode) => T;
