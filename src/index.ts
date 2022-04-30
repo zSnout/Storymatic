@@ -83,17 +83,18 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   GenericTypeArgumentList(node) {
     return node.tsa();
   },
-  GenericTypeArgumentList_with_args(_0, typeArgs, _1) {
-    return setTextRange(typeArgs.tsa(), this);
+  GenericTypeArgumentList_with_args(node) {
+    return node.tsa();
   },
   GenericTypeArgumentList_empty() {
     return setTextRange(ts.factory.createNodeArray([]), this);
   },
-
   GenericTypeParameterList(_0, params, _1) {
     return params.tsa();
   },
-
+  NonemptyGenericTypeArgumentList(_0, typeArgs, _1) {
+    return setTextRange(typeArgs.tsa(), this);
+  },
   ParameterList(node) {
     return node.tsa();
   },
@@ -305,7 +306,7 @@ semantics.addOperation<ts.Node>("ts", {
     _3,
     _4,
     _5,
-    extendTargets,
+    extendTarget,
     _6,
     _7,
     _8,
@@ -314,6 +315,31 @@ semantics.addOperation<ts.Node>("ts", {
     elements,
     _10
   ) {
+    let heritage: ts.HeritageClause[] = [];
+
+    if (extendTarget.sourceString) {
+      heritage.push(
+        setTextRange(
+          ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+            extendTarget.child(0).ts(),
+          ]),
+          extendTarget.child(0)
+        )
+      );
+    }
+
+    if (implementTargets.sourceString) {
+      heritage.push(
+        setTextRange(
+          ts.factory.createHeritageClause(
+            ts.SyntaxKind.ImplementsKeyword,
+            implementTargets.child(0).tsa()
+          ),
+          implementTargets.child(0)
+        )
+      );
+    }
+
     return setTextRange(
       ts.factory.createClassDeclaration(
         undefined,
@@ -322,9 +348,7 @@ semantics.addOperation<ts.Node>("ts", {
           : [],
         ident.ts<ts.Identifier>(),
         generics.tsa(),
-        extendTargets
-          .tsa<ts.HeritageClause>()
-          .concat(implementTargets.tsa<ts.HeritageClause>()),
+        heritage,
         elements.tsa()
       ),
       this
@@ -560,6 +584,21 @@ semantics.addOperation<ts.Node>("ts", {
   ElseIfKeyword_else_unless(_0, _1, _2) {
     throw "`ElseIfKeyword_else_unless` nodes should never directly be evaluated.";
   },
+  Extendable(base, _0, accessors, generics, _1) {
+    let ident = base.ts<ts.Expression>();
+
+    for (let accessor of accessors.tsa<ts.Identifier>()) {
+      ident = ts.setTextRange(
+        ts.factory.createPropertyAccessExpression(ident, accessor),
+        { pos: base.source.startIdx, end: accessor.end }
+      );
+    }
+
+    return setTextRange(
+      ts.factory.createExpressionWithTypeArguments(ident, generics.tsa()),
+      this
+    );
+  },
   ExpExp(node) {
     return node.ts();
   },
@@ -608,7 +647,7 @@ semantics.addOperation<ts.Node>("ts", {
       "`GenericTypeArgumentList_empty` nodes should never directly be evaluated."
     );
   },
-  GenericTypeArgumentList_with_args(_0, _1, _2) {
+  GenericTypeArgumentList_with_args(_) {
     throw new Error(
       "`GenericTypeArgumentList_with_args` nodes should never directly be evaluated."
     );
@@ -640,6 +679,23 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  Implementable(base, _0, accessors, generics, _1) {
+    let ident = base.ts<ts.Expression>();
+
+    for (let accessor of accessors.tsa<ts.Identifier>()) {
+      ident = ts.setTextRange(
+        ts.factory.createPropertyAccessExpression(ident, accessor),
+        { pos: base.source.startIdx, end: accessor.end }
+      );
+    }
+
+    if (!generics.sourceString) return setTextRange(ident, this);
+
+    return setTextRange(
+      ts.factory.createExpressionWithTypeArguments(ident, generics.tsa()),
+      this
+    );
+  },
   ImportableItemName(node) {
     return node.ts();
   },
@@ -659,6 +715,45 @@ semantics.addOperation<ts.Node>("ts", {
         false,
         undefined,
         ident.ts<ts.Identifier>()
+      ),
+      this
+    );
+  },
+  IndexSignatureType(readonly, prefix, _0, ident, _1, key, _2, _3, value) {
+    let modifiers: ts.Modifier[] = [];
+    if (prefix.sourceString == "@@")
+      modifiers.push(
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.StaticKeyword),
+          prefix
+        )
+      );
+    if (readonly.sourceString)
+      modifiers.push(
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword),
+          readonly
+        )
+      );
+
+    return setTextRange(
+      ts.factory.createIndexSignature(
+        undefined,
+        modifiers,
+        [
+          ts.setTextRange(
+            ts.factory.createParameterDeclaration(
+              undefined,
+              undefined,
+              undefined,
+              ident.ts<ts.Identifier>(),
+              undefined,
+              key.ts<ts.TypeNode>()
+            ),
+            { pos: ident.source.startIdx, end: key.source.endIdx }
+          ),
+        ],
+        value.ts()
       ),
       this
     );
@@ -706,45 +801,6 @@ semantics.addOperation<ts.Node>("ts", {
   importLocation_filename(filename, _) {
     return setTextRange(
       ts.factory.createStringLiteral(filename.sourceString),
-      this
-    );
-  },
-  IndexSignatureType(readonly, prefix, _0, ident, _1, key, _2, _3, value) {
-    let modifiers: ts.Modifier[] = [];
-    if (prefix.sourceString == "@@")
-      modifiers.push(
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.StaticKeyword),
-          prefix
-        )
-      );
-    if (readonly.sourceString)
-      modifiers.push(
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword),
-          readonly
-        )
-      );
-
-    return setTextRange(
-      ts.factory.createIndexSignature(
-        undefined,
-        modifiers,
-        [
-          ts.setTextRange(
-            ts.factory.createParameterDeclaration(
-              undefined,
-              undefined,
-              undefined,
-              ident.ts<ts.Identifier>(),
-              undefined,
-              key.ts<ts.TypeNode>()
-            ),
-            { pos: ident.source.startIdx, end: key.source.endIdx }
-          ),
-        ],
-        value.ts()
-      ),
       this
     );
   },
@@ -1085,6 +1141,11 @@ semantics.addOperation<ts.Node>("ts", {
   },
   MulExp_multiplication(left, _, right) {
     return setTextRange(ts.factory.createMultiply(left.ts(), right.ts()), this);
+  },
+  NonemptyGenericTypeArgumentList(_0, _1, _2) {
+    throw new Error(
+      "`NonemptyGenericTypeArgumentList` nodes should never directly be evaluated."
+    );
   },
   number(number) {
     return setTextRange(
@@ -1695,6 +1756,20 @@ semantics.addOperation<ts.Node>("ts", {
   },
   Type(node) {
     return node.ts();
+  },
+  TypeDeclaration(_export, _0, _1, _2, ident, generics, _3, value, _4) {
+    return setTextRange(
+      ts.factory.createTypeAliasDeclaration(
+        undefined,
+        _export.sourceString
+          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+          : undefined,
+        ident.ts<ts.Identifier>(),
+        generics.tsa(),
+        value.ts()
+      ),
+      this
+    );
   },
   terminator(_) {
     throw new Error("`terminator` nodes should never directly be evaluated.");
