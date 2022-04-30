@@ -94,8 +94,8 @@ Storymatic {
       "{" ClassElement* "}"
 
   ClassElement
-    = Method<"@"> -- method
-    | Method<"@@"> -- static_method
+    = (("public" | "protected" | "private") #(space+))? Method<"@"> -- method
+    | (("public" | "protected" | "private") #(space+))? Method<"@@"> -- static_method
     | (("public" | "protected" | "private") #(space+))? ("readonly" #(space+))?
       "@" MethodName (("!" | "?")? ":" Type)? ("=" Expression)? #statementTerminator -- property
     | (("public" | "protected" | "private") #(space+))? ("readonly" #(space+))?

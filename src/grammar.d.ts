@@ -74,8 +74,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Statement_typed_assignment?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: IterationNode, arg12: IterationNode, arg13: IterationNode, arg14: TerminalNode, arg15: IterationNode, arg16: TerminalNode) => T;
-  ClassElement_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ClassElement_static_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  ClassElement_method?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode) => T;
+  ClassElement_static_method?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   ClassElement_property?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: NonterminalNode) => T;
   ClassElement_static_property?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: NonterminalNode) => T;
   ClassElement_index_signature?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
