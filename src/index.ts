@@ -419,6 +419,101 @@ semantics.addOperation<ts.Node>("ts", {
   CompareExp(node) {
     return node.ts();
   },
+  CompareExp_greater_than(left, _, right) {
+    return setTextRange(
+      ts.factory.createGreaterThan(left.ts(), right.ts()),
+      this
+    );
+  },
+  CompareExp_greater_than_equal(left, _, right) {
+    return setTextRange(
+      ts.factory.createGreaterThanEquals(left.ts(), right.ts()),
+      this
+    );
+  },
+  CompareExp_instanceof(left, _0, _1, _2, _3, _4, right) {
+    return setTextRange(
+      ts.factory.createBinaryExpression(
+        left.ts(),
+        ts.SyntaxKind.InstanceOfKeyword,
+        right.ts()
+      ),
+      this
+    );
+  },
+  CompareExp_less_than(left, _, right) {
+    return setTextRange(ts.factory.createLessThan(left.ts(), right.ts()), this);
+  },
+  CompareExp_less_than_equal(left, _, right) {
+    return setTextRange(
+      ts.factory.createLessThanEquals(left.ts(), right.ts()),
+      this
+    );
+  },
+  CompareExp_not_instanceof(left, _0, _1, _2, _3, _4, right) {
+    return setTextRange(
+      ts.factory.createLogicalNot(
+        setTextRange(
+          ts.factory.createBinaryExpression(
+            left.ts(),
+            ts.SyntaxKind.InstanceOfKeyword,
+            right.ts()
+          ),
+          this
+        )
+      ),
+      this
+    );
+  },
+  CompareExp_not_within(left, _0, _1, _2, _3, _4, right) {
+    return setTextRange(
+      ts.factory.createLogicalNot(
+        setTextRange(
+          ts.factory.createBinaryExpression(
+            left.ts(),
+            ts.SyntaxKind.InKeyword,
+            right.ts()
+          ),
+          this
+        )
+      ),
+      this
+    );
+  },
+  CompareExp_within(left, _0, _1, _2, _3, _4, right) {
+    return setTextRange(
+      ts.factory.createBinaryExpression(
+        left.ts(),
+        ts.SyntaxKind.InKeyword,
+        right.ts()
+      ),
+      this
+    );
+  },
+  ConditionalType(node) {
+    return node.ts();
+  },
+  ConditionalType_conditional(
+    target,
+    _0,
+    _1,
+    _2,
+    mustBe,
+    _3,
+    ifTrue,
+    _4,
+    ifFalse
+  ) {
+    return setTextRange(
+      ts.factory.createConditionalTypeNode(
+        target.ts(),
+        mustBe.ts(),
+        ifTrue.ts(),
+        ifFalse.ts()
+      ),
+      this
+    );
+  },
   char(_) {
     throw "`char` nodes should never directly be evaluated.";
   },
