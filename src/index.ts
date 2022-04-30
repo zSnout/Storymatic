@@ -243,6 +243,14 @@ semantics.addOperation<ts.Node>("ts", {
   colonTerminator_colon(_0, _1) {
     throw "`colonTerminator_colon` nodes should never directly be evaluated.";
   },
+  DefaultStatement(_0, _1, block) {
+    let _default = setTextRange(
+      ts.factory.createDefaultClause([block.ts()]),
+      this
+    );
+
+    return setTextRange(ts.factory.createCaseBlock([_default]), this);
+  },
   decimalNumber(number) {
     return number.ts();
   },
@@ -1063,7 +1071,7 @@ semantics.addOperation<ts.Node>("ts", {
   SwitchStatement(_0, _1, target, open, cases, defaultNode, close) {
     let blocks: readonly ts.CaseBlock[] = cases.tsa();
     if (defaultNode.sourceString) {
-      blocks = blocks.concat(defaultNode.ts<ts.CaseBlock>());
+      blocks = blocks.concat(defaultNode.child(0).ts<ts.CaseBlock>());
     }
 
     let block = ts.setTextRange(
