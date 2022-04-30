@@ -89,7 +89,7 @@ Storymatic {
 
   ClassDeclaration
     = ("export" #space)? "class" #space identifier GenericTypeParameterList?
-      (#space "extends" #space Expression GenericTypeArgumentList)?
+      (#space "extends" #space (Expression | Implementable))?
       (#space "implements" #space NonemptyListOf<Implementable, #expressionTerminator>)?
       "{" ClassElement* "}"
 
