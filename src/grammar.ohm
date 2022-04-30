@@ -100,8 +100,8 @@ Storymatic {
       "@" MethodName ("!"? ":" Type)? ("=" Expression)? #statementTerminator -- property
     | (("public" | "protected" | "private") #(space+))? ("readonly" #(space+))?
       "@@" MethodName ("!"? ":" Type)? ("=" Expression)? #statementTerminator -- static_property
-    | ("readonly" #(space+))? "@" IndexSignatureType #statementTerminator -- index_signature
-    | ("readonly" #(space+))? "@@" IndexSignatureType #statementTerminator -- static_index_signature
+    | IndexSignatureType<"@"> #statementTerminator -- index_signature
+    | IndexSignatureType<"@@"> #statementTerminator -- static_index_signature
 
   importLocation
     = (~(space | "\\" | "\"" | "\'" | statementTerminator) any)+ &statementTerminator -- filename
@@ -520,7 +520,7 @@ Storymatic {
     | "new" #(space+) InlineFunctionType -- construct_signature
     | InlineFunctionType
     | BlockFunctionType
-    | IndexSignatureType
+    | IndexSignatureType<"">
 
   InlineFunctionType
     = "fn" GenericTypeParameterList? "=>" Type -- no_params
@@ -549,7 +549,7 @@ Storymatic {
       (#(space+) "extends" #(space+) NonemptyListOf<Implementable, #expressionTerminator>)?
       "{" ListOf<TypeObjectEntry, #typeTerminator> "}"
 
-  IndexSignatureType = "[" identifier ":" Type "]" ":" Type
+  IndexSignatureType<prefix> = "readonly"? prefix "[" identifier ":" Type "]" ":" Type
 
   TypeDeclaration
     = ("export" #(space+))? "type" #(space+) identifier GenericTypeParameterList? "=" Type #statementTerminator

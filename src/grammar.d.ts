@@ -78,8 +78,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   ClassElement_static_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassElement_property?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: NonterminalNode) => T;
   ClassElement_static_property?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: NonterminalNode) => T;
-  ClassElement_index_signature?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
-  ClassElement_static_index_signature?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
+  ClassElement_index_signature?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  ClassElement_static_index_signature?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   ClassElement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   importLocation_filename?: (this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) => T;
   importLocation?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -350,7 +350,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   ConditionalType_conditional?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: NonterminalNode, arg5: TerminalNode, arg6: NonterminalNode, arg7: TerminalNode, arg8: NonterminalNode) => T;
   ConditionalType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   InterfaceDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: NonterminalNode, arg12: TerminalNode) => T;
-  IndexSignatureType?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: TerminalNode, arg6: NonterminalNode) => T;
+  IndexSignatureType?: (this: NonterminalNode, arg0: IterationNode, arg1: Node, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: TerminalNode, arg8: NonterminalNode) => T;
   TypeDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: NonterminalNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: NonterminalNode) => T;
   TypeParameter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
   TypeRestParameter?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
