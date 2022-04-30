@@ -377,7 +377,7 @@ Storymatic {
   null = "null"
   undefined = "undefined"
 
-  id_continue = letter | digit
+  id_continue = alnum | "_"
 
   string_bit<delimeter>
     = ~("\\" | "{" | delimeter) any -- character
