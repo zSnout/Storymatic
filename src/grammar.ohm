@@ -338,16 +338,16 @@ Storymatic {
   Assignable
     = identifier -- identifier
     | "[" ListOf<AssignableWithDefault<Assignable>, #expressionTerminator>
-      ("," "..." Assignable)? ","? "]" -- array
+      (#expressionTerminator "..." Assignable)? ","? "]" -- array
     | "{" ListOf<AssignableKeyWithRewrite<Assignable>, #expressionTerminator>
-      ("," "..." Assignable)? ","? "}" -- object
+      (#expressionTerminator "..." Assignable)? ","? "}" -- object
 
   NonCapturingAssignable
     = identifier
     | "[" ListOf<AssignableWithDefault<NonCapturingAssignable>, #expressionTerminator>
-      ("," "..." NonCapturingAssignable)? ","? "]" -- array
+      (#expressionTerminator "..." NonCapturingAssignable)? ","? "]" -- array
     | "{" ListOf<AssignableKeyWithRewrite<NonCapturingAssignable>, #expressionTerminator>
-      ("," "..." NonCapturingAssignable)? ","? "}" -- object
+      (#expressionTerminator "..." NonCapturingAssignable)? ","? "}" -- object
 
   AccessorBase
     = identifier
