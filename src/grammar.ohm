@@ -193,7 +193,7 @@ Storymatic {
     | Symbol -- symbol
     | string_non_interpolatable -- string_key
     | string -- computed_string_key
-    | digit+ -- numerical_key
+    | decimalNumber -- numerical_key
     | "[" Expression "]" -- computed_key
 
   ObjectEntry

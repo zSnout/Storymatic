@@ -125,7 +125,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MethodName_symbol?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MethodName_string_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MethodName_computed_string_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  MethodName_numerical_key?: (this: NonterminalNode, arg0: IterationNode) => T;
+  MethodName_numerical_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MethodName_computed_key?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   MethodName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ObjectEntry_restructure?: (this: NonterminalNode, arg0: NonterminalNode) => T;
