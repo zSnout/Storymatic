@@ -163,7 +163,11 @@ Storymatic {
     | string
     | null
 
-  InlineClassDeclaration = "class" (#space "extends" #space Expression)? "{" ClassElement* "}"
+  InlineClassDeclaration
+    = "class" GenericTypeParameterList?
+      (#space "extends" #space (Extendable | Expression))?
+      (#space "implements" #space NonemptyListOf<Implementable, ",">)?
+      "{" ClassElement* "}"
 
   ArrayEntry
     = Expression
