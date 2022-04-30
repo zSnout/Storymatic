@@ -144,8 +144,8 @@ Storymatic {
 
   LiteralExp
     = "(" Expression ")" -- parenthesized
-    | "[" listOf<ArrayEntry, expressionTerminator> ","? "]" -- array
-    | "{" listOf<ObjectEntry, expressionTerminator> ","? "}" -- object
+    | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
+    | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
     | InlineClassDeclaration
     | InlineFunction
     | JSXElement
@@ -177,7 +177,7 @@ Storymatic {
   BlockFunction
     = ("export" #space)? "fn" #space identifier GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
     | ("export" #space)? "fn" #space identifier GenericTypeParameterList? #space
-      "of" #space TypeParameterList ("=>" Type)? FunctionBody -- with_params
+      "of" #space ParameterList ("=>" Type)? FunctionBody -- with_params
 
   Method<prefix>
     = PrivacyLevel "fn" #space prefix MethodName GenericTypeParameterList?
@@ -333,16 +333,16 @@ Storymatic {
 
   Assignable
     = identifier -- identifier
-    | "[" listOf<AssignableWithDefault<Assignable>, expressionTerminator>
+    | "[" ListOf<AssignableWithDefault<Assignable>, #expressionTerminator>
       ("," "..." Assignable)? ","? "]" -- array
-    | "{" listOf<AssignableKeyWithRewrite<Assignable>, expressionTerminator>
+    | "{" ListOf<AssignableKeyWithRewrite<Assignable>, #expressionTerminator>
       ("," "..." Assignable)? ","? "}" -- object
 
   NonCapturingAssignable
     = identifier
-    | "[" listOf<AssignableWithDefault<NonCapturingAssignable>, expressionTerminator>
+    | "[" ListOf<AssignableWithDefault<NonCapturingAssignable>, #expressionTerminator>
       ("," "..." NonCapturingAssignable)? ","? "]" -- array
-    | "{" listOf<AssignableKeyWithRewrite<NonCapturingAssignable>, expressionTerminator>
+    | "{" ListOf<AssignableKeyWithRewrite<NonCapturingAssignable>, #expressionTerminator>
       ("," "..." NonCapturingAssignable)? ","? "}" -- object
 
   AccessorBase
