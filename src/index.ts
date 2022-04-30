@@ -117,6 +117,12 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
 });
 
 semantics.addOperation<ts.Node>("ts", {
+  ArrayEntry(node) {
+    return node.ts();
+  },
+  ArrayEntry_spread_operator(_, expr) {
+    return setTextRange(ts.factory.createSpreadElement(expr.ts()), this);
+  },
   Accessor(base, addons) {
     let expr = base.ts<ts.Expression>();
 
@@ -506,6 +512,49 @@ semantics.addOperation<ts.Node>("ts", {
     let source = bits.sourceString.trim().replace(/\s+/g, " ");
     return setTextRange(ts.factory.createJsxText(source), this);
   },
+  letter(_) {
+    throw new Error("`letter` nodes should never directly be evaluated.");
+  },
+  lineContinuer(_) {
+    throw new Error(
+      "`lineContinuer` nodes should never directly be evaluated."
+    );
+  },
+  lineTerminator(_0, _1, _2) {
+    throw new Error(
+      "`lineTerminator` nodes should never directly be evaluated."
+    );
+  },
+  line_comment(_0, _1, _2) {
+    throw new Error("`line_comment` nodes should never directly be evaluated.");
+  },
+  listOf(_) {
+    throw new Error("`listOf` nodes should only be evaluated using .tsa().");
+  },
+  ListOf(_) {
+    throw new Error("`ListOf` nodes should only be evaluated using .tsa().");
+  },
+  LiteralExp(node) {
+    return node.ts();
+  },
+  LiteralExp_array(_0, entries, _1, _2) {
+    return setTextRange(
+      ts.factory.createArrayLiteralExpression(entries.tsa()),
+      this
+    );
+  },
+  LiteralExp_object(_0, entries, _1, _2) {
+    return setTextRange(
+      ts.factory.createObjectLiteralExpression(entries.tsa()),
+      this
+    );
+  },
+  LiteralExp_parenthesized(_0, expr, _1) {
+    return setTextRange(
+      ts.factory.createParenthesizedExpression(expr.ts()),
+      this
+    );
+  },
   MemberAccessExp(node) {
     return node.ts();
   },
@@ -627,6 +676,30 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  MethodName(node) {
+    return node.ts();
+  },
+  MethodName_computed_key(_0, expr, _1) {
+    return setTextRange(ts.factory.createComputedPropertyName(expr.ts()), this);
+  },
+  MethodName_computed_string_key(node) {
+    return setTextRange(ts.factory.createComputedPropertyName(node.ts()), this);
+  },
+  MethodName_identifier(ident) {
+    return ident.ts();
+  },
+  MethodName_numerical_key(node) {
+    return node.ts();
+  },
+  MethodName_string_key(node) {
+    return node.ts();
+  },
+  MethodName_symbol(symbol) {
+    return setTextRange(
+      ts.factory.createComputedPropertyName(symbol.ts()),
+      this
+    );
+  },
   MulExp(node) {
     return node.ts();
   },
@@ -644,6 +717,33 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createNumericLiteral(number.sourceString),
       this
     );
+  },
+  ObjectEntry(node) {
+    return node.ts();
+  },
+  ObjectEntry_key_value(key, _, value) {
+    return setTextRange(
+      ts.factory.createPropertyAssignment(
+        key.ts<ts.PropertyName>(),
+        value.ts()
+      ),
+      this
+    );
+  },
+  ObjectEntry_object_method(node) {
+    return node.ts();
+  },
+  ObjectEntry_object_method_with_self(node) {
+    return node.ts();
+  },
+  ObjectEntry_restructure(ident) {
+    return setTextRange(
+      ts.factory.createShorthandPropertyAssignment(ident.ts<ts.Identifier>()),
+      this
+    );
+  },
+  ObjectEntry_spread_operator(_, expr) {
+    return setTextRange(ts.factory.createSpreadAssignment(expr.ts()), this);
   },
   Parameter(node) {
     return node.ts();
