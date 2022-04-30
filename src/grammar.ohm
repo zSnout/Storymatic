@@ -519,6 +519,7 @@ Storymatic {
     = identOrWord -- identifier
     | string_non_interpolatable -- string
     | string_type -- template_literal
+    | decimalNumber -- numerical_key
     | "[" Accessor "]" -- computed_accessor
 
   TypeObjectEntry
