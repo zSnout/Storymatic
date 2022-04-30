@@ -97,9 +97,9 @@ Storymatic {
     = Method<"@"> -- method
     | Method<"@@"> -- static_method
     | PrivacyLevel ("readonly" #(space+))?
-      "@" MethodName (("!" | "?")? ":" Type)? ("=" Expression)? #statementTerminator -- property
+      "@" MethodName ("!" | "?")? (":" Type)? ("=" Expression)? #statementTerminator -- property
     | PrivacyLevel ("readonly" #(space+))?
-      "@@" MethodName (("!" | "?")? ":" Type)? ("=" Expression)? #statementTerminator -- static_property
+      "@@" MethodName ("!" | "?")? (":" Type)? ("=" Expression)? #statementTerminator -- static_property
     | IndexSignatureType<"@"> #statementTerminator -- index_signature
     | IndexSignatureType<"@@"> #statementTerminator -- static_index_signature
 
