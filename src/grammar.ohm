@@ -184,6 +184,12 @@ Storymatic {
     | "fn" #(space+) prefix MethodName GenericTypeParameterList? #(space+)
       "of" #(space+) ParameterList ("=>" Type)? FunctionBody -- with_params
 
+  PrivacyLevel
+    = "public" #(space+) -- public
+    | "protected" #(space+) -- protected
+    | "private" #(space+) -- private
+    | -- none
+
   FunctionBody
     = "return" #(space+) Expression -- expression
     | WrappedStatementBlock
