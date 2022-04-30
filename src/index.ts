@@ -1106,6 +1106,27 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  MemberAccessType(node) {
+    return node.ts();
+  },
+  MemberAccessType_array(element, _0, _1) {
+    return setTextRange(ts.factory.createArrayTypeNode(element.ts()), this);
+  },
+  MemberAccessType_member_access(target, _0, key, _1) {
+    return setTextRange(
+      ts.factory.createIndexedAccessTypeNode(target.ts(), key.ts()),
+      this
+    );
+  },
+  MemberAccessType_named_tuple(_0, elements, _1) {
+    return setTextRange(ts.factory.createTupleTypeNode(elements.tsa()), this);
+  },
+  MemberAccessType_object(_0, members, _1) {
+    return setTextRange(ts.factory.createTypeLiteralNode(members.tsa()), this);
+  },
+  MemberAccessType_tuple(_0, elements, _1) {
+    return setTextRange(ts.factory.createTupleTypeNode(elements.tsa()), this);
+  },
   MethodName(node) {
     return node.ts();
   },
@@ -1142,9 +1163,42 @@ semantics.addOperation<ts.Node>("ts", {
   MulExp_multiplication(left, _, right) {
     return setTextRange(ts.factory.createMultiply(left.ts(), right.ts()), this);
   },
+  NamedTupleElement(node) {
+    return node.ts();
+  },
+  NamedTupleElement_name_value(name, qMark, _, value) {
+    return setTextRange(
+      ts.factory.createNamedTupleMember(
+        undefined,
+        name.ts(),
+        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+        value.ts()
+      ),
+      this
+    );
+  },
+  NamedTupleElement_spread_operator(dotDotDot, name, _, value) {
+    return setTextRange(
+      ts.factory.createNamedTupleMember(
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          dotDotDot
+        ),
+        name.ts(),
+        undefined,
+        value.ts()
+      ),
+      this
+    );
+  },
   NonemptyGenericTypeArgumentList(_0, _1, _2) {
     throw new Error(
       "`NonemptyGenericTypeArgumentList` nodes should never directly be evaluated."
+    );
+  },
+  nonemptyListOf(_0, _1, _2) {
+    throw new Error(
+      "`nonemptyListOf` nodes should never directly be evaluated."
     );
   },
   number(number) {
