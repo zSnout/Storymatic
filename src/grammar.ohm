@@ -89,7 +89,7 @@ Storymatic {
 
   ClassDeclaration
     = ("export" #space)? "class" #space identifier GenericTypeParameterList?
-      (#space "extends" #space Expression)?
+      (#space "extends" #space Expression GenericTypeArgumentList)?
       (#space "implements" #space NonemptyListOf<Implementable, #expressionTerminator>)?
       "{" ClassElement* "}"
 
@@ -479,10 +479,7 @@ Storymatic {
     = "string" | "number" | "boolean" | "true" | "false" | "bigint" | "symbol"
     | "object" | "null" | "undefined" | "void" | "any" | "unknown" | "this"
 
-  Implementable
-    = identifier ~("." | "<") -- identifier
-    | identifier "." &identifier Type -- qualified_name
-    | identifier "<" NonemptyListOf<Type, ","> ">" -- type_args
+  Implementable = identifier ("." Implementable)* GenericTypeArgumentList
 
   LiteralType
     = PrimitiveType ~(id_continue | ".")
