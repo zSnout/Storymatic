@@ -234,6 +234,35 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  ClassCreationExp(node) {
+    return node.ts();
+  },
+  ClassCreationExp_class_creation_implied(_0, _1, target, _2, args) {
+    return setTextRange(
+      ts.factory.createNewExpression(target.ts(), undefined, args.tsa()),
+      this
+    );
+  },
+  ClassCreationExp_class_creation_no_args(_0, _1, target) {
+    return setTextRange(
+      ts.factory.createNewExpression(target.ts(), undefined, []),
+      this
+    );
+  },
+  ClassCreationExp_class_creation_symbolic(
+    _0,
+    _1,
+    target,
+    typeArgs,
+    _2,
+    args,
+    _3
+  ) {
+    return setTextRange(
+      ts.factory.createNewExpression(target.ts(), typeArgs.tsa(), args.tsa()),
+      this
+    );
+  },
   char(_) {
     throw "`char` nodes should never directly be evaluated.";
   },
