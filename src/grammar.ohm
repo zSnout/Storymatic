@@ -573,4 +573,6 @@ Storymatic {
   GenericTypeArgumentList
     = "<" NonemptyListOf<Type, #expressionTerminator> ">" -- with_args
     | -- empty
+
+  ListOfTwo<value, sep> = value sep NonemptyListOf<value, sep>
 }

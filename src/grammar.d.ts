@@ -367,6 +367,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   GenericTypeArgumentList_with_args?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   GenericTypeArgumentList_empty?: (this: NonterminalNode, ) => T;
   GenericTypeArgumentList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  ListOfTwo?: (this: NonterminalNode, arg0: Node, arg1: Node, arg2: NonterminalNode) => T;
 }
 
 export interface StorymaticSemantics extends Semantics {
