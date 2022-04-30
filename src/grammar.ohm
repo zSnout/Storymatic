@@ -90,7 +90,7 @@ Storymatic {
   ClassDeclaration
     = ("export" #space)? "class" #space identifier GenericTypeParameterList?
       (#space "extends" #space (Implementable | Expression))?
-      (#space "implements" #space NonemptyListOf<Implementable, #expressionTerminator>)?
+      ("implements" #space NonemptyListOf<Implementable, ",">)?
       "{" ClassElement* "}"
 
   ClassElement
@@ -414,7 +414,6 @@ Storymatic {
   reserved_primitive = ("true" | "false" | "null" | "undefined") ~id_continue
 
   // `super` and `this` are omitted because they are valid names and used often.
-  // We assume JavaScript environments will disallow them from being used in the wrong places.
   reserved_javascript = ("break" | "case" | "catch" | "class" | "const" | "continue" | "debugger" | "default" | "delete" | "do" | "else" | "enum" | "export" | "extends" | "false" | "finally" | "for" | "function" | "if" | "import" | "in" ~"stanceof" | "instanceof" | "new" | "null" | "return" | /* "super" | */ "switch" | /* "this" | */ "throw" | "true" | "try" | "typeof" | "var" | "void" | "while" | "with" | "implements" | "interface" | "let" | "package" | "private" | "protected" | "public" | "static" | "yield") ~id_continue
   reserved = reserved_block | reserved_operators | reserved_inline | reserved_primitive | reserved_javascript
 
@@ -479,7 +478,8 @@ Storymatic {
     = "string" | "number" | "boolean" | "true" | "false" | "bigint" | "symbol"
     | "object" | "null" | "undefined" | "void" | "any" | "unknown" | "this"
 
-  Implementable = identifier ("." Implementable)* GenericTypeArgumentList &("{" | "implements")
+  Implementable
+    = identifier ("." identOrWord)* GenericTypeArgumentList &("," | "implements" | "{")
 
   LiteralType
     = PrimitiveType ~(id_continue | ".")

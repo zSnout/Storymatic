@@ -73,7 +73,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Statement_rescope_assign?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_typed_assignment?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ClassDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: IterationNode, arg12: IterationNode, arg13: IterationNode, arg14: TerminalNode, arg15: IterationNode, arg16: TerminalNode) => T;
+  ClassDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: IterationNode, arg12: IterationNode, arg13: TerminalNode, arg14: IterationNode, arg15: TerminalNode) => T;
   ClassElement_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassElement_static_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassElement_property?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: NonterminalNode) => T;
@@ -244,7 +244,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   boolean?: (this: NonterminalNode, arg0: TerminalNode) => T;
   null?: (this: NonterminalNode, arg0: TerminalNode) => T;
   undefined?: (this: NonterminalNode, arg0: TerminalNode) => T;
-  id_continue?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  id_continue?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   string_bit_character?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   string_bit_escape?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode) => T;
   string_bit_escape_sequence?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode) => T;
