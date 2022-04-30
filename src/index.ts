@@ -663,6 +663,15 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  IntersectionType(node) {
+    let iter = node.asIteration();
+    if (iter.children.length == 1) return iter.child(0).ts();
+
+    return setTextRange(
+      ts.factory.createIntersectionTypeNode(node.tsa()),
+      this
+    );
+  },
   identOrWord(node) {
     return node.ts();
   },
@@ -874,27 +883,11 @@ semantics.addOperation<ts.Node>("ts", {
     let source = bits.sourceString.trim().replace(/\s+/g, " ");
     return setTextRange(ts.factory.createJsxText(source), this);
   },
-  letter(_) {
-    throw new Error("`letter` nodes should never directly be evaluated.");
-  },
-  lineContinuer(_) {
-    throw new Error(
-      "`lineContinuer` nodes should never directly be evaluated."
-    );
-  },
-  lineTerminator(_0, _1, _2) {
-    throw new Error(
-      "`lineTerminator` nodes should never directly be evaluated."
-    );
-  },
-  line_comment(_0, _1, _2) {
-    throw new Error("`line_comment` nodes should never directly be evaluated.");
-  },
-  listOf(_) {
-    throw new Error("`listOf` nodes should only be evaluated using .tsa().");
-  },
   ListOf(_) {
     throw new Error("`ListOf` nodes should only be evaluated using .tsa().");
+  },
+  ListOfTwo(_0, _1, _2) {
+    throw new Error("`ListOfTwo` nodes should never directly be evaluated.");
   },
   LiteralExp(node) {
     return node.ts();
@@ -916,6 +909,25 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createParenthesizedExpression(expr.ts()),
       this
     );
+  },
+  letter(_) {
+    throw new Error("`letter` nodes should never directly be evaluated.");
+  },
+  lineContinuer(_) {
+    throw new Error(
+      "`lineContinuer` nodes should never directly be evaluated."
+    );
+  },
+  lineTerminator(_0, _1, _2) {
+    throw new Error(
+      "`lineTerminator` nodes should never directly be evaluated."
+    );
+  },
+  line_comment(_0, _1, _2) {
+    throw new Error("`line_comment` nodes should never directly be evaluated.");
+  },
+  listOf(_) {
+    throw new Error("`listOf` nodes should only be evaluated using .tsa().");
   },
   MemberAccessExp(node) {
     return node.ts();
@@ -1670,6 +1682,20 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  TupleElement(node) {
+    return node.ts();
+  },
+  TupleElement_spread_operator(_, type) {
+    return setTextRange(ts.factory.createSpreadElement(type.ts()), this);
+  },
+  TupleElement_value(type, qMark) {
+    if (qMark.sourceString)
+      return setTextRange(ts.factory.createOptionalTypeNode(type.ts()), this);
+    return type.ts();
+  },
+  Type(node) {
+    return node.ts();
+  },
   terminator(_) {
     throw new Error("`terminator` nodes should never directly be evaluated.");
   },
@@ -1695,6 +1721,12 @@ semantics.addOperation<ts.Node>("ts", {
     throw new Error(
       "`typeTerminator_semicolon` nodes should never directly be evaluated."
     );
+  },
+  UnionType(node) {
+    let iter = node.asIteration();
+    if (iter.children.length == 1) return iter.child(0).ts();
+
+    return setTextRange(ts.factory.createUnionTypeNode(node.tsa()), this);
   },
   UnprefixedSingleStatementBlock(node) {
     return node.ts();
