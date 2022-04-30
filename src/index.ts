@@ -1191,6 +1191,98 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  NonAssignableAccessor(base, addons) {
+    let expr = base.ts<ts.Expression>();
+
+    for (let addon of addons.tsa<ts.Expression | ts.Identifier>()) {
+      if (addon.kind == ts.SyntaxKind.Identifier) {
+        expr = ts.factory.createPropertyAccessExpression(
+          expr,
+          addon as ts.Identifier
+        );
+      } else {
+        expr = ts.factory.createElementAccessExpression(expr, addon);
+      }
+
+      expr = ts.setTextRange(expr, {
+        pos: base.source.startIdx,
+        end: addon.end,
+      });
+    }
+
+    return setTextRange(expr, this);
+  },
+  NonCapturingAssignable(node) {
+    return node.ts();
+  },
+  NonCapturingAssignable_array(
+    _0,
+    elements,
+    _1,
+    dotDotDot,
+    spreadable,
+    _2,
+    _3
+  ) {
+    let members = elements.tsa<ts.BindingElement>().slice();
+
+    if (spreadable.sourceString) {
+      members.push(
+        setTextRange(
+          ts.factory.createBindingElement(
+            setTextRange(
+              ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+              dotDotDot
+            ),
+            undefined,
+            spreadable.ts<ts.BindingName>()
+          ),
+          this
+        )
+      );
+    }
+
+    return setTextRange(ts.factory.createArrayBindingPattern(members), this);
+  },
+  NonCapturingAssignable_identifier(node) {
+    return setTextRange(
+      ts.factory.createBindingElement(
+        undefined,
+        undefined,
+        node.ts<ts.Identifier>()
+      ),
+      this
+    );
+  },
+  NonCapturingAssignable_object(
+    _0,
+    elements,
+    _1,
+    dotDotDot,
+    spreadable,
+    _2,
+    _3
+  ) {
+    let members = elements.tsa<ts.BindingElement>().slice();
+
+    if (spreadable.sourceString) {
+      members.push(
+        setTextRange(
+          ts.factory.createBindingElement(
+            setTextRange(
+              ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+              dotDotDot
+            ),
+            undefined,
+            spreadable.ts<ts.BindingName>()
+          ),
+          this
+        )
+      );
+    }
+
+    return setTextRange(ts.factory.createObjectBindingPattern(members), this);
+  },
   NonemptyGenericTypeArgumentList(_0, _1, _2) {
     throw new Error(
       "`NonemptyGenericTypeArgumentList` nodes should never directly be evaluated."
