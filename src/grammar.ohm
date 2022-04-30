@@ -94,11 +94,11 @@ Storymatic {
       "{" ClassElement* "}"
 
   ClassElement
-    = (("public" | "protected" | "private") #(space+))? Method<"@"> -- method
-    | (("public" | "protected" | "private") #(space+))? Method<"@@"> -- static_method
-    | (("public" | "protected" | "private") #(space+))? ("readonly" #(space+))?
+    = Method<"@"> -- method
+    | Method<"@@"> -- static_method
+    | PrivacyLevel ("readonly" #(space+))?
       "@" MethodName (("!" | "?")? ":" Type)? ("=" Expression)? #statementTerminator -- property
-    | (("public" | "protected" | "private") #(space+))? ("readonly" #(space+))?
+    | PrivacyLevel ("readonly" #(space+))?
       "@@" MethodName (("!" | "?")? ":" Type)? ("=" Expression)? #statementTerminator -- static_property
     | IndexSignatureType<"@"> #statementTerminator -- index_signature
     | IndexSignatureType<"@@"> #statementTerminator -- static_index_signature
@@ -180,8 +180,9 @@ Storymatic {
       "of" #(space+) TypeParameterList ("=>" Type)? FunctionBody -- with_params
 
   Method<prefix>
-    = "fn" #(space+) prefix MethodName GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
-    | "fn" #(space+) prefix MethodName GenericTypeParameterList? #(space+)
+    = PrivacyLevel "fn" #(space+) prefix MethodName GenericTypeParameterList?
+      ("=>" Type)? FunctionBody -- no_params
+    | PrivacyLevel "fn" #(space+) prefix MethodName GenericTypeParameterList? #(space+)
       "of" #(space+) ParameterList ("=>" Type)? FunctionBody -- with_params
 
   PrivacyLevel
