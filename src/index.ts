@@ -61,17 +61,20 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
     throw new Error(".tsa() must not be called on a TerminalNode.");
   },
   _nonterminal(...children) {
-    try {
-      if (children[0].isIteration()) return children[0].tsa();
+    if (children[0].isIteration()) return children[0].tsa();
 
-      let iterNode = this.asIteration();
-      iterNode.source = this.source;
-      return iterNode.tsa();
+    let iterNode;
+
+    try {
+      iterNode = this.asIteration();
     } catch {
       throw new Error(
         "When .tsa() is called on a NonterminalNode, the node must have a .asIteration() method or have a single child of type IterationNode."
       );
     }
+
+    iterNode.source = this.source;
+    return iterNode.tsa();
   },
   _iter(...children) {
     return setTextRange(
