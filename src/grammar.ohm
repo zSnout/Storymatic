@@ -83,9 +83,13 @@ Storymatic {
     | "export" #space NonemptyListOf<ExportableItemName, ","> #statementTerminator -- export
     | "export" "*" Expression #statementTerminator -- export_default
     | ExportedVariableAssignment #statementTerminator -- export_variable
-    | "rescope" #space NonemptyListOf<identifier, ","> #statementTerminator -- rescope
+    | "rescope" #space NonemptyListOf<Rescopable, ","> #statementTerminator -- rescope
     | "rescope" #space VariableAssignment #statementTerminator -- rescope_assign
     | TypedVariableAssignment -- typed_assignment
+
+  Rescopable
+    = identifier -- identifier
+    | identifier ":" Type -- with_type
 
   ClassDeclaration
     = ("export" #space)? "class" #space identifier GenericTypeParameterList?
