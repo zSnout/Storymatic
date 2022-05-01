@@ -1291,6 +1291,39 @@ semantics.addOperation<ts.Node>("ts", {
       "`NonemptyListOf` nodes should never directly be evaluated."
     );
   },
+  NotExp(node) {
+    return node.ts();
+  },
+  NotExp_await(_0, _1, expr) {
+    return setTextRange(ts.factory.createAwaitExpression(expr.ts()), this);
+  },
+  NotExp_logical_not_symbolic(_, expr) {
+    return setTextRange(ts.factory.createLogicalNot(expr.ts()), this);
+  },
+  NotExp_logical_not_worded(_0, _1, expr) {
+    return setTextRange(ts.factory.createLogicalNot(expr.ts()), this);
+  },
+  NotExp_typeof(_0, _1, _2, expr) {
+    return setTextRange(ts.factory.createTypeOfExpression(expr.ts()), this);
+  },
+  NotExp_unary_minus(_, expr) {
+    return setTextRange(
+      ts.factory.createPrefixUnaryExpression(
+        ts.SyntaxKind.MinusToken,
+        expr.ts()
+      ),
+      this
+    );
+  },
+  NotExp_unary_plus(_, expr) {
+    return setTextRange(
+      ts.factory.createPrefixUnaryExpression(
+        ts.SyntaxKind.PlusToken,
+        expr.ts()
+      ),
+      this
+    );
+  },
   nonemptyListOf(_0, _1, _2) {
     throw new Error(
       "`nonemptyListOf` nodes should never directly be evaluated."
