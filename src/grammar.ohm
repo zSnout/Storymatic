@@ -61,9 +61,9 @@ Storymatic {
     | "until" #space Expression SingleStatementBlock<"do"> -- until
     | "do" #space UnprefixedSingleStatementBlock #space "while" #space Expression #statementTerminator -- do_while
     | "do" #space UnprefixedSingleStatementBlock #space "until" #space Expression #statementTerminator -- do_until
-    | "for" #space NonCapturingAssignable #space "in" #space Expression SingleStatementBlock<"do"> -- for_in
-    | "for" #space NonCapturingAssignable #space "of" #space Expression SingleStatementBlock<"do"> -- for_of
-    | "for" #space "await" #space NonCapturingAssignable #space "of" #space Expression SingleStatementBlock<"do"> -- for_await_of
+    | "for" #space Assignable #space "in" #space Expression SingleStatementBlock<"do"> -- for_in
+    | "for" #space Assignable #space "of" #space Expression SingleStatementBlock<"do"> -- for_of
+    | "for" #space "await" #space Assignable #space "of" #space Expression SingleStatementBlock<"do"> -- for_await_of
     | "for" #space identifier
       (#space "from" #space Expression)? (#space "down")?
       (#space ("to" | "through") #space Expression)?
@@ -244,11 +244,11 @@ Storymatic {
     = Expression
     | "..." Expression -- spread_operator
 
-  Parameter = AssignableWithTypeOrDefault<NonCapturingAssignable>
+  Parameter = AssignableWithTypeOrDefault
 
   RestParameter
-    = "..." NonCapturingAssignable ":" Type -- with_type
-    | "..." NonCapturingAssignable -- without_type
+    = "..." Assignable ":" Type -- with_type
+    | "..." Assignable -- without_type
 
   ParameterList
     = NonemptyListOf<Parameter, #expressionTerminator> (#expressionTerminator RestParameter)? -- params
@@ -315,57 +315,47 @@ Storymatic {
     | "yield" #(space+ "from" space+ | spaces "*" spaces) AssignmentExp -- yield_from
     | TernaryExp
 
-  VariableAssignment = NonCapturingAssignable (":" Type)? "=" Expression
-  ExportedVariableAssignment = "export" #space NonCapturingAssignable (":" Type)? "=" Expression
-  TypedVariableAssignment = NonCapturingAssignable ":" Type "=" Expression
+  VariableAssignment = Assignable (":" Type)? "=" Expression
+  ExportedVariableAssignment = "export" #space Assignable (":" Type)? "=" Expression
+  TypedVariableAssignment = Assignable ":" Type "=" Expression
 
   AssignableOrAccessor = NonAssignableAccessor | ~"@" Assignable ~("." | "[")
 
-  AssignableWithTypeOrDefault<AssignableType>
-    = AssignableType ":" Type "=" Expression -- type_and_default
-    | AssignableType "?"? ":" Type -- type_only
-    | AssignableType "=" Expression -- default_only
-    | AssignableType
+  AssignableWithTypeOrDefault
+    = Assignable ":" Type "=" Expression -- type_and_default
+    | Assignable "?"? ":" Type -- type_only
+    | Assignable "=" Expression -- default_only
+    | Assignable
 
-  AssignableWithDefault<AssignableType>
-    = AssignableType "=" Expression -- with_default
-    | AssignableType
+  AssignableWithDefault
+    = Assignable "=" Expression -- with_default
+    | Assignable
 
-  AssignableKeyWithRewrite<AssignableType>
-    = MethodName ":" AssignableWithDefault<AssignableType> -- rewrite
-    | AssignableWithDefault<AssignableType>
+  AssignableKeyWithRewrite
+    = MethodName ":" AssignableWithDefault -- rewrite
+    | AssignableWithDefault
 
   Assignable
-    = Accessor -- accessor
-    | "[" ListOf<AssignableWithDefault<Assignable>, #expressionTerminator>
+    = identifier -- identifier
+    | "[" ListOf<AssignableWithDefault, #expressionTerminator>
       (#expressionTerminator "..." Assignable)? ","? "]" -- array
-    | "{" ListOf<AssignableKeyWithRewrite<Assignable>, #expressionTerminator>
+    | "{" ListOf<AssignableKeyWithRewrite, #expressionTerminator>
       (#expressionTerminator "..." Assignable)? ","? "}" -- object
 
-  NonCapturingAssignable
-    = identifier -- identifier
-    | "[" ListOf<AssignableWithDefault<NonCapturingAssignable>, #expressionTerminator>
-      (#expressionTerminator "..." NonCapturingAssignable)? ","? "]" -- array
-    | "{" ListOf<AssignableKeyWithRewrite<NonCapturingAssignable>, #expressionTerminator>
-      (#expressionTerminator "..." NonCapturingAssignable)? ","? "}" -- object
+  Accessor = AccessorBase AccessorAddon*
 
-  AccessorBase
-    = identifier
-    | Property
-    | StaticProperty
+  NonAssignableAccessor
+    = AccessorIdentifierBase AccessorAddon+
+    | AccessorPropertyBase AccessorAddon*
 
+  AccessorBase = AccessorIdentifierBase | AccessorPropertyBase
+  AccessorIdentifierBase = identifier
   AccessorPropertyBase = Property | StaticProperty
 
   AccessorAddon
     = "." identOrWord -- member_access
     | "." Symbol -- symbol_access
     | "[" Expression "]" -- computed_member_access
-
-  Accessor = AccessorBase AccessorAddon*
-
-  NonAssignableAccessor
-    = ~"@" AccessorBase AccessorAddon+
-    | AccessorPropertyBase AccessorAddon*
 
   whitespace = (~("\r\n" | "\n") space)+
 
