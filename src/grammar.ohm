@@ -88,8 +88,8 @@ Storymatic {
     | TypedVariableAssignment -- typed_assignment
 
   Rescopable
-    = identifier -- identifier
-    | identifier ":" Type -- with_type
+    = identifier ":" Type -- with_type
+    | identifier -- identifier
 
   ClassDeclaration
     = ("export" #space)? "class" #space identifier GenericTypeParameterList?
