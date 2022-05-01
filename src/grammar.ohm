@@ -244,7 +244,10 @@ Storymatic {
     = Expression
     | "..." Expression -- spread_operator
 
-  Parameter = AssignableWithTypeOrDefault
+  Parameter
+    = Assignable (":" Type)? "=" Expression -- initializer
+    | Assignable "?"? ":" Type -- type
+    | Assignable
 
   RestParameter
     = "..." Assignable ":" Type -- with_type
@@ -320,12 +323,6 @@ Storymatic {
   TypedVariableAssignment = Assignable ":" Type "=" Expression
 
   AssignableOrAccessor = NonAssignableAccessor | ~"@" Assignable ~("." | "[")
-
-  AssignableWithTypeOrDefault
-    = Assignable ":" Type "=" Expression -- type_and_default
-    | Assignable "?"? ":" Type -- type_only
-    | Assignable "=" Expression -- default_only
-    | Assignable
 
   AssignableWithDefault
     = Assignable "=" Expression -- with_default

@@ -161,6 +161,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   NonemptyArgumentList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Argument_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   Argument?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  Parameter_initializer?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
+  Parameter_type?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
   Parameter?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   RestParameter_with_type?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
   RestParameter_without_type?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
@@ -212,10 +214,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   ExportedVariableAssignment?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: TerminalNode, arg6: NonterminalNode) => T;
   TypedVariableAssignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
   AssignableOrAccessor?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  AssignableWithTypeOrDefault_type_and_default?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
-  AssignableWithTypeOrDefault_type_only?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
-  AssignableWithTypeOrDefault_default_only?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
-  AssignableWithTypeOrDefault?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AssignableWithDefault_with_default?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AssignableWithDefault?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AssignableKeyWithRewrite_rewrite?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
