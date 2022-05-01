@@ -45,7 +45,8 @@ Storymatic {
     | MethodName "=" Expression #expressionTerminator -- assigned
 
   Statement
-    = ~("{" "}") Expression #statementTerminator -- expression
+    = Expression "?"? (":" identOrWord)? (#space "with" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
+    | ~("{" "}") Expression #statementTerminator -- expression
     | IfStatement
     | TryStatement
     | BlockFunction
@@ -64,15 +65,10 @@ Storymatic {
     | "for" #space Assignable #space "in" #space Expression SingleStatementBlock<"do"> -- for_in
     | "for" #space Assignable #space "of" #space Expression SingleStatementBlock<"do"> -- for_of
     | "for" #space "await" #space Assignable #space "of" #space Expression SingleStatementBlock<"do"> -- for_await_of
-    | "for" #space identifier
-      (#space "from" #space Expression)? (#space "down")?
-      (#space ("to" | "through") #space Expression)?
-      (#space "step" #space Expression)? SingleStatementBlock<"do"> -- for_range
     | "break" #statementTerminator -- break
     | "continue" #statementTerminator -- continue
-    | "return" #space Expression #statementTerminator -- return
+    | "return" #space Expression? #statementTerminator -- return
     | "await" #space (Assignable "=")? Expression SingleStatementBlock<"do"> -- await_new_thread
-    | "when" #space Expression (#space "with" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
     | "import" #space importLocation #statementTerminator -- empty_import
     | "import" #space NonemptyListOf<ImportableItemName, ","> #space "from" #space importLocation #statementTerminator -- import
     | "import" "*" "as" #space identifier #space "from" #space importLocation #statementTerminator -- import_all

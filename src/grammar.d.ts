@@ -42,6 +42,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   EnumMember_auto_assign?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   EnumMember_assigned?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   EnumMember?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  Statement_when_callback?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: NonterminalNode) => T;
   Statement_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   Statement_print?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_throw?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
@@ -53,12 +54,10 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Statement_for_in?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: NonterminalNode, arg7: NonterminalNode) => T;
   Statement_for_of?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: NonterminalNode, arg7: NonterminalNode) => T;
   Statement_for_await_of?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: NonterminalNode, arg9: NonterminalNode) => T;
-  Statement_for_range?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: IterationNode, arg12: IterationNode, arg13: IterationNode, arg14: IterationNode, arg15: IterationNode, arg16: IterationNode, arg17: NonterminalNode) => T;
   Statement_break?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   Statement_continue?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
-  Statement_return?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
+  Statement_return?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: NonterminalNode) => T;
   Statement_await_new_thread?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: NonterminalNode, arg5: NonterminalNode) => T;
-  Statement_when_callback?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: NonterminalNode) => T;
   Statement_empty_import?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_import?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: NonterminalNode, arg7: NonterminalNode) => T;
   Statement_import_all?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: NonterminalNode, arg9: NonterminalNode) => T;
