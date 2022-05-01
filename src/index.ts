@@ -1281,6 +1281,16 @@ semantics.addOperation<ts.Node>("ts", {
       "`NonemptyGenericTypeArgumentList` nodes should never directly be evaluated."
     );
   },
+  NonemptyArgumentList(_) {
+    throw new Error(
+      "`NonemptyArgumentList` nodes should never directly be evaluated."
+    );
+  },
+  NonemptyListOf(_0, _1, _2) {
+    throw new Error(
+      "`NonemptyListOf` nodes should never directly be evaluated."
+    );
+  },
   nonemptyListOf(_0, _1, _2) {
     throw new Error(
       "`nonemptyListOf` nodes should never directly be evaluated."
