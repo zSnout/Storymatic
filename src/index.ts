@@ -692,6 +692,35 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  ExportedVariableAssignment(_export, _0, assignable, _1, type, _2, expr) {
+    let declaration = setTextRange(
+      ts.factory.createVariableDeclaration(
+        assignable.ts<ts.BindingName>(),
+        undefined,
+        type.child(0)?.ts<ts.TypeNode>(),
+        expr.ts<ts.Expression>()
+      ),
+      this
+    );
+
+    let list = setTextRange(
+      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
+      this
+    );
+
+    return setTextRange(
+      ts.factory.createVariableStatement(
+        [
+          setTextRange(
+            ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
+            _export
+          ),
+        ],
+        list
+      ),
+      this
+    );
+  },
   FinallyStatement(_0, _1, block) {
     return block.ts();
   },
@@ -1565,6 +1594,9 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  Statement_export_variable(expr, _) {
+    return expr.ts();
+  },
   Statement_expression(expression, _) {
     return setTextRange(
       ts.factory.createExpressionStatement(expression.ts()),
@@ -1997,6 +2029,27 @@ semantics.addOperation<ts.Node>("ts", {
         generics.tsa(),
         value.ts()
       ),
+      this
+    );
+  },
+  TypedVariableAssignment(assignable, _0, type, _1, expr) {
+    let declaration = setTextRange(
+      ts.factory.createVariableDeclaration(
+        assignable.ts<ts.BindingName>(),
+        undefined,
+        type.child(0)?.ts<ts.TypeNode>(),
+        expr.ts<ts.Expression>()
+      ),
+      this
+    );
+
+    let list = setTextRange(
+      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
+      this
+    );
+
+    return setTextRange(
+      ts.factory.createVariableStatement(undefined, list),
       this
     );
   },
