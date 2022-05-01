@@ -1514,6 +1514,9 @@ semantics.addOperation<ts.Node>("ts", {
   SingleStatementBlock_single_statement(_0, _1, statement) {
     return setTextRange(ts.factory.createBlock([statement.ts()]), this);
   },
+  Statement(node) {
+    return node.ts();
+  },
   Statement_await_new_thread(
     awaitKeyword,
     _0,
@@ -1681,6 +1684,75 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  Statement_for_await_of(
+    _0,
+    _1,
+    awaitKeyword,
+    _3,
+    assignable,
+    _4,
+    _5,
+    _6,
+    expression,
+    block
+  ) {
+    let await = setTextRange(
+      ts.factory.createToken(ts.SyntaxKind.AwaitKeyword),
+      awaitKeyword
+    );
+
+    let declaration = setTextRange(
+      ts.factory.createVariableDeclaration(assignable.ts<ts.BindingName>()),
+      assignable
+    );
+
+    let list = setTextRange(
+      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
+      assignable
+    );
+
+    return setTextRange(
+      ts.factory.createForOfStatement(await, list, expression.ts(), block.ts()),
+      this
+    );
+  },
+  Statement_for_in(_0, _1, assignable, _2, _3, _4, expression, block) {
+    let declaration = setTextRange(
+      ts.factory.createVariableDeclaration(assignable.ts<ts.BindingName>()),
+      assignable
+    );
+
+    let list = setTextRange(
+      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
+      assignable
+    );
+
+    return setTextRange(
+      ts.factory.createForInStatement(list, expression.ts(), block.ts()),
+      this
+    );
+  },
+  Statement_for_of(_0, _1, assignable, _2, _3, _4, expression, block) {
+    let declaration = setTextRange(
+      ts.factory.createVariableDeclaration(assignable.ts<ts.BindingName>()),
+      assignable
+    );
+
+    let list = setTextRange(
+      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
+      assignable
+    );
+
+    return setTextRange(
+      ts.factory.createForOfStatement(
+        undefined,
+        list,
+        expression.ts(),
+        block.ts()
+      ),
+      this
+    );
+  },
   Statement_import(_0, _1, imports, _2, _3, _4, filename, _5) {
     return setTextRange(
       ts.factory.createImportDeclaration(
@@ -1754,8 +1826,55 @@ semantics.addOperation<ts.Node>("ts", {
       consoleLog
     );
 
-    return setTextRange(
+    let call = setTextRange(
       ts.factory.createCallExpression(cLog, undefined, [expr.ts()]),
+      this
+    );
+
+    return setTextRange(ts.factory.createExpressionStatement(call), this);
+  },
+  Statement_repeat(_0, _1, count, block) {
+    let pos: ts.TextRange = {
+      pos: this.source.startIdx,
+      end: this.source.startIdx,
+    };
+
+    return setTextRange(
+      ts.factory.createForOfStatement(
+        undefined,
+        ts.setTextRange(
+          ts.factory.createVariableDeclarationList(
+            [
+              ts.setTextRange(
+                ts.factory.createVariableDeclaration(
+                  ts.setTextRange(ts.factory.createIdentifier("$"), pos)
+                ),
+                pos
+              ),
+            ],
+            ts.NodeFlags.Let
+          ),
+          pos
+        ),
+        ts.setTextRange(
+          ts.factory.createCallExpression(
+            ts.setTextRange(
+              ts.factory.createPropertyAccessExpression(
+                ts.setTextRange(
+                  ts.factory.createArrayLiteralExpression([]),
+                  pos
+                ),
+                "constructor"
+              ),
+              pos
+            ),
+            undefined,
+            [count.ts()]
+          ),
+          pos
+        ),
+        block.ts()
+      ),
       this
     );
   },
@@ -1787,7 +1906,125 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  Statement_return(_0, _1, expression, _2) {
+    return setTextRange(
+      ts.factory.createReturnStatement(
+        expression.child(0)?.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  Statement_throw(_0, _1, expression, _2) {
+    return setTextRange(ts.factory.createThrowStatement(expression.ts()), this);
+  },
   Statement_typed_assignment(node) {
+    return node.ts();
+  },
+  Statement_until(_0, _1, expression, block) {
+    return setTextRange(
+      ts.factory.createWhileStatement(
+        setTextRange(ts.factory.createLogicalNot(expression.ts()), expression),
+        block.ts()
+      ),
+      this
+    );
+  },
+  Statement_when_callback(
+    expressionNode,
+    qMark,
+    _0,
+    eventName,
+    _1,
+    _2,
+    _3,
+    params,
+    block
+  ) {
+    let fn = setTextRange(
+      ts.factory.createFunctionExpression(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        params.child(0)?.tsa(),
+        undefined,
+        block.ts()
+      ),
+      block
+    );
+
+    let expression = expressionNode.ts<ts.Expression | ts.CallExpression>();
+
+    let mark = qMark
+      .child(0)
+      ?.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken) });
+
+    if (eventName.sourceString) {
+      let expr = ts.setTextRange(
+        ts.factory.createLogicalOr(
+          setTextRange(
+            ts.factory.createPropertyAccessChain(expression, mark, "on"),
+            eventName.child(0)
+          ),
+          setTextRange(
+            ts.factory.createPropertyAccessChain(
+              expression,
+              mark,
+              "addEventListener"
+            ),
+            eventName.child(0)
+          )
+        ),
+        expression
+      );
+
+      expression = ts.setTextRange(
+        ts.factory.createCallChain(
+          ts.factory.createPropertyAccessChain(expr, mark, "call"),
+          mark,
+          undefined,
+          [
+            expression,
+            setTextRange(
+              ts.factory.createStringLiteral(
+                eventName.child(0).ts<ts.Identifier>().text
+              ),
+              eventName.child(0)
+            ),
+          ]
+        ),
+        expression
+      );
+    }
+
+    if (expression.kind == ts.SyntaxKind.CallExpression) {
+      let expr = expression as ts.CallExpression;
+
+      expression = ts.setTextRange(
+        ts.factory.createCallChain(
+          expr.expression,
+          expr.questionDotToken || mark,
+          expr.typeArguments,
+          expr.arguments.concat(fn)
+        ),
+        expr
+      );
+    } else {
+      expression = ts.setTextRange(
+        ts.factory.createCallChain(expression, mark, undefined, [fn]),
+        expression
+      );
+    }
+
+    return setTextRange(ts.factory.createExpressionStatement(expression), this);
+  },
+  Statement_while(_0, _1, expression, block) {
+    return setTextRange(
+      ts.factory.createWhileStatement(expression.ts(), block.ts()),
+      this
+    );
+  },
+  StatementBlock(node) {
     return node.ts();
   },
   StatementBlock_statements(statements) {
