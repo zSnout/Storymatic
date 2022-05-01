@@ -236,13 +236,13 @@ Storymatic {
     | MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?." GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp #whitespace
-      ~(identifier | "+" | "-" | "<" | "\"" | "'" | "{" "}") NonEmptyArgumentList -- function_call_implied
+      ~(identifier | "+" | "-" | "<" | "\"" | "'" | "{" "}") NonemptyArgumentList -- function_call_implied
     | MemberAccessExp GenericTypeArgumentList string -- tagged_template_literal
     | MemberAccessExp "!" -- non_null_assertion
     | ClassCreationExp
 
   ArgumentList = ListOf<Argument, ",">
-  NonEmptyArgumentList = NonemptyListOf<Argument, ",">
+  NonemptyArgumentList = NonemptyListOf<Argument, ",">
 
   Argument
     = Expression
