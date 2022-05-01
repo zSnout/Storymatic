@@ -1514,6 +1514,84 @@ semantics.addOperation<ts.Node>("ts", {
   SingleStatementBlock_single_statement(_0, _1, statement) {
     return setTextRange(ts.factory.createBlock([statement.ts()]), this);
   },
+  Statement_await_new_thread(
+    awaitKeyword,
+    _0,
+    assignable,
+    _1,
+    expression,
+    blockNode
+  ) {
+    let $ = setTextRange(
+      ts.factory.createAwaitExpression(
+        setTextRange(ts.factory.createIdentifier("$"), awaitKeyword)
+      ),
+      awaitKeyword
+    );
+
+    let first = assignable.sourceString
+      ? ts.factory.createVariableStatement(
+          undefined,
+          setTextRange(
+            ts.factory.createVariableDeclarationList(
+              [
+                setTextRange(
+                  ts.factory.createVariableDeclaration(
+                    assignable.child(0)?.ts<ts.BindingName>(),
+                    undefined,
+                    undefined,
+                    $
+                  ),
+                  this
+                ),
+              ],
+              ts.NodeFlags.Let
+            ),
+            this
+          )
+        )
+      : ts.factory.createExpressionStatement($);
+
+    first = setTextRange(first, this);
+
+    let block = setTextRange(
+      ts.factory.createBlock(
+        [first, ...blockNode.ts<ts.Block>().statements],
+        true
+      ),
+      blockNode
+    );
+
+    let fn = ts.factory.createFunctionExpression(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      [
+        setTextRange(
+          ts.factory.createParameterDeclaration(
+            undefined,
+            undefined,
+            undefined,
+            "$"
+          ),
+          awaitKeyword
+        ),
+      ],
+      undefined,
+      block
+    );
+
+    return setTextRange(
+      ts.factory.createExpressionStatement(
+        setTextRange(
+          ts.factory.createCallExpression(fn, undefined, [expression.ts()]),
+          this
+        )
+      ),
+      this
+    );
+  },
   Statement_break(_0, _1) {
     return setTextRange(ts.factory.createBreakStatement(), this);
   },
