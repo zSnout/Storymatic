@@ -139,12 +139,6 @@ semantics.addOperation<ts.Node | undefined>("tsn(map)", {
 });
 
 semantics.addOperation<ts.Node>("ts", {
-  ArrayEntry(node) {
-    return node.ts();
-  },
-  ArrayEntry_spread_operator(_, expr) {
-    return setTextRange(ts.factory.createSpreadElement(expr.ts()), this);
-  },
   Accessor(base, addons) {
     let expr = base.ts<ts.Expression>();
 
@@ -184,6 +178,9 @@ semantics.addOperation<ts.Node>("ts", {
   AccessorBase(node) {
     return node.ts();
   },
+  AccessorIdentifierBase(node) {
+    return node.ts();
+  },
   AccessorPropertyBase(node) {
     return node.ts();
   },
@@ -204,6 +201,73 @@ semantics.addOperation<ts.Node>("ts", {
   },
   Argument_spread_operator(_, expr) {
     return setTextRange(ts.factory.createSpreadElement(expr.ts()), this);
+  },
+  ArrayEntry(node) {
+    return node.ts();
+  },
+  ArrayEntry_spread_operator(_, expr) {
+    return setTextRange(ts.factory.createSpreadElement(expr.ts()), this);
+  },
+  Assignable(node) {
+    return node.ts();
+  },
+  Assignable_array(_0, elements, _1, dotDotDot, spreadable, _2, _3) {
+    let members = elements.tsa<ts.BindingElement>().slice();
+
+    if (spreadable.sourceString) {
+      members.push(
+        setTextRange(
+          ts.factory.createBindingElement(
+            setTextRange(
+              ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+              dotDotDot
+            ),
+            undefined,
+            spreadable.ts<ts.BindingName>()
+          ),
+          this
+        )
+      );
+    }
+
+    return setTextRange(ts.factory.createArrayBindingPattern(members), this);
+  },
+  Assignable_identifier(node) {
+    return setTextRange(
+      ts.factory.createBindingElement(
+        undefined,
+        undefined,
+        node.ts<ts.Identifier>()
+      ),
+      this
+    );
+  },
+  Assignable_object(_0, elements, _1, dotDotDot, spreadable, _2, _3) {
+    let members = elements.tsa<ts.BindingElement>().slice();
+
+    if (spreadable.sourceString) {
+      members.push(
+        setTextRange(
+          ts.factory.createBindingElement(
+            setTextRange(
+              ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+              dotDotDot
+            ),
+            undefined,
+            spreadable.ts<ts.BindingName>()
+          ),
+          this
+        )
+      );
+    }
+
+    return setTextRange(ts.factory.createObjectBindingPattern(members), this);
+  },
+  alnum(_) {
+    throw new Error("`alnum` nodes should never directly be evaluated.");
+  },
+  applySyntactic(node) {
+    return node.ts();
   },
   bigint(_0, _1, _2) {
     return setTextRange(
@@ -1212,77 +1276,6 @@ semantics.addOperation<ts.Node>("ts", {
 
     return setTextRange(expr, this);
   },
-  NonCapturingAssignable(node) {
-    return node.ts();
-  },
-  NonCapturingAssignable_array(
-    _0,
-    elements,
-    _1,
-    dotDotDot,
-    spreadable,
-    _2,
-    _3
-  ) {
-    let members = elements.tsa<ts.BindingElement>().slice();
-
-    if (spreadable.sourceString) {
-      members.push(
-        setTextRange(
-          ts.factory.createBindingElement(
-            setTextRange(
-              ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-              dotDotDot
-            ),
-            undefined,
-            spreadable.ts<ts.BindingName>()
-          ),
-          this
-        )
-      );
-    }
-
-    return setTextRange(ts.factory.createArrayBindingPattern(members), this);
-  },
-  NonCapturingAssignable_identifier(node) {
-    return setTextRange(
-      ts.factory.createBindingElement(
-        undefined,
-        undefined,
-        node.ts<ts.Identifier>()
-      ),
-      this
-    );
-  },
-  NonCapturingAssignable_object(
-    _0,
-    elements,
-    _1,
-    dotDotDot,
-    spreadable,
-    _2,
-    _3
-  ) {
-    let members = elements.tsa<ts.BindingElement>().slice();
-
-    if (spreadable.sourceString) {
-      members.push(
-        setTextRange(
-          ts.factory.createBindingElement(
-            setTextRange(
-              ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-              dotDotDot
-            ),
-            undefined,
-            spreadable.ts<ts.BindingName>()
-          ),
-          this
-        )
-      );
-    }
-
-    return setTextRange(ts.factory.createObjectBindingPattern(members), this);
-  },
   NonemptyGenericTypeArgumentList(_0, _1, _2) {
     throw new Error(
       "`NonemptyGenericTypeArgumentList` nodes should never directly be evaluated."
@@ -1402,6 +1395,25 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createElementAccessExpression(
         setTextRange(ts.factory.createIdentifier("self"), atSymbol),
         symbol.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  Rescopable(node) {
+    return node.ts();
+  },
+  Rescopable_identifier(ident) {
+    return setTextRange(
+      ts.factory.createVariableDeclaration(ident.ts<ts.Identifier>()),
+      this
+    );
+  },
+  Rescopable_with_type(ident, _, type) {
+    return setTextRange(
+      ts.factory.createVariableDeclaration(
+        ident.ts<ts.Identifier>(),
+        undefined,
+        type.ts<ts.TypeNode>()
       ),
       this
     );
@@ -1591,6 +1603,34 @@ semantics.addOperation<ts.Node>("ts", {
 
     return setTextRange(
       ts.factory.createCallExpression(cLog, undefined, [expr.ts()]),
+      this
+    );
+  },
+  Statement_rescope(_0, _1, declarations, _2) {
+    let list = setTextRange(
+      ts.factory.createVariableDeclarationList(
+        declarations.tsa(),
+        ts.NodeFlags.Let
+      ),
+      this
+    );
+
+    return setTextRange(
+      ts.factory.createVariableStatement(undefined, list),
+      this
+    );
+  },
+  Statement_rescope_assign(_0, _1, assignment, _2) {
+    let list = setTextRange(
+      ts.factory.createVariableDeclarationList(
+        [assignment.ts()],
+        ts.NodeFlags.Let
+      ),
+      this
+    );
+
+    return setTextRange(
+      ts.factory.createVariableStatement(undefined, list),
       this
     );
   },
@@ -1981,6 +2021,17 @@ semantics.addOperation<ts.Node>("ts", {
 
     return setTextRange(
       ts.factory.createCallExpression(ident, undefined, [obj]),
+      this
+    );
+  },
+  VariableAssignment(assignable, _0, type, _1, expr) {
+    return setTextRange(
+      ts.factory.createVariableDeclaration(
+        assignable.ts<ts.BindingName>(),
+        undefined,
+        type.child(0)?.ts<ts.TypeNode>(),
+        expr.ts<ts.Expression>()
+      ),
       this
     );
   },
