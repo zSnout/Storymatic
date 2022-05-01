@@ -206,7 +206,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TernaryExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AssignmentExp_assignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AssignmentExp_yield?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
-  AssignmentExp_yield_from?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode | NonterminalNode, arg2: TerminalNode, arg3: IterationNode | NonterminalNode, arg4: NonterminalNode) => T;
+  AssignmentExp_yield_from?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
   AssignmentExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   VariableAssignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
   ExportedVariableAssignment?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: TerminalNode, arg6: NonterminalNode) => T;
