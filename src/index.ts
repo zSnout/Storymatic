@@ -821,18 +821,6 @@ semantics.addOperation<ts.Node>("ts", {
   digit(_) {
     throw "`digit` nodes should never directly be evaluated.";
   },
-  ElseIfKeyword(_) {
-    throw "`ElseIfKeyword` nodes should never directly be evaluated.";
-  },
-  ElseIfKeyword_elif(_) {
-    throw "`ElseIfKeyword_elif` nodes should never directly be evaluated.";
-  },
-  ElseIfKeyword_else_if(_0, _1) {
-    throw "`ElseIfKeyword_else_if` nodes should never directly be evaluated.";
-  },
-  ElseIfKeyword_else_unless(_0, _1, _2) {
-    throw "`ElseIfKeyword_else_unless` nodes should never directly be evaluated.";
-  },
   Extendable(base, _0, accessors, generics, _1) {
     let ident = base.ts<ts.Expression>();
 
@@ -965,6 +953,21 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createNumericLiteral(
         this.sourceString,
         ts.TokenFlags.HexSpecifier
+      ),
+      this
+    );
+  },
+  IfStatement(ifUnless, _0, condition, block, _1, _2, _3, elseBlock) {
+    let cond = condition.ts<ts.Expression>();
+
+    if (ifUnless.sourceString == "unless")
+      cond = ts.setTextRange(ts.factory.createLogicalNot(cond), cond);
+
+    return setTextRange(
+      ts.factory.createIfStatement(
+        cond,
+        block.ts(),
+        elseBlock.child(0)?.ts<ts.Block>()
       ),
       this
     );
