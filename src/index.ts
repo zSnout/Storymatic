@@ -1467,6 +1467,40 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralType_parenthesized(_0, expr, _1) {
     return setTextRange(ts.factory.createParenthesizedType(expr.ts()), this);
   },
+  LiteralType_type_args(expr, args) {
+    return setTextRange(
+      ts.factory.createTypeReferenceNode(expr.ts<ts.EntityName>(), args.tsa()),
+      this
+    );
+  },
+  LogicalAndExp(node) {
+    return node.ts();
+  },
+  LogicalAndExp_logical_and(left, _0, _1, _2, right) {
+    return setTextRange(
+      ts.factory.createLogicalAnd(left.ts(), right.ts()),
+      this
+    );
+  },
+  LogicalOrExp(node) {
+    return node.ts();
+  },
+  LogicalOrExp_logical_nullish_coalescing(left, _, right) {
+    return setTextRange(
+      ts.factory.createBinaryExpression(
+        left.ts(),
+        ts.SyntaxKind.QuestionQuestionToken,
+        right.ts()
+      ),
+      this
+    );
+  },
+  LogicalOrExp_logical_or(left, _0, _1, _2, right) {
+    return setTextRange(
+      ts.factory.createLogicalOr(left.ts(), right.ts()),
+      this
+    );
+  },
   letter(_) {
     throw new Error("`letter` nodes should never directly be evaluated.");
   },
