@@ -201,6 +201,11 @@ semantics.addOperation<ts.Node>("ts", {
           expr,
           addon as ts.MemberName
         );
+      } else if (addon.kind == ts.SyntaxKind.ParenthesizedExpression) {
+        expr = ts.factory.createElementAccessExpression(
+          expr,
+          (addon as ts.ParenthesizedExpression).expression
+        );
       } else {
         expr = ts.factory.createElementAccessExpression(expr, addon);
       }
@@ -217,7 +222,10 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   AccessorAddon_computed_member_access(_0, expr, _1) {
-    return expr.ts();
+    return setTextRange(
+      ts.factory.createParenthesizedExpression(expr.ts()),
+      this
+    );
   },
   AccessorAddon_member_access(_, prop) {
     return prop.ts();
@@ -349,12 +357,25 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   AssignmentExp_assignment(target, _, expr) {
-    let bound = target.ts<ts.BindingElement>();
+    let bound = target.ts<
+      | ts.BindingElement
+      | ts.BindingPattern
+      | ts.ElementAccessExpression
+      | ts.PropertyAccessExpression
+    >();
 
-    return setTextRange(
-      ts.factory.createAssignment(bindingToAssignment(bound), expr.ts()),
-      this
-    );
+    if (
+      bound.kind == ts.SyntaxKind.BindingElement ||
+      bound.kind == ts.SyntaxKind.ArrayBindingPattern ||
+      bound.kind == ts.SyntaxKind.ObjectBindingPattern
+    ) {
+      return setTextRange(
+        ts.factory.createAssignment(bindingToAssignment(bound), expr.ts()),
+        this
+      );
+    }
+
+    return setTextRange(ts.factory.createAssignment(bound, expr.ts()), this);
   },
   AssignmentExp_yield(_0, _1, expr) {
     return setTextRange(
@@ -1392,27 +1413,6 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  NonAssignableAccessor(base, addons) {
-    let expr = base.ts<ts.Expression>();
-
-    for (let addon of addons.tsa<ts.Expression | ts.Identifier>()) {
-      if (addon.kind == ts.SyntaxKind.Identifier) {
-        expr = ts.factory.createPropertyAccessExpression(
-          expr,
-          addon as ts.Identifier
-        );
-      } else {
-        expr = ts.factory.createElementAccessExpression(expr, addon);
-      }
-
-      expr = ts.setTextRange(expr, {
-        pos: base.source.startIdx,
-        end: addon.end,
-      });
-    }
-
-    return setTextRange(expr, this);
-  },
   NonemptyGenericTypeArgumentList(_0, _1, _2) {
     throw new Error(
       "`NonemptyGenericTypeArgumentList` nodes should never directly be evaluated."
@@ -2189,13 +2189,7 @@ semantics.addOperation<ts.Node>("ts", {
   StaticProperty_computed(atSymbol, _0, expr, _1) {
     return setTextRange(
       ts.factory.createElementAccessExpression(
-        setTextRange(
-          ts.factory.createPropertyAccessExpression(
-            setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
-            "constructor"
-          ),
-          atSymbol
-        ),
+        setTextRange(ts.factory.createIdentifier("$constructor"), atSymbol),
         expr.ts<ts.Expression>()
       ),
       this
@@ -2204,13 +2198,7 @@ semantics.addOperation<ts.Node>("ts", {
   StaticProperty_identifier(atSymbol, prop) {
     return setTextRange(
       ts.factory.createPropertyAccessExpression(
-        setTextRange(
-          ts.factory.createPropertyAccessExpression(
-            setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
-            "constructor"
-          ),
-          atSymbol
-        ),
+        setTextRange(ts.factory.createIdentifier("$constructor"), atSymbol),
         prop.ts<ts.Identifier>()
       ),
       this
@@ -2219,13 +2207,7 @@ semantics.addOperation<ts.Node>("ts", {
   StaticProperty_symbol(atSymbol, symbol) {
     return setTextRange(
       ts.factory.createElementAccessExpression(
-        setTextRange(
-          ts.factory.createPropertyAccessExpression(
-            setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
-            "constructor"
-          ),
-          atSymbol
-        ),
+        setTextRange(ts.factory.createIdentifier("$constructor"), atSymbol),
         symbol.ts<ts.Expression>()
       ),
       this
