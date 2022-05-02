@@ -519,12 +519,6 @@ semantics.addOperation<ts.Node>("ts", {
   ClassCreationExp(node) {
     return node.ts();
   },
-  ClassCreationExp_class_creation_implied(_0, _1, target, _2, args) {
-    return setTextRange(
-      ts.factory.createNewExpression(target.ts(), undefined, args.tsa()),
-      this
-    );
-  },
   ClassCreationExp_class_creation_no_args(_0, _1, target) {
     return setTextRange(
       ts.factory.createNewExpression(target.ts(), undefined, []),
@@ -1369,12 +1363,6 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExp_function_call(target, typeArgs, _0, args, _1) {
     return setTextRange(
       ts.factory.createCallExpression(target.ts(), typeArgs.tsa(), args.tsa()),
-      this
-    );
-  },
-  MemberAccessExp_function_call_implied(target, _, args) {
-    return setTextRange(
-      ts.factory.createCallExpression(target.ts(), undefined, args.tsa()),
       this
     );
   },
