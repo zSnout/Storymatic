@@ -319,7 +319,7 @@ Storymatic {
   ExportedVariableAssignment = "export" #space Assignable (":" Type)? "=" Expression
   TypedVariableAssignment = Assignable ":" Type "=" Expression
 
-  AssignableOrAccessor = NonAssignableAccessor | ~"@" Assignable ~("." | "[")
+  AssignableOrAccessor = Accessor | Assignable ~("." | "[")
 
   AssignableWithDefault
     = Assignable "=" Expression -- with_default
@@ -336,9 +336,7 @@ Storymatic {
     | "{" ListOf<AssignableKeyWithRewrite, #expressionTerminator>
       (#expressionTerminator "..." Assignable)? ","? "}" -- object
 
-  Accessor = AccessorBase AccessorAddon*
-
-  NonAssignableAccessor
+  Accessor
     = AccessorIdentifierBase AccessorAddon+
     | AccessorPropertyBase AccessorAddon*
 

@@ -223,7 +223,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Assignable_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode) => T;
   Assignable?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Accessor?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
-  NonAssignableAccessor?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
   AccessorBase?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AccessorIdentifierBase?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AccessorPropertyBase?: (this: NonterminalNode, arg0: NonterminalNode) => T;
