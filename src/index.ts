@@ -815,6 +815,55 @@ semantics.addOperation<ts.Node>("ts", {
   digit(_) {
     throw "`digit` nodes should never directly be evaluated.";
   },
+  EmptyListOf() {
+    throw new Error("`EmptyListOf` nodes should never directly be evaluated.");
+  },
+  EnumMember(node) {
+    return node.ts();
+  },
+  EnumMember_assigned(key, _0, value, _1) {
+    return setTextRange(
+      ts.factory.createEnumMember(
+        key.ts<ts.PropertyName>(),
+        value.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  EnumMember_auto_assign(key, _) {
+    return setTextRange(
+      ts.factory.createEnumMember(key.ts<ts.PropertyName>()),
+      this
+    );
+  },
+  EnumStatement(_export, _0, _1, _2, ident, _3, members, _4) {
+    return setTextRange(
+      ts.factory.createEnumDeclaration(
+        undefined,
+        _export.sourceString
+          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+          : undefined,
+        ident.ts<ts.Identifier>(),
+        members.tsa()
+      ),
+      this
+    );
+  },
+  EqualityExp(node) {
+    return node.ts();
+  },
+  EqualityExp_equal_to(left, _, right) {
+    return setTextRange(ts.factory.createEquality(left.ts(), right.ts()), this);
+  },
+  EqualityExp_not_equal_to(left, _, right) {
+    return setTextRange(
+      ts.factory.createInequality(left.ts(), right.ts()),
+      this
+    );
+  },
+  Expression(node) {
+    return node.ts();
+  },
   Extendable(base, _0, accessors, generics, _1) {
     let ident = base.ts<ts.Expression>();
 
@@ -886,6 +935,24 @@ semantics.addOperation<ts.Node>("ts", {
         list
       ),
       this
+    );
+  },
+  emptyListOf() {
+    throw new Error("`emptyListOf` nodes should never directly be evaluated.");
+  },
+  equalityExpWords(_0, _1, _2) {
+    throw new Error(
+      "`equalityExpWords` nodes should never directly be evaluated."
+    );
+  },
+  expressionTerminator(_) {
+    throw new Error(
+      "`expressionTerminator` nodes should never directly be evaluated."
+    );
+  },
+  expressionTerminator_comma(_0, _1) {
+    throw new Error(
+      "`expressionTerminator_comma` nodes should never directly be evaluated."
     );
   },
   FinallyStatement(_0, _1, block) {
@@ -1303,7 +1370,7 @@ semantics.addOperation<ts.Node>("ts", {
     return setTextRange(ts.factory.createJsxText(source), this);
   },
   ListOf(_) {
-    throw new Error("`ListOf` nodes should only be evaluated using .tsa().");
+    throw new Error("`ListOf` nodes should never directly be evaluated.");
   },
   ListOfTwo(_0, _1, _2) {
     throw new Error("`ListOfTwo` nodes should never directly be evaluated.");
@@ -1346,7 +1413,7 @@ semantics.addOperation<ts.Node>("ts", {
     throw new Error("`line_comment` nodes should never directly be evaluated.");
   },
   listOf(_) {
-    throw new Error("`listOf` nodes should only be evaluated using .tsa().");
+    throw new Error("`listOf` nodes should never directly be evaluated.");
   },
   MemberAccessExp(node) {
     return node.ts();
@@ -1544,6 +1611,22 @@ semantics.addOperation<ts.Node>("ts", {
         name.ts(),
         undefined,
         value.ts()
+      ),
+      this
+    );
+  },
+  NamespaceDeclaration(_export, _0, _1, _2, ident, block) {
+    return setTextRange(
+      ts.factory.createModuleDeclaration(
+        undefined,
+        _export.sourceString
+          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+          : undefined,
+        ident.ts(),
+        setTextRange(
+          ts.factory.createModuleBlock(block.ts<ts.Block>().statements),
+          block
+        )
       ),
       this
     );
