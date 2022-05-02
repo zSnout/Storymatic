@@ -107,7 +107,7 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
     if (rest.sourceString) {
       return setTextRange(
         ts.factory.createNodeArray(
-          params.concat(rest.ts<ts.ParameterDeclaration>())
+          params.concat(rest.child(0).ts<ts.ParameterDeclaration>())
         ),
         this
       );
