@@ -1636,6 +1636,39 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  RestParameter(node) {
+    return node.ts();
+  },
+  RestParameter_with_type(dotDotDot, assignable, _, type) {
+    return setTextRange(
+      ts.factory.createParameterDeclaration(
+        undefined,
+        undefined,
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          dotDotDot
+        ),
+        assignable.ts<ts.BindingName>(),
+        undefined,
+        type.ts<ts.TypeNode>()
+      ),
+      this
+    );
+  },
+  RestParameter_without_type(dotDotDot, assignable) {
+    return setTextRange(
+      ts.factory.createParameterDeclaration(
+        undefined,
+        undefined,
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          dotDotDot
+        ),
+        assignable.ts<ts.BindingName>()
+      ),
+      this
+    );
+  },
   reserved(_) {
     throw "`reserved` nodes should never directly be evaluated.";
   },
