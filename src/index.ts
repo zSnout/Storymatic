@@ -1042,8 +1042,8 @@ semantics.addOperation<ts.Node>("ts", {
     return setTextRange(
       ts.factory.createTypeParameterDeclaration(
         name.ts<ts.Identifier>(),
-        constraint.ts<ts.TypeNode>(),
-        defaultType.ts<ts.TypeNode>()
+        constraint.child(0)?.ts<ts.TypeNode>(),
+        defaultType.child(0)?.ts<ts.TypeNode>()
       ),
       this
     );
