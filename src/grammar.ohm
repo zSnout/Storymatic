@@ -171,20 +171,16 @@ Storymatic {
     | "..." Expression -- spread_operator
 
   InlineFunction
-    = "fn" GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
-    | "fn" GenericTypeParameterList? #space
-      "of" #space ParameterList ("=>" Type)? FunctionBody -- with_params
+    = "fn" GenericTypeParameterList?
+      (#space "of" #space ParameterList)? ("=>" Type)? FunctionBody
 
   BlockFunction
-    = ("export" #space)? "fn" #space identifier GenericTypeParameterList? ("=>" Type)? FunctionBody -- no_params
-    | ("export" #space)? "fn" #space identifier GenericTypeParameterList? #space
-      "of" #space ParameterList ("=>" Type)? FunctionBody -- with_params
+    = ("export" #space)? "fn" #space identifier GenericTypeParameterList?
+      (#space "of" #space ParameterList)? ("=>" Type)? FunctionBody
 
   Method<prefix>
     = PrivacyLevel "fn" #space prefix MethodName GenericTypeParameterList?
-      ("=>" Type)? FunctionBody -- no_params
-    | PrivacyLevel "fn" #space prefix MethodName GenericTypeParameterList? #space
-      "of" #space ParameterList ("=>" Type)? FunctionBody -- with_params
+      (#space "of" #space ParameterList)? ("=>" Type)? FunctionBody
 
   PrivacyLevel
     = "public" #space -- public
@@ -516,14 +512,12 @@ Storymatic {
     | BlockFunctionType
 
   InlineFunctionType
-    = "fn" GenericTypeParameterList? "=>" Type -- no_params
-    | "fn" GenericTypeParameterList? #space
-      "of" #space TypeParameterList "=>" Type -- with_params
+    = "fn" GenericTypeParameterList?
+      (#space "of" #space TypeParameterList)? "=>" Type
 
   BlockFunctionType
-    = "fn" #space TypeObjectKey GenericTypeParameterList? "=>" Type -- function_no_params
-    | "fn" #space TypeObjectKey GenericTypeParameterList? #space
-      "of" #space TypeParameterList "=>" Type -- with_params
+    = "fn" #space TypeObjectKey GenericTypeParameterList?
+      (#space "of" #space TypeParameterList)? "=>" Type
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
   UnionType = NonemptyListOf<IntersectionType, "|">
