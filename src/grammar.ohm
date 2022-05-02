@@ -17,7 +17,7 @@ Storymatic {
   ElseStatement = "else" #space UnprefixedSingleStatementBlock
   thenOrDo = "then" | "do"
 
-    ElseIfKeyword
+  ElseIfKeyword
     = "else" "if" -- else_if
     | "else" #space "unless" -- else_unless
     | "elif" -- elif
