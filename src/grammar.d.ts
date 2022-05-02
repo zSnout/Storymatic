@@ -320,12 +320,10 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TupleElement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectKey_identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectKey_string?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  TypeObjectKey_template_literal?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectKey_numerical_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectKey_computed_accessor?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   TypeObjectKey?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectEntry_key_value?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
-  TypeObjectEntry_index_signature?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   TypeObjectEntry_construct_signature?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   TypeObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   InlineFunctionType?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode) => T;

@@ -504,14 +504,13 @@ Storymatic {
   TypeObjectKey
     = identOrWord -- identifier
     | string_non_interpolatable -- string
-    | string_type -- template_literal
     | decimalNumber -- numerical_key
     | "[" Accessor "]" -- computed_accessor
 
   TypeObjectEntry
     = ("readonly" #space)? TypeObjectKey ":" Type -- key_value
-    | ("readonly" #space)? IndexSignatureType<""> -- index_signature
     | "new" #space InlineFunctionType -- construct_signature
+    | IndexSignatureType<"">
     | InlineFunctionType
     | BlockFunctionType
 
