@@ -181,7 +181,7 @@ Storymatic {
       (#space "of" #space ParameterList)? ("=>" Type)? FunctionBody
 
   Method<prefix>
-    = PrivacyLevel "fn" #space prefix MethodName GenericTypeParameterList?
+    = PrivacyLevel "fn" #space prefix MethodName "?"? GenericTypeParameterList?
       (#space "of" #space ParameterList)? ("=>" Type)? FunctionBody
 
   PrivacyLevel
