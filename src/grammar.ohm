@@ -510,8 +510,8 @@ Storymatic {
   TypeObjectEntry
     = ("readonly" #space)? TypeObjectKey ":" Type -- key_value
     | "new" #space InlineFunctionType -- construct_signature
+    | InlineFunctionType -- call_signature
     | IndexSignatureType<"">
-    | InlineFunctionType
     | BlockFunctionType
 
   InlineFunctionType

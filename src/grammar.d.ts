@@ -325,6 +325,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TypeObjectKey?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectEntry_key_value?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
   TypeObjectEntry_construct_signature?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  TypeObjectEntry_call_signature?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   InlineFunctionType?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode) => T;
   BlockFunctionType?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: TerminalNode, arg9: NonterminalNode) => T;
