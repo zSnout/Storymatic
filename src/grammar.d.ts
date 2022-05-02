@@ -173,6 +173,10 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   AddExp_addition?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AddExp_subtraction?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AddExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  BitwiseExp_left_shift?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
+  BitwiseExp_right_shift?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
+  BitwiseExp_unsigned_right_shift?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
+  BitwiseExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   CompareExp_less_than?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   CompareExp_less_than_equal?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   CompareExp_greater_than?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;

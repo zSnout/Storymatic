@@ -270,16 +270,21 @@ Storymatic {
     | AddExp "-" MulExp -- subtraction
     | MulExp
 
+  BitwiseExp
+    = BitwiseExp "<<" AddExp -- left_shift
+    | BitwiseExp ">>" AddExp -- right_shift
+    | BitwiseExp ">>>" AddExp -- unsigned_right_shift
+
   CompareExp
-    = CompareExp "<" AddExp -- less_than
-    | CompareExp "<=" AddExp -- less_than_equal
-    | CompareExp ">" AddExp -- greater_than
-    | CompareExp ">=" AddExp -- greater_than_equal
-    | CompareExp #space ("is" #space)? "in" #space AddExp -- within
-    | CompareExp #space "isnt" #space "in" #space AddExp -- not_within
-    | CompareExp #space "is" #space ("a" | "an") #space AddExp -- instanceof
-    | CompareExp #space "isnt" #space ("a" | "an") #space AddExp -- not_instanceof
-    | AddExp
+    = CompareExp "<" BitwiseExp -- less_than
+    | CompareExp "<=" BitwiseExp -- less_than_equal
+    | CompareExp ">" BitwiseExp -- greater_than
+    | CompareExp ">=" BitwiseExp -- greater_than_equal
+    | CompareExp #space ("is" #space)? "in" #space BitwiseExp -- within
+    | CompareExp #space "isnt" #space "in" #space BitwiseExp -- not_within
+    | CompareExp #space "is" #space ("a" | "an") #space BitwiseExp -- instanceof
+    | CompareExp #space "isnt" #space ("a" | "an") #space BitwiseExp -- not_instanceof
+    | BitwiseExp
 
   EqualityExp
     = EqualityExp ("==" | #equalityExpWords<"is">) CompareExp -- equal_to
