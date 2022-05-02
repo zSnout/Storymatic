@@ -102,6 +102,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LiteralExp_parenthesized?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   LiteralExp_array?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
   LiteralExp_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
+  LiteralExp_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  LiteralExp_static_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   InlineClassDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: IterationNode, arg12: TerminalNode) => T;
   ArrayEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;

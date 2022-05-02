@@ -143,6 +143,8 @@ Storymatic {
     = "(" Expression ")" -- parenthesized
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
+    | "@" ~(id_continue | "[" | "#" | ".") -- self
+    | "@@" ~(id_continue | "[" | "#" | ".") -- static_self
     | InlineClassDeclaration
     | InlineFunction
     | JSXElement
