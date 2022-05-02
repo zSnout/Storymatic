@@ -468,12 +468,12 @@ Storymatic {
     | string_type
     | decimalNumber
     | bigint
+    | InlineFunctionType
+    | ~("infer" #space) identifier ~("." | "<")
     | "infer" #space identifier -- infer
     | "infer" #space identifier #space "is" #space Type -- infer_constraint
-    | ~("infer" #space) identifier ~("." | "<") -- identifier
     | identifier "." &identifier Type -- qualified_name
     | identifier "<" NonemptyListOf<Type, ","> ">" -- type_args
-    | InlineFunctionType -- function
     | "new" #space InlineFunctionType -- construct
     | "(" Type ")" -- parenthesized
 
