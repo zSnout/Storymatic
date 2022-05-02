@@ -13,14 +13,8 @@ Storymatic {
     | Statement -- single_statement
 
   IfStatement = ("if" | "unless") #space Expression SingleStatementBlock<thenOrDo> ElseIfStatement* ElseStatement?
-  ElseIfStatement = ElseIfKeyword #space Expression SingleStatementBlock<thenOrDo>
-  ElseStatement = "else" #space UnprefixedSingleStatementBlock
+  ElseStatement = "else" #space (UnprefixedSingleStatementBlock | IfStatement)
   thenOrDo = "then" | "do"
-
-  ElseIfKeyword
-    = "else" "if" -- else_if
-    | "else" #space "unless" -- else_unless
-    | "elif" -- elif
 
   SwitchStatement = "switch" #space Expression "{" CaseStatement* DefaultStatement? "}"
   CaseClause = "case" #space Expression CaseTerminator
