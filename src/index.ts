@@ -118,6 +118,26 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   ParameterList_rest_params(rest) {
     return setTextRange(ts.factory.createNodeArray([rest.ts()]), this);
   },
+  TypeParameterList(node) {
+    return node.tsa();
+  },
+  TypeParameterList_params(paramNodes, _, rest) {
+    let params = paramNodes.tsa<ts.ParameterDeclaration>();
+
+    if (rest.sourceString) {
+      return setTextRange(
+        ts.factory.createNodeArray(
+          params.concat(rest.child(0).ts<ts.ParameterDeclaration>())
+        ),
+        this
+      );
+    } else {
+      return setTextRange(params, this);
+    }
+  },
+  TypeParameterList_rest_params(rest) {
+    return setTextRange(ts.factory.createNodeArray([rest.ts()]), this);
+  },
 });
 
 semantics.addOperation<ts.Node | undefined>("tsn(map)", {
@@ -398,6 +418,42 @@ semantics.addOperation<ts.Node>("ts", {
   applySyntactic(node) {
     return node.ts();
   },
+  BlockFunction(
+    _export,
+    _0,
+    _1,
+    _2,
+    ident,
+    generics,
+    _3,
+    _4,
+    _5,
+    params,
+    _6,
+    returnType,
+    body
+  ) {
+    return setTextRange(
+      ts.factory.createFunctionDeclaration(
+        undefined,
+        _export.sourceString
+          ? [
+              setTextRange(
+                ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
+                _export
+              ),
+            ]
+          : [],
+        undefined,
+        ident.ts<ts.Identifier>(),
+        generics.child(0)?.tsa(),
+        params.child(0)?.tsa(),
+        returnType.child(0)?.ts<ts.TypeNode>(),
+        body.ts<ts.Block>()
+      ),
+      this
+    );
+  },
   bigint(_0, _1, _2) {
     return setTextRange(
       ts.factory.createBigIntLiteral(this.sourceString),
@@ -432,7 +488,7 @@ semantics.addOperation<ts.Node>("ts", {
 
     let clause = ts.setTextRange(
       ts.factory.createCaseClause(finalClause.expression, [
-        ts.setTextRange(ts.factory.createBlock(statements), block),
+        ts.setTextRange(ts.factory.createBlock(statements, true), block),
       ]),
       finalClause
     );
@@ -988,6 +1044,30 @@ semantics.addOperation<ts.Node>("ts", {
           ),
         ],
         value.ts()
+      ),
+      this
+    );
+  },
+  InlineFunction(_0, generics, _1, _2, _3, params, _4, returnType, body) {
+    return setTextRange(
+      ts.factory.createFunctionExpression(
+        undefined,
+        undefined,
+        undefined,
+        generics.child(0)?.tsa(),
+        params.child(0)?.tsa(),
+        returnType.child(0)?.ts<ts.TypeNode>(),
+        body.ts<ts.Block>()
+      ),
+      this
+    );
+  },
+  InlineFunctionType(_0, generics, _1, _2, _3, params, _4, returnType) {
+    return setTextRange(
+      ts.factory.createFunctionTypeNode(
+        generics.child(0)?.tsa(),
+        params.child(0)?.tsa(),
+        returnType.child(0)?.ts<ts.TypeNode>()
       ),
       this
     );
@@ -1551,7 +1631,7 @@ semantics.addOperation<ts.Node>("ts", {
         undefined,
         assignable.ts<ts.BindingName>(),
         undefined,
-        type.ts<ts.TypeNode>(),
+        type.child(0)?.ts<ts.TypeNode>(),
         expr.ts<ts.Expression>()
       ),
       this
@@ -1703,7 +1783,7 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   SingleStatementBlock_single_statement(_0, _1, statement) {
-    return setTextRange(ts.factory.createBlock([statement.ts()]), this);
+    return setTextRange(ts.factory.createBlock([statement.ts()], true), this);
   },
   Statement(node) {
     return node.ts();
@@ -2517,6 +2597,50 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  TypeParameter(ident, qMark, _, type) {
+    return setTextRange(
+      ts.factory.createParameterDeclaration(
+        undefined,
+        undefined,
+        undefined,
+        ident.ts<ts.BindingName>(),
+        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+        type.ts<ts.TypeNode>()
+      ),
+      this
+    );
+  },
+  TypeParameterList(_) {
+    throw new Error(
+      "`TypeParameterList` nodes should never directly be evaluated."
+    );
+  },
+  TypeParameterList_params(_0, _1, _2) {
+    throw new Error(
+      "`TypeParameterList_params` nodes should never directly be evaluated."
+    );
+  },
+  TypeParameterList_rest_params(_) {
+    throw new Error(
+      "`TypeParameterList_rest_params` nodes should never directly be evaluated."
+    );
+  },
+  TypeRestParameter(dotDotDot, ident, _, type) {
+    return setTextRange(
+      ts.factory.createParameterDeclaration(
+        undefined,
+        undefined,
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          dotDotDot
+        ),
+        ident.ts<ts.BindingName>(),
+        undefined,
+        type.ts<ts.TypeNode>()
+      ),
+      this
+    );
+  },
   TypedVariableAssignment(assignable, _0, type, _1, expr) {
     let declaration = setTextRange(
       ts.factory.createVariableDeclaration(
@@ -2574,7 +2698,7 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   UnprefixedSingleStatementBlock_single_statement(statement) {
-    return setTextRange(ts.factory.createBlock([statement.ts()]), this);
+    return setTextRange(ts.factory.createBlock([statement.ts()], true), this);
   },
   undefined(_) {
     return setTextRange(ts.factory.createVoidZero(), this);
@@ -2617,7 +2741,7 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   WrappedStatementBlock(_0, statements, _1) {
-    return setTextRange(ts.factory.createBlock(statements.tsa()), this);
+    return setTextRange(ts.factory.createBlock(statements.tsa(), true), this);
   },
   word(_0, _1, _2) {
     return setTextRange(ts.factory.createIdentifier(this.sourceString), this);
