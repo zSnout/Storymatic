@@ -247,7 +247,7 @@ Storymatic {
   Parameter
     = Assignable (":" Type)? "=" Expression -- initializer
     | Assignable "?"? ":" Type -- type
-    | Assignable -- identifier
+    | Assignable -- assignable
 
   RestParameter
     = "..." Assignable ":" Type -- with_type
