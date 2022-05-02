@@ -1434,6 +1434,39 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  LiteralType(node) {
+    return node.ts();
+  },
+  LiteralType_construct(_0, _1, func) {
+    let fn = func.ts<ts.FunctionTypeNode>();
+
+    return setTextRange(
+      ts.factory.createConstructorTypeNode(
+        fn.modifiers,
+        fn.typeParameters,
+        fn.parameters,
+        fn.type
+      ),
+      this
+    );
+  },
+  LiteralType_infer(_0, _1, ident, _2, _3, constraint) {
+    return setTextRange(
+      ts.factory.createInferTypeNode(
+        ts.setTextRange(
+          ts.factory.createTypeParameterDeclaration(
+            ident.ts<ts.Identifier>(),
+            constraint.child(0)?.ts<ts.TypeNode>()
+          ),
+          { pos: ident.source.startIdx, end: this.source.endIdx }
+        )
+      ),
+      this
+    );
+  },
+  LiteralType_parenthesized(_0, expr, _1) {
+    return setTextRange(ts.factory.createParenthesizedType(expr.ts()), this);
+  },
   letter(_) {
     throw new Error("`letter` nodes should never directly be evaluated.");
   },
@@ -1872,6 +1905,19 @@ semantics.addOperation<ts.Node>("ts", {
       ),
       this
     );
+  },
+  QualifiedName(base, _, qualifiers) {
+    if (qualifiers.children.length == 0) return base.ts();
+
+    let type = base.ts<ts.EntityName>();
+    for (let qualifier of qualifiers.tsa<ts.Identifier>()) {
+      type = ts.setTextRange(ts.factory.createQualifiedName(type, qualifier), {
+        pos: type.pos,
+        end: qualifier.end,
+      });
+    }
+
+    return setTextRange(type, this);
   },
   Rescopable(node) {
     return node.ts();
