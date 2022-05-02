@@ -130,7 +130,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   ObjectEntry_object_method_with_self?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassCreationExp_class_creation_symbolic?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: TerminalNode) => T;
-  ClassCreationExp_class_creation_implied?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
   ClassCreationExp_class_creation_no_args?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   ClassCreationExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MemberAccessExp_member_access?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
@@ -141,7 +140,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessExp_optional_chaining_computed_member_access?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExp_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExp_optional_chaining_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: TerminalNode) => T;
-  MemberAccessExp_function_call_implied?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   MemberAccessExp_tagged_template_literal?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   MemberAccessExp_non_null_assertion?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode) => T;
   MemberAccessExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;

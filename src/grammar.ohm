@@ -210,8 +210,6 @@ Storymatic {
   ClassCreationExp
     = "new" #space ClassCreationExp GenericTypeArgumentList
       "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space ClassCreationExp ~"(" #whitespace
-      ~(identifier | "+" | "-" | "<" | "{" "}") ArgumentList -- class_creation_implied
     | "new" #space ClassCreationExp -- class_creation_no_args
     | LiteralExp
 
@@ -224,8 +222,6 @@ Storymatic {
     | MemberAccessExp "?." "[" MemberAccessExp "]" -- optional_chaining_computed_member_access
     | MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?." GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp #whitespace
-      ~(identifier | "+" | "-" | "<" | "\"" | "'" | "{" "}") NonemptyArgumentList -- function_call_implied
     | MemberAccessExp GenericTypeArgumentList string -- tagged_template_literal
     | MemberAccessExp "!" -- non_null_assertion
     | ClassCreationExp
