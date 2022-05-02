@@ -274,6 +274,7 @@ Storymatic {
     = BitwiseExp "<<" AddExp -- left_shift
     | BitwiseExp ">>" AddExp -- right_shift
     | BitwiseExp ">>>" AddExp -- unsigned_right_shift
+    | AddExp
 
   CompareExp
     = CompareExp "<" BitwiseExp -- less_than
