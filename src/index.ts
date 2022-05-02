@@ -1051,6 +1051,58 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  InlineClassDeclaration(
+    _0,
+    generics,
+    _1,
+    _2,
+    _3,
+    extendTarget,
+    _4,
+    _5,
+    _6,
+    implementTargets,
+    _7,
+    elements,
+    _8
+  ) {
+    let heritage: ts.HeritageClause[] = [];
+
+    if (extendTarget.sourceString) {
+      heritage.push(
+        setTextRange(
+          ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+            extendTarget.child(0).ts(),
+          ]),
+          extendTarget.child(0)
+        )
+      );
+    }
+
+    if (implementTargets.sourceString) {
+      heritage.push(
+        setTextRange(
+          ts.factory.createHeritageClause(
+            ts.SyntaxKind.ImplementsKeyword,
+            implementTargets.child(0).tsa()
+          ),
+          implementTargets.child(0)
+        )
+      );
+    }
+
+    return setTextRange(
+      ts.factory.createClassExpression(
+        undefined,
+        undefined,
+        undefined,
+        generics.tsa(),
+        heritage,
+        elements.tsa()
+      ),
+      this
+    );
+  },
   InlineFunction(_0, generics, _1, _2, _3, params, _4, returnType, body) {
     return setTextRange(
       ts.factory.createFunctionExpression(
