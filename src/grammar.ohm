@@ -34,8 +34,8 @@ Storymatic {
   EnumStatement = ("export" #space)? "enum" #space identifier "{" EnumMember* "}"
 
   EnumMember
-    = MethodName #expressionTerminator -- auto_assign
-    | MethodName "=" Expression #expressionTerminator -- assigned
+    = identOrWord #expressionTerminator -- auto_assign
+    | identOrWord "=" Expression #expressionTerminator -- assigned
 
   Statement
     = Expression "?"? (":" identOrWord)? (#space "with" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
