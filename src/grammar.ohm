@@ -12,8 +12,10 @@ Storymatic {
     = WrappedStatementBlock
     | Statement -- single_statement
 
-  IfStatement = ("if" | "unless") #space Expression SingleStatementBlock<thenOrDo> ElseStatement?
-  ElseStatement = "else" #space (UnprefixedSingleStatementBlock | IfStatement)
+  IfStatement
+    = ("if" | "unless") #space Expression SingleStatementBlock<thenOrDo>
+      (#space "else" #space (UnprefixedSingleStatementBlock | IfStatement))?
+
   thenOrDo = "then" | "do"
 
   SwitchStatement = "switch" #space Expression "{" CaseStatement* DefaultStatement? "}"

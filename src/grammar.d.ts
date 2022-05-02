@@ -19,8 +19,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   SingleStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnprefixedSingleStatementBlock_single_statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnprefixedSingleStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  IfStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: IterationNode) => T;
-  ElseStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  IfStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode) => T;
   thenOrDo?: (this: NonterminalNode, arg0: TerminalNode) => T;
   SwitchStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode) => T;
   CaseClause?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
