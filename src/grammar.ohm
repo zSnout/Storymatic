@@ -2,10 +2,7 @@ Storymatic {
   Script = StatementBlock
 
   WrappedStatementBlock = "{" Statement* "}"
-
-  StatementBlock
-    = WrappedStatementBlock
-    | Statement* -- statements
+  StatementBlock = Statement*
 
   SingleStatementBlock<prefix>
     = WrappedStatementBlock

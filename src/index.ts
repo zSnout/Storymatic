@@ -2170,10 +2170,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  StatementBlock(node) {
-    return node.ts();
-  },
-  StatementBlock_statements(statements) {
+  StatementBlock(statements) {
     return setTextRange(
       ts.factory.createSourceFile(
         statements.tsa(),
