@@ -457,10 +457,10 @@ Storymatic {
     | "object" | "null" | "undefined" | "void" | "any" | "unknown" | "this"
 
   Implementable
-    = QualifiedName GenericTypeArgumentList &("," | "implements" | "{")
+    = ~("infer" ~id_continue) identifier ("." ~("infer" ~id_continue) identOrWord)* GenericTypeArgumentList &("," | "implements" | "{")
 
   Extendable
-    = QualifiedName NonemptyGenericTypeArgumentList &("," | "implements" | "{")
+    = ~("infer" ~id_continue) identifier ("." ~("infer" ~id_continue) identOrWord)* NonemptyGenericTypeArgumentList &("," | "implements" | "{")
 
   QualifiedName = ~("infer" ~id_continue) identifier ("." ~("infer" ~id_continue) identOrWord)*
 
