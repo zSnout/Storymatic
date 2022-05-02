@@ -418,6 +418,27 @@ semantics.addOperation<ts.Node>("ts", {
   applySyntactic(node) {
     return node.ts();
   },
+  BitwiseExp(node) {
+    return node.ts();
+  },
+  BitwiseExp_left_shift(left, _, right) {
+    return setTextRange(
+      ts.factory.createLeftShift(left.ts(), right.ts()),
+      this
+    );
+  },
+  BitwiseExp_right_shift(left, _, right) {
+    return setTextRange(
+      ts.factory.createRightShift(left.ts(), right.ts()),
+      this
+    );
+  },
+  BitwiseExp_unsigned_right_shift(left, _, right) {
+    return setTextRange(
+      ts.factory.createUnsignedRightShift(left.ts(), right.ts()),
+      this
+    );
+  },
   BlockFunction(
     _export,
     _0,
@@ -1466,6 +1487,12 @@ semantics.addOperation<ts.Node>("ts", {
   },
   LiteralType_parenthesized(_0, expr, _1) {
     return setTextRange(ts.factory.createParenthesizedType(expr.ts()), this);
+  },
+  LiteralExp_self(_) {
+    return setTextRange(ts.factory.createIdentifier("$self"), this);
+  },
+  LiteralExp_static_self(_) {
+    return setTextRange(ts.factory.createIdentifier("$static"), this);
   },
   LiteralType_type_args(expr, args) {
     return setTextRange(
@@ -2548,6 +2575,37 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  Statement_with(_0, _1, context, blockNode) {
+    let block = blockNode.ts<ts.Block>();
+    let decl = setTextRange(
+      ts.factory.createVariableStatement(
+        undefined,
+        setTextRange(
+          ts.factory.createVariableDeclarationList(
+            [
+              setTextRange(
+                ts.factory.createVariableDeclaration(
+                  "$self",
+                  undefined,
+                  undefined,
+                  context.ts<ts.Expression>()
+                ),
+                context
+              ),
+            ],
+            ts.NodeFlags.Let
+          ),
+          context
+        )
+      ),
+      context
+    );
+
+    return setTextRange(
+      ts.factory.createBlock([decl, ...block.statements], true),
+      this
+    );
+  },
   StatementBlock(statements) {
     return setTextRange(
       ts.factory.createSourceFile(
@@ -2567,7 +2625,7 @@ semantics.addOperation<ts.Node>("ts", {
   StaticProperty_computed(atSymbol, _0, expr, _1) {
     return setTextRange(
       ts.factory.createElementAccessExpression(
-        setTextRange(ts.factory.createIdentifier("$constructor"), atSymbol),
+        setTextRange(ts.factory.createIdentifier("$static"), atSymbol),
         expr.ts<ts.Expression>()
       ),
       this
@@ -2576,7 +2634,7 @@ semantics.addOperation<ts.Node>("ts", {
   StaticProperty_identifier(atSymbol, prop) {
     return setTextRange(
       ts.factory.createPropertyAccessExpression(
-        setTextRange(ts.factory.createIdentifier("$constructor"), atSymbol),
+        setTextRange(ts.factory.createIdentifier("$static"), atSymbol),
         prop.ts<ts.Identifier>()
       ),
       this
@@ -2585,7 +2643,7 @@ semantics.addOperation<ts.Node>("ts", {
   StaticProperty_symbol(atSymbol, symbol) {
     return setTextRange(
       ts.factory.createElementAccessExpression(
-        setTextRange(ts.factory.createIdentifier("$constructor"), atSymbol),
+        setTextRange(ts.factory.createIdentifier("$static"), atSymbol),
         symbol.ts<ts.Expression>()
       ),
       this
