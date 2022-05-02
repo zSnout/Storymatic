@@ -457,10 +457,12 @@ Storymatic {
     | "object" | "null" | "undefined" | "void" | "any" | "unknown" | "this"
 
   Implementable
-    = identifier ("." identOrWord)* GenericTypeArgumentList &("," | "implements" | "{")
+    = QualifiedName GenericTypeArgumentList &("," | "implements" | "{")
 
   Extendable
-    = identifier ("." identOrWord)* NonemptyGenericTypeArgumentList &("," | "implements" | "{")
+    = QualifiedName NonemptyGenericTypeArgumentList &("," | "implements" | "{")
+
+  QualifiedName = ~("infer" ~id_continue) identifier ("." ~("infer" ~id_continue) identOrWord)*
 
   LiteralType
     = PrimitiveType ~(id_continue | ".")
@@ -469,10 +471,9 @@ Storymatic {
     | decimalNumber
     | bigint
     | InlineFunctionType
-    | ~("infer" #space) identifier ~("." | "<")
-    | "infer" #space identifier (#space "is" #space Type)? -- infer
-    | identifier "." &identifier Type -- qualified_name
-    | identifier "<" NonemptyListOf<Type, ","> ">" -- type_args
+    | QualifiedName ~"<"
+    | QualifiedName NonemptyGenericTypeArgumentList -- type_args
+    | "infer" #space identifier (":" #space Type)? -- infer
     | "new" #space InlineFunctionType -- construct
     | "(" Type ")" -- parenthesized
 
