@@ -1188,6 +1188,44 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  InterfaceDeclaration(
+    _export,
+    _0,
+    _1,
+    _2,
+    ident,
+    generics,
+    _3,
+    _4,
+    _5,
+    extendTargets,
+    _6,
+    members,
+    _7
+  ) {
+    let heritage = extendTargets
+      .child(0)
+      ?.tsa<ts.ExpressionWithTypeArguments>();
+
+    return setTextRange(
+      ts.factory.createInterfaceDeclaration(
+        undefined,
+        _export.sourceString
+          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+          : undefined,
+        ident.ts<ts.Identifier>(),
+        generics.child(0)?.tsa(),
+        heritage && [
+          ts.factory.createHeritageClause(
+            ts.SyntaxKind.ExtendsKeyword,
+            heritage
+          ),
+        ],
+        members.tsa()
+      ),
+      this
+    );
+  },
   IntersectionType(node) {
     let iter = node.asIteration();
     if (iter.children.length == 1) return iter.child(0).ts();
