@@ -2820,7 +2820,6 @@ semantics.addOperation<ts.Node>("ts", {
   },
   string_bit(node) {
     let char = node.sourceString;
-    if (char.length == 1 && "$\"'`".indexOf(char) > -1) char = "\\" + char;
     if (char == "\n") char = "\\n";
     if (char == "\r") char = "\\r";
 
@@ -2835,8 +2834,8 @@ semantics.addOperation<ts.Node>("ts", {
         0: "\0",
         "\\": "\\",
         "{": "{",
-        '"': '\\"',
-        "'": "\\'",
+        '"': '"',
+        "'": "'",
       }[char[1]];
 
       if (res) return setTextRange(ts.factory.createStringLiteral(res), this);
