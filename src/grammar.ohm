@@ -470,8 +470,7 @@ Storymatic {
     | bigint
     | InlineFunctionType
     | ~("infer" #space) identifier ~("." | "<")
-    | "infer" #space identifier -- infer
-    | "infer" #space identifier #space "is" #space Type -- infer_constraint
+    | "infer" #space identifier (#space "is" #space Type)? -- infer
     | identifier "." &identifier Type -- qualified_name
     | identifier "<" NonemptyListOf<Type, ","> ">" -- type_args
     | "new" #space InlineFunctionType -- construct
