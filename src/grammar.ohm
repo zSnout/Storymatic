@@ -34,8 +34,8 @@ Storymatic {
   EnumStatement = ("export" #space)? "enum" #space identifier "{" EnumMember* "}"
 
   EnumMember
-    = identOrWord #expressionTerminator -- auto_assign
-    | identOrWord "=" Expression #expressionTerminator -- assigned
+    = (identOrWord | string_non_interpolatable) #expressionTerminator -- auto_assign
+    | (identOrWord | string_non_interpolatable) "=" Expression #expressionTerminator -- assigned
 
   Statement
     = Expression "?"? (":" identOrWord)? (#space "with" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
