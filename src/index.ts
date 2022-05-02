@@ -1953,10 +1953,19 @@ semantics.addOperation<ts.Node>("ts", {
     return expr.ts();
   },
   Statement_expression(expression, _) {
-    return setTextRange(
-      ts.factory.createExpressionStatement(expression.ts()),
-      this
-    );
+    let expr = expression.ts<ts.Expression>();
+
+    if (
+      expr.kind == ts.SyntaxKind.ClassExpression ||
+      expr.kind == ts.SyntaxKind.FunctionExpression
+    ) {
+      expr = ts.setTextRange(
+        ts.factory.createParenthesizedExpression(expr),
+        expr
+      );
+    }
+
+    return setTextRange(ts.factory.createExpressionStatement(expr), this);
   },
   Statement_for_await_of(
     _0,
