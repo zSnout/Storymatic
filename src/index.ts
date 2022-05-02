@@ -208,6 +208,32 @@ function bindingToAssignment(
   );
 }
 
+function makeAssignment(name: string, value: ts.Expression) {
+  return ts.setTextRange(
+    ts.factory.createVariableStatement(
+      undefined,
+      ts.setTextRange(
+        ts.factory.createVariableDeclarationList(
+          [
+            ts.setTextRange(
+              ts.factory.createVariableDeclaration(
+                name,
+                undefined,
+                undefined,
+                value
+              ),
+              value
+            ),
+          ],
+          ts.NodeFlags.Let
+        ),
+        value
+      )
+    ),
+    value
+  );
+}
+
 semantics.addOperation<ts.Node>("ts", {
   Accessor(base, addons) {
     let expr = base.ts<ts.Expression>();
@@ -1682,6 +1708,73 @@ semantics.addOperation<ts.Node>("ts", {
   },
   MemberAccessType_tuple(_0, elements, _1) {
     return setTextRange(ts.factory.createTupleTypeNode(elements.tsa()), this);
+  },
+  Method(
+    privacy,
+    _0,
+    _1,
+    prefix,
+    name,
+    qMark,
+    generics,
+    _3,
+    _4,
+    _5,
+    params,
+    _6,
+    returnType,
+    body
+  ) {
+    let block = body.ts<ts.Block>();
+    let range = { pos: block.pos, end: block.pos };
+
+    let $void = ts.setTextRange(ts.factory.createVoidZero(), range);
+    let $this = ts.setTextRange(ts.factory.createIdentifier("this"), range);
+    let $static = ts.setTextRange(
+      ts.factory.createPropertyAccessExpression($this, "constructor"),
+      range
+    );
+
+    if (prefix.sourceString == "@") {
+      block = ts.setTextRange(
+        ts.factory.createBlock(
+          [
+            makeAssignment("$self", $this),
+            makeAssignment("$static", $static),
+            ...block.statements,
+          ],
+          true
+        ),
+        block
+      );
+    } else if (prefix.sourceString == "@@") {
+      block = ts.setTextRange(
+        ts.factory.createBlock(
+          [
+            makeAssignment("$self", $void),
+            makeAssignment("$static", $this),
+            ...block.statements,
+          ],
+          true
+        ),
+        block
+      );
+    }
+
+    return setTextRange(
+      ts.factory.createMethodDeclaration(
+        undefined,
+        privacy.sourceString ? [privacy.ts()] : [],
+        undefined,
+        name.ts<ts.PropertyName>(),
+        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+        generics.child(0)?.tsa(),
+        params.child(0)?.tsa(),
+        returnType.child(0)?.ts<ts.TypeNode>(),
+        block
+      ),
+      this
+    );
   },
   MethodName(node) {
     return node.ts();
