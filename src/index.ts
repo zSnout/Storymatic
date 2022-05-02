@@ -141,6 +141,53 @@ semantics.addOperation<ts.Node | undefined>("tsn(map)", {
   },
 });
 
+function bindingToAssignment(
+  bound:
+    | ts.Identifier
+    | ts.BindingElement
+    | ts.ObjectBindingPattern
+    | ts.ArrayBindingPattern
+): ts.Expression {
+  if (bound.kind == ts.SyntaxKind.Identifier) {
+    return bound;
+  } else if (bound.kind == ts.SyntaxKind.BindingElement) {
+    if (bound.dotDotDotToken)
+      return ts.setTextRange(
+        ts.factory.createSpreadElement(bindingToAssignment(bound.name)),
+        bound
+      );
+
+    if (bound.propertyName)
+      return ts.setTextRange(
+        ts.factory.createPropertyAssignment(
+          bound.propertyName,
+          bindingToAssignment(bound.name)
+        ),
+        bound
+      ) as any;
+
+    return bindingToAssignment(bound.name);
+  } else if (bound.kind == ts.SyntaxKind.ArrayBindingPattern) {
+    return ts.setTextRange(
+      ts.factory.createArrayLiteralExpression(
+        bound.elements.map((element) => bindingToAssignment(element as any))
+      ),
+      bound
+    );
+  } else if (bound.kind == ts.SyntaxKind.ObjectBindingPattern) {
+    return ts.setTextRange(
+      ts.factory.createObjectLiteralExpression(
+        bound.elements.map((element) => bindingToAssignment(element) as any)
+      ),
+      bound
+    );
+  }
+
+  throw new Error(
+    "`bindingToAssignment` expects an Identifier, BindingElement or BindingPattern."
+  );
+}
+
 semantics.addOperation<ts.Node>("ts", {
   Accessor(base, addons) {
     let expr = base.ts<ts.Expression>();
@@ -214,6 +261,38 @@ semantics.addOperation<ts.Node>("ts", {
   Assignable(node) {
     return node.ts();
   },
+  AssignableKeyWithRewrite(node) {
+    return node.ts();
+  },
+  AssignableKeyWithRewrite_rewrite(name, _, assignable) {
+    return setTextRange(
+      ts.factory.createBindingElement(
+        undefined,
+        name.ts<ts.PropertyName>(),
+        assignable.ts<ts.BindingName>()
+      ),
+      this
+    );
+  },
+  AssignableOrAccessor(node) {
+    return node.ts();
+  },
+  AssignableWithDefault(node) {
+    return node.ts();
+  },
+  AssignableWithDefault_with_default(assignableNode, _, initializer) {
+    let assignable = assignableNode.ts<ts.BindingElement>();
+
+    return setTextRange(
+      ts.factory.createBindingElement(
+        assignable.dotDotDotToken,
+        assignable.propertyName,
+        assignable.name,
+        initializer.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
   Assignable_array(_0, elements, _1, dotDotDot, spreadable, _2, _3) {
     let members = elements.tsa<ts.BindingElement>().slice();
 
@@ -223,10 +302,10 @@ semantics.addOperation<ts.Node>("ts", {
           ts.factory.createBindingElement(
             setTextRange(
               ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-              dotDotDot
+              dotDotDot.child(0)
             ),
             undefined,
-            spreadable.ts<ts.BindingName>()
+            spreadable.child(0).ts<ts.BindingName>()
           ),
           this
         )
@@ -254,10 +333,10 @@ semantics.addOperation<ts.Node>("ts", {
           ts.factory.createBindingElement(
             setTextRange(
               ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-              dotDotDot
+              dotDotDot.child(0)
             ),
             undefined,
-            spreadable.ts<ts.BindingName>()
+            spreadable.child(0).ts<ts.BindingName>()
           ),
           this
         )
@@ -265,6 +344,32 @@ semantics.addOperation<ts.Node>("ts", {
     }
 
     return setTextRange(ts.factory.createObjectBindingPattern(members), this);
+  },
+  AssignmentExp(node) {
+    return node.ts();
+  },
+  AssignmentExp_assignment(target, _, expr) {
+    let bound = target.ts<ts.BindingElement>();
+
+    return setTextRange(
+      ts.factory.createAssignment(bindingToAssignment(bound), expr.ts()),
+      this
+    );
+  },
+  AssignmentExp_yield(_0, _1, expr) {
+    return setTextRange(
+      ts.factory.createYieldExpression(undefined, expr.ts<ts.Expression>()),
+      this
+    );
+  },
+  AssignmentExp_yield_from(_0, _1, from, _2, expr) {
+    return setTextRange(
+      ts.factory.createYieldExpression(
+        setTextRange(ts.factory.createToken(ts.SyntaxKind.AsteriskToken), from),
+        expr.ts<ts.Expression>()
+      ),
+      this
+    );
   },
   alnum(_) {
     throw new Error("`alnum` nodes should never directly be evaluated.");
@@ -1413,6 +1518,44 @@ semantics.addOperation<ts.Node>("ts", {
   ParameterList_rest_params(_) {
     throw new Error(
       "`ParameterList_rest_params` nodes should never directly be evaluated."
+    );
+  },
+  Parameter_assignable(assignable) {
+    return setTextRange(
+      ts.factory.createParameterDeclaration(
+        undefined,
+        undefined,
+        undefined,
+        assignable.ts<ts.BindingName>()
+      ),
+      this
+    );
+  },
+  Parameter_initializer(assignable, _0, type, _1, expr) {
+    return setTextRange(
+      ts.factory.createParameterDeclaration(
+        undefined,
+        undefined,
+        undefined,
+        assignable.ts<ts.BindingName>(),
+        undefined,
+        type.ts<ts.TypeNode>(),
+        expr.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  Parameter_type(assignable, qMark, _, type) {
+    return setTextRange(
+      ts.factory.createParameterDeclaration(
+        undefined,
+        undefined,
+        undefined,
+        assignable.ts<ts.BindingName>(),
+        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+        type.ts<ts.TypeNode>()
+      ),
+      this
     );
   },
   PrimitiveType(node) {
