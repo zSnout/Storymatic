@@ -853,6 +853,18 @@ semantics.addOperation<ts.Node>("ts", {
   FinallyStatement(_0, _1, block) {
     return block.ts();
   },
+  FunctionBody(node) {
+    return node.ts();
+  },
+  FunctionBody_expression(_0, _1, expression) {
+    return setTextRange(
+      ts.factory.createBlock(
+        [ts.factory.createReturnStatement(expression.ts<ts.Expression>())],
+        true
+      ),
+      this
+    );
+  },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
     return setTextRange(
       ts.factory.createNumericLiteral(this.sourceString),
