@@ -15,6 +15,9 @@ export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
   if (flags.typescript && flags.module)
     throw new Error("Module and TypeScript options are mutually exclusive.");
 
+  if (flags.typescript && flags.target)
+    throw new Error("Target and TypeScript options are mutually exclusive.");
+
   if (flags.typescript && flags.jsx)
     throw new Error("JSX and TypeScript options are mutually exclusive.");
 
