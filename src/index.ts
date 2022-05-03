@@ -5,9 +5,7 @@ import * as grammar from "./grammar.js";
 let story = grammar as any as grammar.StorymaticGrammar;
 let semantics = story.createSemantics();
 
-export function makeCompilerOptions(
-  flags: Partial<Flags> = {}
-): ts.CompilerOptions {
+function makeCompilerOptions(flags: Partial<Flags> = {}): ts.CompilerOptions {
   if (flags.typescript)
     throw new Error(
       "TypeScript flag may not be active when creating compiler options."
