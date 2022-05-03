@@ -186,6 +186,15 @@ function bindingToAssignment(
         bound
       ) as any;
 
+    if (bound.initializer)
+      return ts.setTextRange(
+        ts.factory.createAssignment(
+          bindingToAssignment(bound.name),
+          bound.initializer
+        ),
+        bound
+      );
+
     return bindingToAssignment(bound.name);
   } else if (bound.kind == ts.SyntaxKind.ArrayBindingPattern) {
     return ts.setTextRange(
@@ -231,6 +240,238 @@ function makeAssignment(name: string, value: ts.Expression) {
       )
     ),
     value
+  );
+}
+
+function transformer(context: ts.TransformationContext) {
+  return (node: ts.Block) => {
+    interface FunctionScope {
+      isAsync: boolean;
+      isGenerator: boolean;
+    }
+
+    interface BlockScope {
+      localVars: string[];
+      exclude: string[];
+    }
+
+    function visitAssignment(
+      node: ts.Node,
+      fnScope: FunctionScope,
+      blockScope: BlockScope
+    ) {
+      if (ts.isIdentifier(node)) {
+        blockScope.localVars.push(node.text);
+      } else if (ts.isSpreadElement(node)) {
+        visitAssignment(node.expression, fnScope, blockScope);
+      } else if (ts.isPropertyAssignment(node)) {
+        visitAssignment(node.initializer, fnScope, blockScope);
+      } else if (ts.isArrayLiteralExpression(node)) {
+        node.elements.map((node) => visitAssignment(node, fnScope, blockScope));
+      } else if (ts.isObjectLiteralExpression(node)) {
+        node.properties.map((node) =>
+          visitAssignment(node, fnScope, blockScope)
+        );
+      }
+    }
+
+    function visitBinding(
+      node: ts.Node,
+      fnScope: FunctionScope,
+      blockScope: BlockScope
+    ) {
+      if (ts.isIdentifier(node)) {
+        blockScope.exclude.push(node.text);
+      } else if (ts.isBindingElement(node)) {
+        visitBinding(node.name, fnScope, blockScope);
+      } else if (ts.isArrayBindingPattern(node)) {
+        node.elements.map((node) => visitBinding(node, fnScope, blockScope));
+      } else if (ts.isObjectBindingPattern(node)) {
+        node.elements.map((node) => visitBinding(node, fnScope, blockScope));
+      }
+    }
+
+    function visit(
+      node: ts.Node,
+      fnScope: FunctionScope,
+      blockScope: BlockScope
+    ): ts.Node {
+      if (
+        node.kind == ts.SyntaxKind.FunctionDeclaration ||
+        node.kind == ts.SyntaxKind.FunctionExpression ||
+        node.kind == ts.SyntaxKind.ArrowFunction
+      ) {
+        let fn = node as
+          | ts.FunctionDeclaration
+          | ts.FunctionExpression
+          | ts.ArrowFunction;
+
+        let scope: FunctionScope = { isAsync: false, isGenerator: false };
+
+        fn = ts.visitEachChild(
+          fn,
+          (node) => visit(node, scope, blockScope),
+          context
+        );
+
+        let asterisk = scope.isGenerator
+          ? ts.factory.createToken(ts.SyntaxKind.AsteriskToken)
+          : undefined;
+
+        let asyncModifier = scope.isAsync
+          ? [ts.factory.createToken(ts.SyntaxKind.AsyncKeyword)]
+          : [];
+
+        let modifiers = fn.modifiers?.concat(asyncModifier) || asyncModifier;
+
+        if (fn.kind == ts.SyntaxKind.FunctionExpression) {
+          return ts.factory.updateFunctionExpression(
+            fn,
+            modifiers,
+            asterisk,
+            fn.name,
+            fn.typeParameters,
+            fn.parameters,
+            fn.type,
+            fn.body
+          );
+        }
+
+        if (fn.kind == ts.SyntaxKind.FunctionDeclaration) {
+          return ts.factory.updateFunctionDeclaration(
+            fn,
+            fn.decorators,
+            modifiers,
+            asterisk,
+            fn.name,
+            fn.typeParameters,
+            fn.parameters,
+            fn.type,
+            fn.body
+          );
+        }
+
+        if (fn.kind == ts.SyntaxKind.ArrowFunction) {
+          return ts.factory.updateArrowFunction(
+            fn,
+            modifiers,
+            fn.typeParameters,
+            fn.parameters,
+            fn.type,
+            fn.equalsGreaterThanToken,
+            fn.body
+          );
+        }
+      }
+
+      if (node.kind == ts.SyntaxKind.Block) {
+        let block = node as ts.Block;
+        let scope: BlockScope = {
+          localVars: [],
+          exclude: blockScope.exclude.concat(blockScope.localVars),
+        };
+
+        block = ts.visitEachChild(
+          block,
+          (node) => visit(node, fnScope, scope),
+          context
+        );
+
+        let pos = { pos: block.pos, end: block.pos };
+
+        let names = [
+          ...new Set(
+            scope.localVars
+              .filter((name) => !scope.exclude.includes(name))
+              .sort()
+          ),
+        ];
+
+        let decl = ts.setTextRange(
+          ts.factory.createVariableStatement(
+            undefined,
+            ts.setTextRange(
+              ts.factory.createVariableDeclarationList(
+                names.map((name) =>
+                  ts.setTextRange(
+                    ts.factory.createVariableDeclaration(name),
+                    pos
+                  )
+                ),
+                ts.NodeFlags.Let
+              ),
+              pos
+            )
+          ),
+          pos
+        );
+
+        if (names.length)
+          return ts.setTextRange(
+            ts.factory.createBlock([decl, ...block.statements], true),
+            block
+          );
+
+        return block;
+      }
+
+      if (node.kind == ts.SyntaxKind.BinaryExpression) {
+        let bin = node as ts.BinaryExpression;
+
+        if (
+          ts.SyntaxKind.FirstAssignment <= bin.operatorToken.kind &&
+          ts.SyntaxKind.LastAssignment >= bin.operatorToken.kind
+        ) {
+          visitAssignment(bin.left, fnScope, blockScope);
+
+          return ts.visitEachChild(
+            node,
+            (node) => visit(node, fnScope, blockScope),
+            context
+          );
+        }
+      }
+
+      if (ts.isVariableStatement(node)) {
+        node.declarationList.declarations.map((node) =>
+          visitBinding(node.name, fnScope, blockScope)
+        );
+      }
+
+      if (node.kind == ts.SyntaxKind.YieldExpression) {
+        fnScope.isGenerator = true;
+      }
+
+      if (node.kind == ts.SyntaxKind.AwaitExpression) {
+        fnScope.isAsync = true;
+      }
+
+      return ts.visitEachChild(
+        node,
+        (node) => visit(node, fnScope, blockScope),
+        context
+      );
+    }
+
+    let fnScope: FunctionScope = { isAsync: false, isGenerator: false };
+    let blockScope: BlockScope = { localVars: [], exclude: [] };
+    let result = ts.visitNode(node, (node) => visit(node, fnScope, blockScope));
+    return result;
+  };
+}
+
+function traverseScript(node: ts.SourceFile) {
+  let result = ts.transform<ts.Block>(ts.factory.createBlock(node.statements), [
+    transformer,
+  ]);
+
+  return ts.setTextRange(
+    ts.factory.createSourceFile(
+      result.transformed[0].statements,
+      ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+      0
+    ),
+    node
   );
 }
 
@@ -2167,6 +2408,9 @@ semantics.addOperation<ts.Node>("ts", {
   },
   reserved_primitive(_) {
     throw "`reserved_primitive` nodes should never directly be evaluated.";
+  },
+  Script(node) {
+    return traverseScript(node.ts());
   },
   SingleStatementBlock(node) {
     return node.ts();
