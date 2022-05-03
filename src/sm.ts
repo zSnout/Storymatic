@@ -128,7 +128,7 @@ if (!args.typescript && !args.target) args.target = ts.ScriptTarget.Latest;
 
 if (args.eval) {
   let code = args.eval;
-  let compiled = compile(code, args);
+  let compiled = compile(code);
 
   if (args.output) {
     if (args.print) console.log(transpile(compiled, args));
