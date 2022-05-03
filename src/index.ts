@@ -501,6 +501,31 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  BlockFunctionType(
+    _0,
+    _1,
+    name,
+    qMark,
+    generics,
+    _2,
+    _3,
+    _4,
+    params,
+    _5,
+    returnType
+  ) {
+    return setTextRange(
+      ts.factory.createMethodSignature(
+        undefined,
+        name.ts<ts.PropertyName>(),
+        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+        generics.child(0)?.tsa(),
+        params.child(0)?.tsa(),
+        returnType.ts<ts.TypeNode>()
+      ),
+      this
+    );
+  },
   bigint(_0, _1, _2) {
     return setTextRange(
       ts.factory.createBigIntLiteral(this.sourceString),
@@ -3000,6 +3025,60 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  TypeObjectEntry(node) {
+    return node.ts();
+  },
+  TypeObjectEntry_call_signature(signature) {
+    let fn = signature.ts<ts.FunctionTypeNode>();
+
+    return setTextRange(
+      ts.factory.createCallSignature(fn.typeParameters, fn.parameters, fn.type),
+      this
+    );
+  },
+  TypeObjectEntry_construct_signature(_0, _1, signature) {
+    let fn = signature.ts<ts.FunctionTypeNode>();
+
+    return setTextRange(
+      ts.factory.createConstructSignature(
+        fn.typeParameters,
+        fn.parameters,
+        fn.type
+      ),
+      this
+    );
+  },
+  TypeObjectEntry_key_value(readonly, _0, key, qMark, _1, value) {
+    return setTextRange(
+      ts.factory.createPropertySignature(
+        readonly.sourceString
+          ? [ts.factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)]
+          : undefined,
+        key.ts<ts.PropertyName>(),
+        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+        value.ts<ts.TypeNode>()
+      ),
+      this
+    );
+  },
+  TypeObjectKey(node) {
+    return node.ts();
+  },
+  TypeObjectKey_computed_accessor(_0, accessor, _1) {
+    return setTextRange(
+      ts.factory.createComputedPropertyName(accessor.ts()),
+      this
+    );
+  },
+  TypeObjectKey_identifier(node) {
+    return node.ts();
+  },
+  TypeObjectKey_numerical_key(node) {
+    return node.ts();
+  },
+  TypeObjectKey_string(node) {
+    return node.ts();
+  },
   TypeParameter(ident, qMark, _, type) {
     return setTextRange(
       ts.factory.createParameterDeclaration(
@@ -3145,6 +3224,9 @@ semantics.addOperation<ts.Node>("ts", {
   },
   WrappedStatementBlock(_0, statements, _1) {
     return setTextRange(ts.factory.createBlock(statements.tsa(), true), this);
+  },
+  whitespace(_) {
+    throw new Error("`whitespace` nodes should never directly be evaluated.");
   },
   word(_0, _1, _2) {
     return setTextRange(ts.factory.createIdentifier(this.sourceString), this);
