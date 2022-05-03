@@ -5,7 +5,7 @@
   "license": "GPL-3",
   "version": "1.0.1",
   "scripts": {
-    "grammar": "mkdir dist > /dev/null; ohm generateBundles --withTypes src/grammar.ohm; mv src/grammar.ohm-bundle.js dist/grammar.js; cat src/grammar.ohm-bundle.d.ts > src/grammar.d.ts; mv src/grammar.ohm-bundle.d.ts dist/grammar.d.ts",
+    "grammar": "mkdir dist > /dev/null; ohm generateBundles --withTypes src/grammar.ohm; mv src/grammar.ohm-bundle.js dist/grammar.js; mv src/grammar.ohm-bundle.d.ts src/grammar.d.ts",
     "build": "npm run grammar; tsc -b"
   },
   "repository": {
