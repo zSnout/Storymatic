@@ -285,8 +285,8 @@ Storymatic {
     | CompareExp ">=" BitwiseExp -- greater_than_equal
     | CompareExp #space ("is" #space)? "in" #space BitwiseExp -- within
     | CompareExp #space "isnt" #space "in" #space BitwiseExp -- not_within
-    | CompareExp #space "is" #space ("a" | "an") #space BitwiseExp -- instanceof
-    | CompareExp #space "isnt" #space ("a" | "an") #space BitwiseExp -- not_instanceof
+    | CompareExp #space "is" #space ("a" ~(#"n") | "an") #space BitwiseExp -- instanceof
+    | CompareExp #space "isnt" #space ("a" ~(#"n") | "an") #space BitwiseExp -- not_instanceof
     | BitwiseExp
 
   EqualityExp
