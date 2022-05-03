@@ -139,8 +139,11 @@ let args = yargs
   })
   .parseSync();
 
-if (!args.typescript && !args.module) args.module = ts.ModuleKind.ESNext;
-if (!args.typescript && !args.target) args.target = ts.ScriptTarget.Latest;
+if (!args.typescript && args.module === undefined)
+  args.module = ts.ModuleKind.ESNext;
+
+if (!args.typescript && args.target === undefined)
+  args.target = ts.ScriptTarget.Latest;
 
 async function buildFile(file: string) {
   let contents;
