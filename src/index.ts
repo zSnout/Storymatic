@@ -555,7 +555,7 @@ semantics.addOperation<ts.Node>("ts", {
       end: blockNode.source.endIdx,
     });
 
-    let block = blockNode.ts<ts.Block | ts.SourceFile>();
+    let block = blockNode.ts<ts.Block>();
     let statements = block.statements.concat(breakStatement);
 
     let clause = ts.setTextRange(
