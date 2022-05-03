@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { Recoverable, start } from "repl";
 import * as ts from "typescript";
 import { createContext, runInContext, runInNewContext } from "vm";
@@ -133,7 +134,7 @@ if (args.eval) {
   if (args.output) {
     if (args.print) console.log(transpile(compiled, args));
   } else if (args.ast) {
-    if (args.print) console.log(compiled);
+    if (args.print) console.log(JSON.stringify(compiled, undefined, "  "));
   } else {
     let result = execute(compiled);
     if (args.print) console.log(result);
@@ -141,7 +142,20 @@ if (args.eval) {
 } else if (process.stdin.isTTY) {
   startREPL(args.output ? "noeval" : args.ast ? "ast" : "repl");
 } else {
-  // compile given files
+  let code = readFileSync(process.stdin.fd, "utf-8");
+
+  if (code.length) {
+    let compiled = compile(code);
+
+    if (args.output) {
+      if (args.print) console.log(transpile(compiled, args));
+    } else if (args.ast) {
+      if (args.print) console.log(JSON.stringify(compiled, undefined, "  "));
+    } else {
+      let result = execute(compiled);
+      if (args.print) console.log(result);
+    }
+  }
 }
 
 function execute(node: ts.Node) {
