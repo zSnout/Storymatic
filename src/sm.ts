@@ -1,9 +1,11 @@
 import { readFileSync } from "fs";
 import { Recoverable, start } from "repl";
 import * as ts from "typescript";
-import { createContext, runInContext, runInNewContext } from "vm";
+import { runInContext, runInNewContext } from "vm";
 import * as yargs from "yargs";
 import { compile, transpile } from "./index.js";
+import glob = require("fast-glob");
+import { isNativeError } from "util/types";
 
 let args = yargs
   .scriptName("sm")
@@ -155,6 +157,15 @@ if (args.eval) {
       let result = execute(compiled);
       if (args.print) console.log(result);
     }
+  } else {
+    let res;
+
+    if (args.src) res = glob(`${args.src}/**/*.{sm|story|storymatic}`);
+    else res = glob("**/*.{sm|story|storymatic}");
+
+    res.then((files) => {
+      console.log(files);
+    });
   }
 }
 
@@ -194,8 +205,13 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
         return;
       }
 
-      if (mode == "repl") output = runInContext(output, context);
-      if (mode == "ast") output = node;
+      try {
+        if (mode == "repl") output = runInContext(output, context);
+        if (mode == "ast") output = node;
+      } catch (e) {
+        if (isNativeError(e)) e.stack = "";
+        throw e;
+      }
       cb(null, output);
     },
     writer: mode == "noeval" ? (x) => "" + x : undefined,
