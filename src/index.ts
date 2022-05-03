@@ -5,7 +5,7 @@ import * as grammar from "./grammar.js";
 let story = grammar as any as grammar.StorymaticGrammar;
 let semantics = story.createSemantics();
 
-function makeCompilerOptions(flags: Partial<Flags> = {}): ts.CompilerOptions {
+function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   if (flags.typescript)
     throw new Error(
       "TypeScript flag may not be active when creating compiler options."
@@ -31,7 +31,7 @@ export function compile(text: string) {
   return semantics(match).ts<ts.SourceFile>();
 }
 
-export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
+export function transpile(node: ts.Node, flags: Flags = {}) {
   if (flags.typescript && flags.module)
     throw new Error("Module and TypeScript options are mutually exclusive.");
 
