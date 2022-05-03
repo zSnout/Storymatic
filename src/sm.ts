@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import { Recoverable, start } from "repl";
 import * as ts from "typescript";
 import { isNativeError } from "util/types";
@@ -142,6 +142,41 @@ let args = yargs
 if (!args.typescript && !args.module) args.module = ts.ModuleKind.ESNext;
 if (!args.typescript && !args.target) args.target = ts.ScriptTarget.Latest;
 
+async function buildFile(file: string) {
+  let contents;
+  try {
+    contents = await readFile(file, "utf-8");
+  } catch {
+    return;
+  }
+
+  let node;
+  try {
+    node = compile(contents);
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+
+  let transpiled;
+  try {
+    transpiled = transpile(node, args);
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+
+  try {
+    let out = file.replace(/\.\w+$/, args.typescript ? ".tsx" : ".js");
+    if (args.src) out = out.slice(args.src.length + 1);
+    if (args.dist) mkdir(args.dist, { recursive: true }).catch(() => {});
+    await writeFile((args.dist ? args.dist + "/" : "") + out, transpiled);
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+}
+
 if (args.build) {
   let res = glob(
     args.src
@@ -149,44 +184,7 @@ if (args.build) {
       : "**/*.{sm,story,storymatic}"
   );
 
-  let ext = args.typescript ? ".tsx" : ".js";
-
-  res.then((files) => {
-    files.map(async (file) => {
-      let contents;
-      try {
-        contents = await readFile(file, "utf-8");
-      } catch {
-        return;
-      }
-
-      let node;
-      try {
-        node = compile(contents);
-      } catch (error) {
-        console.error(error);
-        return;
-      }
-
-      let transpiled;
-      try {
-        transpiled = transpile(node, args);
-      } catch (error) {
-        console.error(error);
-        return;
-      }
-
-      try {
-        await writeFile(
-          (args.dist ? args.dist + "/" : "") + file.replace(/\.\w+$/, ext),
-          transpiled
-        );
-      } catch (error) {
-        console.error(error);
-        return;
-      }
-    });
-  });
+  res.then((files) => files.map(buildFile));
 } else if (args.eval) {
   let code = args.eval;
   let compiled = compile(code);
