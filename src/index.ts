@@ -5,6 +5,26 @@ import * as grammar from "./grammar.js";
 let story = grammar as any as grammar.StorymaticGrammar;
 let semantics = story.createSemantics();
 
+export function makeCompilerOptions(flags: Partial<Flags> = {}) {
+  if (flags.typescript)
+    throw new Error(
+      "TypeScript flag may not be active when creating compiler options."
+    );
+
+  return {
+    module: flags.module,
+    target: flags.target,
+    jsx: flags.jsx ? ts.JsxEmit.React : ts.JsxEmit.Preserve,
+    jsxFactory: flags.jsx || undefined,
+    strict: true,
+    allowJs: true,
+    checkJs: true,
+    skipLibCheck: true,
+    allowSyntheticDefaultImports: true,
+    moduleResolution: ts.ModuleResolutionKind.NodeJs,
+  };
+}
+
 export function compile(text: string) {
   let match = story.match(text);
   if (match.failed()) throw new SyntaxError(match.message);
