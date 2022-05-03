@@ -28,7 +28,7 @@ export function makeCompilerOptions(flags: Partial<Flags> = {}) {
 export function compile(text: string) {
   let match = story.match(text);
   if (match.failed()) throw new SyntaxError(match.message);
-  return semantics(match).ts();
+  return semantics(match).ts<ts.SourceFile>();
 }
 
 export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
@@ -55,18 +55,7 @@ export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
   if (flags.typescript) return text;
 
   let transpiled = ts.transpileModule(text, {
-    compilerOptions: {
-      module: flags.module,
-      target: flags.target,
-      jsx: flags.jsx ? ts.JsxEmit.React : ts.JsxEmit.Preserve,
-      jsxFactory: flags.jsx || undefined,
-      strict: true,
-      allowJs: true,
-      checkJs: true,
-      skipLibCheck: true,
-      allowSyntheticDefaultImports: true,
-      moduleResolution: ts.ModuleResolutionKind.NodeJs,
-    },
+    compilerOptions: makeCompilerOptions(flags),
   });
 
   return transpiled.outputText;
