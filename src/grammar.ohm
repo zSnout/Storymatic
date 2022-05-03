@@ -394,7 +394,7 @@ Storymatic {
     = string_interpolatable<"\"", applySyntactic<Type>>
     | string_interpolatable<"'", applySyntactic<Type>>
 
-  reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "step" | "to" | "through" | "return" | "break" | "continue" | "fn" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "rescope" | "down" | "type" | "interface" | "namespace" | "with") ~id_continue
+  reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "step" | "to" | "through" | "return" | "break" | "continue" | "fn" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "default" | "rescope" | "down" | "type" | "interface" | "namespace" | "with") ~id_continue
   reserved_operators = ("and" | "or" | "not" | "is" ~"nt" | "isnt") ~id_continue
   reserved_inline = ("new" | "in" | "type" ~"of" | "of" | "from" | "typeof" | "as" | "extends" | "await") ~id_continue
   reserved_primitive = ("true" | "false" | "null" | "undefined") ~id_continue
