@@ -1166,11 +1166,14 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   EqualityExp_equal_to(left, _, right) {
-    return setTextRange(ts.factory.createEquality(left.ts(), right.ts()), this);
+    return setTextRange(
+      ts.factory.createStrictEquality(left.ts(), right.ts()),
+      this
+    );
   },
   EqualityExp_not_equal_to(left, _, right) {
     return setTextRange(
-      ts.factory.createInequality(left.ts(), right.ts()),
+      ts.factory.createStrictInequality(left.ts(), right.ts()),
       this
     );
   },
