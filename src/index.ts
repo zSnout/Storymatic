@@ -5,8 +5,10 @@ import * as grammar from "./grammar.js";
 let story = grammar as any as grammar.StorymaticGrammar;
 let semantics = story.createSemantics();
 
-export function compile(text: string, _flags: Partial<Flags> = {}) {
-  return semantics(story.match(text)).ts();
+export function compile(text: string) {
+  let match = story.match(text);
+  if (match.failed()) throw new SyntaxError(match.message);
+  return semantics(match).ts();
 }
 
 export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
@@ -16,8 +18,13 @@ export function transpile(node: ts.Node, flags: Partial<Flags> = {}) {
   if (flags.typescript && flags.jsx)
     throw new Error("JSX and TypeScript options are mutually exclusive.");
 
-  let source = ts.createSourceFile("", "", ts.ScriptTarget.Latest);
-  source.languageVariant = ts.LanguageVariant.JSX;
+  let source = ts.createSourceFile(
+    "",
+    "",
+    ts.ScriptTarget.Latest,
+    undefined,
+    ts.ScriptKind.TSX
+  );
 
   let printer = ts.createPrinter({});
   let text = printer.printNode(ts.EmitHint.Unspecified, node, source);
