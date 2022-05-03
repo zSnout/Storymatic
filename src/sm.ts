@@ -1,11 +1,12 @@
 import { readFileSync } from "fs";
+import { readFile, writeFile } from "fs/promises";
 import { Recoverable, start } from "repl";
 import * as ts from "typescript";
+import { isNativeError } from "util/types";
 import { runInContext, runInNewContext } from "vm";
 import * as yargs from "yargs";
 import { compile, transpile } from "./index.js";
 import glob = require("fast-glob");
-import { isNativeError } from "util/types";
 
 let args = yargs
   .scriptName("sm")
@@ -116,6 +117,18 @@ let args = yargs
     alias: "h",
     desc: "open this help menu",
   })
+  .option("build", {
+    alias: "b",
+    conflicts: ["ast", "eval", "output", "print", "watch"],
+    desc: "build all .sm files in the `src` directory",
+    type: "boolean",
+  })
+  .option("watch", {
+    alias: "w",
+    conflicts: ["ast", "build", "eval", "output", "print"],
+    desc: "start a watcher on the `src` directory",
+    type: "boolean",
+  })
   .option("src", {
     desc: "location of input files",
     type: "string",
@@ -129,7 +142,52 @@ let args = yargs
 if (!args.typescript && !args.module) args.module = ts.ModuleKind.ESNext;
 if (!args.typescript && !args.target) args.target = ts.ScriptTarget.Latest;
 
-if (args.eval) {
+if (args.build) {
+  let res = glob(
+    args.src
+      ? args.src + "/**/*.{sm,story,storymatic}"
+      : "**/*.{sm,story,storymatic}"
+  );
+
+  let ext = args.typescript ? ".tsx" : ".js";
+
+  res.then((files) => {
+    files.map(async (file) => {
+      let contents;
+      try {
+        contents = await readFile(file, "utf-8");
+      } catch {
+        return;
+      }
+
+      let node;
+      try {
+        node = compile(contents);
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+
+      let transpiled;
+      try {
+        transpiled = transpile(node, args);
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+
+      try {
+        await writeFile(
+          (args.dist ? args.dist + "/" : "") + file.replace(/\.\w+$/, ext),
+          transpiled
+        );
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+    });
+  });
+} else if (args.eval) {
   let code = args.eval;
   let compiled = compile(code);
 
@@ -157,15 +215,6 @@ if (args.eval) {
       let result = execute(compiled);
       if (args.print) console.log(result);
     }
-  } else {
-    let res;
-
-    if (args.src) res = glob(`${args.src}/**/*.{sm|story|storymatic}`);
-    else res = glob("**/*.{sm|story|storymatic}");
-
-    res.then((files) => {
-      console.log(files);
-    });
   }
 }
 
@@ -183,15 +232,9 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
   }[mode];
   console.log(help);
 
-  let first = true;
   let repl = start({
     prompt: "> ",
     eval(cmd, context, _1, cb) {
-      if (first) {
-        first = false;
-        runInContext("exports = globalThis.module?.exports", context);
-      }
-
       let output: any;
       let node: ts.Node;
 
