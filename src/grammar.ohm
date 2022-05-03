@@ -367,7 +367,7 @@ Storymatic {
 
   string_bit<delimeter>
     = ~("\\" | "{" | delimeter) any -- character
-    | "\\" ("\\" | "{" | "\"" | "'") -- escape
+    | "\\" ~("b" | "f" | "n" | "r" | "t" | "u" | "v" | "x" | "0") any -- escape
     | "\\" ("b" | "f" | "n" | "r" | "t" | "v" | ("0" ~digit)) -- escape_sequence
     | "\\x" hexDigit hexDigit -- hex_sequence
     | "\\u" hexDigit hexDigit hexDigit hexDigit -- unicode_sequence

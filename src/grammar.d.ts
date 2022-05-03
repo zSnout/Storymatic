@@ -236,7 +236,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   undefined?: (this: NonterminalNode, arg0: TerminalNode) => T;
   id_continue?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   string_bit_character?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  string_bit_escape?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode) => T;
+  string_bit_escape?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   string_bit_escape_sequence?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode) => T;
   string_bit_hex_sequence?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   string_bit_unicode_sequence?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;

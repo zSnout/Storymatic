@@ -3116,20 +3116,48 @@ semantics.addOperation<ts.Node>("ts", {
 
     if (char.length == 2 && char[0] == "\\") {
       let res = {
-        "b": "\b",
-        "f": "\f",
-        "n": "\n",
-        "r": "\r",
-        "t": "\t",
-        "v": "\v",
+        b: "\b",
+        f: "\f",
+        n: "\n",
+        r: "\r",
+        t: "\t",
+        v: "\v",
         0: "\0",
-        "\\": "\\",
-        "{": "{",
-        '"': '"',
-        "'": "'",
       }[char[1]];
 
-      if (res) return setTextRange(ts.factory.createStringLiteral(res), this);
+      return setTextRange(ts.factory.createStringLiteral(res || char[1]), this);
+    }
+
+    if (char.length == 4 && char[0] == "\\" && char[1] == "x") {
+      return setTextRange(
+        ts.factory.createStringLiteral(
+          String.fromCodePoint(parseInt(char.slice(2), 16))
+        ),
+        this
+      );
+    }
+
+    if (
+      char.length == 6 &&
+      char[0] == "\\" &&
+      char[1] == "u" &&
+      char[2] != "{"
+    ) {
+      return setTextRange(
+        ts.factory.createStringLiteral(
+          String.fromCodePoint(parseInt(char.slice(2), 16))
+        ),
+        this
+      );
+    }
+
+    if (char[0] == "\\" && char[1] == "u") {
+      return setTextRange(
+        ts.factory.createStringLiteral(
+          String.fromCodePoint(parseInt(char.slice(3, -1), 16))
+        ),
+        this
+      );
     }
 
     return setTextRange(ts.factory.createStringLiteral(char), this);
