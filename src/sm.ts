@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, watch, writeFile } from "fs/promises";
 import { Recoverable, start } from "repl";
 import * as ts from "typescript";
 import { isNativeError } from "util/types";
@@ -185,6 +185,21 @@ if (args.build) {
   );
 
   res.then((files) => files.map(buildFile));
+} else if (args.watch) {
+  let res = glob(
+    args.src
+      ? args.src + "/**/*.{sm,story,storymatic}"
+      : "**/*.{sm,story,storymatic}"
+  );
+
+  res.then((files) => files.map(buildFile));
+
+  (async () => {
+    for await (let event of watch(args.src || ".")) {
+      console.log(event);
+      buildFile((args.src ? args.src + "/" : "") + event.filename);
+    }
+  })();
 } else if (args.eval) {
   let code = args.eval;
   let compiled = compile(code);
