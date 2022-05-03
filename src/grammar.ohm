@@ -508,7 +508,7 @@ Storymatic {
     | "[" Accessor "]" -- computed_accessor
 
   TypeObjectEntry
-    = ("readonly" #space)? TypeObjectKey ":" Type -- key_value
+    = ("readonly" #space)? TypeObjectKey "?"? ":" Type -- key_value
     | "new" #space InlineFunctionType -- construct_signature
     | InlineFunctionType -- call_signature
     | IndexSignatureType<"">
@@ -519,7 +519,7 @@ Storymatic {
       (#space "of" #space TypeParameterList)? "=>" Type
 
   BlockFunctionType
-    = "fn" #space TypeObjectKey GenericTypeParameterList?
+    = "fn" #space TypeObjectKey "?"? GenericTypeParameterList?
       (#space "of" #space TypeParameterList)? "=>" Type
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
