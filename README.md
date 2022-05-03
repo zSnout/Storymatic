@@ -173,3 +173,39 @@ pipeline.
 You can also create a watcher by passing `--watch` or `-w` instead of `--build`,
 modify the source directory with `--src`, and modify the output directory with
 `--dist`.
+
+## Using the Compiler API
+
+The compiler exposes two functions: `compile` and `transpile`.
+
+The `compile` function takes a string of source code and returns a
+`ts.SourceFile` from the TypeScript compiler. It may also throw a SyntaxError if
+the source code cannot properly be compiled.
+
+The `transpile` function takes a `ts.SourceFile` and returns a string
+representing the compile code. It also takes a second argument, `flags`, which
+has the structure described below.
+
+The compiler also exposes an interface called `Flags`. It has four optional
+members. The `typescript` property, when enabled, transpiles to TypeScript
+rather than JavaScript. It is not compatiable with any other properties. The
+`module` property is a `ts.ModuleKind` and tells `transpile` what module type to
+compile to. The `target` property is a `ts.ScriptTarget` and tells `transpile`
+what language version to target. The `jsx` property is a string and tells
+`transpile` what function JSX code should be wrapped in.
+
+TypeScript typings are bundled with the module, but here they are for reference:
+
+```typescript
+export function compile(text: string): ts.SourceFile;
+
+export function transpile(node: ts.Node, flags?: Flags): string;
+
+import * as ts from "typescript";
+export interface Flags {
+  typescript?: boolean;
+  module?: ts.ModuleKind;
+  target?: ts.ScriptTarget;
+  jsx?: string;
+}
+```
