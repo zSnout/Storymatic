@@ -104,6 +104,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LiteralExp_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
   LiteralExp_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp_static_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  LiteralExp_topic_token?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   InlineClassDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: IterationNode, arg12: TerminalNode) => T;
   ArrayEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
@@ -200,6 +201,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LogicalOrExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TernaryExp_symbolic?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
   TernaryExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  PipeExp_pipe?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
+  PipeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AssignmentExp_assignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AssignmentExp_yield?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   AssignmentExp_yield_from?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;

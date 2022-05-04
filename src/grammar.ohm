@@ -145,6 +145,7 @@ Storymatic {
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
     | "@" ~(id_continue | "[" | "#" | ".") -- self
     | "@@" ~(id_continue | "[" | "#" | ".") -- static_self
+    | "%" -- topic_token
     | InlineClassDeclaration
     | InlineFunction
     | JSXElement
@@ -310,11 +311,15 @@ Storymatic {
     = LogicalOrExp "?" TernaryExp ":" TernaryExp -- symbolic
     | LogicalOrExp
 
+  PipeExp
+    = PipeExp "|>" TernaryExp -- pipe
+    | TernaryExp
+
   AssignmentExp
     = AssignableOrAccessor "=" AssignmentExp -- assignment
     | "yield" #space AssignmentExp -- yield
     | "yield" #space "from" #space AssignmentExp -- yield_from
-    | TernaryExp
+    | PipeExp
 
   VariableAssignment = Assignable (":" Type)? "=" Expression
   ExportedVariableAssignment = "export" #space Assignable (":" Type)? "=" Expression
