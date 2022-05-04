@@ -312,7 +312,7 @@ Storymatic {
     | LogicalOrExp
 
   PipeExp
-    = PipeExp "|>" TernaryExp -- pipe
+    = (TernaryExp "|>")+ TernaryExp -- pipe
     | TernaryExp
 
   AssignmentExp

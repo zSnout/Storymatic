@@ -1817,6 +1817,9 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralExp_static_self(_) {
     return setTextRange(ts.factory.createIdentifier("$static"), this);
   },
+  LiteralExp_topic_token(_) {
+    return setTextRange(ts.factory.createIdentifier("$"), this);
+  },
   LiteralType_type_args(expr, args) {
     return setTextRange(
       ts.factory.createTypeReferenceNode(expr.ts<ts.EntityName>(), args.tsa()),
@@ -2301,6 +2304,27 @@ semantics.addOperation<ts.Node>("ts", {
         qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
         type.ts<ts.TypeNode>()
       ),
+      this
+    );
+  },
+  PipeExp(node) {
+    return node.ts();
+  },
+  PipeExp_pipe(targets, _, final) {
+    let $ = ts.setTextRange(ts.factory.createIdentifier("$"), {
+      pos: this.source.startIdx,
+      end: this.source.startIdx,
+    });
+
+    return setTextRange(
+      ts.factory.createCommaListExpression([
+        ...targets
+          .tsa<ts.Expression>()
+          .map((expr) =>
+            ts.setTextRange(ts.factory.createAssignment($, expr), expr)
+          ),
+        final.ts(),
+      ]),
       this
     );
   },
