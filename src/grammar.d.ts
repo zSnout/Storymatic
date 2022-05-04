@@ -144,6 +144,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessExp_optional_chaining_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: TerminalNode) => T;
   MemberAccessExp_tagged_template_literal?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   MemberAccessExp_non_null_assertion?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode) => T;
+  MemberAccessExp_as_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
   MemberAccessExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ArgumentList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   NonemptyArgumentList?: (this: NonterminalNode, arg0: NonterminalNode) => T;

@@ -226,6 +226,7 @@ Storymatic {
     | MemberAccessExp "?." GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp GenericTypeArgumentList string -- tagged_template_literal
     | MemberAccessExp "!" -- non_null_assertion
+    | MemberAccessExp #space "as" #space Type -- as_expression
     | ClassCreationExp
 
   ArgumentList = ListOf<Argument, ",">

@@ -1864,6 +1864,12 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExp(node) {
     return node.ts();
   },
+  MemberAccessExp_as_expression(expr, _0, _1, _2, type) {
+    return setTextRange(
+      ts.factory.createAsExpression(expr.ts(), type.ts()),
+      this
+    );
+  },
   MemberAccessExp_computed_member_access(target, _0, index, _1) {
     return setTextRange(
       ts.factory.createElementAccessExpression(
