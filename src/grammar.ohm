@@ -359,7 +359,7 @@ Storymatic {
 
   sign = ("+" | "-")?
   number = digit+
-  fullNumber = sign digit+ ("." digit+)? ("e" sign digit+)?
+  fullNumber = sign digit+ ("." digit+)? (("e" | "E") sign digit+)?
   unitNumber = ~"0x" fullNumber ~("n" ~id_continue) identifierWord
   decimalNumber = ~"0x" fullNumber ~char
   hexNumber = sign "0x" hexDigit+
