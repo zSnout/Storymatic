@@ -466,12 +466,12 @@ Storymatic {
     | "object" | "null" | "undefined" | "void" | "any" | "unknown" | "this"
 
   Implementable
-    = ~("infer" ~id_continue) identifier ("." ~("infer" ~id_continue) identOrWord)* GenericTypeArgumentList &("," | "implements" | "{")
+    = ~("infer" ~(#id_continue)) identifier ("." ~("infer" ~(#id_continue)) identOrWord)* GenericTypeArgumentList &("," | "implements" | "{")
 
   Extendable
-    = ~("infer" ~id_continue) identifier ("." ~("infer" ~id_continue) identOrWord)* NonemptyGenericTypeArgumentList &("," | "implements" | "{")
+    = ~("infer" ~(#id_continue)) identifier ("." ~("infer" ~(#id_continue)) identOrWord)* NonemptyGenericTypeArgumentList &("," | "implements" | "{")
 
-  QualifiedName = ~("infer" ~id_continue) identifier ("." ~("infer" ~id_continue) identOrWord)*
+  QualifiedName = ~("infer" ~(#id_continue)) identifier ("." ~("infer" ~(#id_continue)) identOrWord)*
 
   LiteralType
     = PrimitiveType ~(id_continue | ".")
