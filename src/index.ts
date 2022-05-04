@@ -313,7 +313,8 @@ function transformer(context: ts.TransformationContext) {
     function visit(
       node: ts.Node,
       fnScope: FunctionScope,
-      blockScope: BlockScope
+      blockScope: BlockScope,
+      exclude?: ts.BindingName[]
     ): ts.Node {
       if (
         node.kind == ts.SyntaxKind.FunctionDeclaration ||
@@ -329,7 +330,13 @@ function transformer(context: ts.TransformationContext) {
 
         fn = ts.visitEachChild(
           fn,
-          (node) => visit(node, scope, blockScope),
+          (node) =>
+            visit(
+              node,
+              scope,
+              blockScope,
+              fn.parameters.flatMap((e) => e.name)
+            ),
           context
         );
 
@@ -389,6 +396,8 @@ function transformer(context: ts.TransformationContext) {
           localVars: [],
           exclude: blockScope.exclude.concat(blockScope.localVars),
         };
+
+        exclude?.map((name) => visitBinding(name, fnScope, scope));
 
         block = ts.visitEachChild(
           block,
