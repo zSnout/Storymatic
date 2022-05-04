@@ -35,7 +35,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   EnumMember_auto_assign?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   EnumMember_assigned?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   EnumMember?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  Statement_when_callback?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: NonterminalNode) => T;
+  Statement_when_callback?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: NonterminalNode) => T;
   Statement_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   Statement_with?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_print?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
@@ -143,6 +143,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessExp_optional_chaining_computed_member_access?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExp_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExp_optional_chaining_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: TerminalNode) => T;
+  MemberAccessExp_listen_event?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode) => T;
+  MemberAccessExp_dispatch_event?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode) => T;
   MemberAccessExp_tagged_template_literal?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   MemberAccessExp_non_null_assertion?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode) => T;
   MemberAccessExp_as_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;

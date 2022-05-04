@@ -1891,9 +1891,59 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  MemberAccessExp_dispatch_event(expr, qMark, _0, eventName, _1, args, _2) {
+    return setTextRange(
+      ts.factory.createCallExpression(
+        ts.setTextRange(
+          ts.factory.createIdentifier(
+            qMark.sourceString ? "$emitChain" : "$emit"
+          ),
+          {
+            pos: this.source.startIdx,
+            end: this.source.startIdx,
+          }
+        ),
+        undefined,
+        [
+          expr.ts(),
+          setTextRange(
+            ts.factory.createStringLiteral(eventName.sourceString),
+            eventName
+          ),
+          ...(args.child(0)?.tsa<ts.Expression>() || []),
+        ]
+      ),
+      this
+    );
+  },
   MemberAccessExp_function_call(target, typeArgs, _0, args, _1) {
     return setTextRange(
       ts.factory.createCallExpression(target.ts(), typeArgs.tsa(), args.tsa()),
+      this
+    );
+  },
+  MemberAccessExp_listen_event(expr, qMark, _0, eventName, _1, args, _2) {
+    return setTextRange(
+      ts.factory.createCallExpression(
+        ts.setTextRange(
+          ts.factory.createIdentifier(
+            qMark.sourceString ? "$listenChain" : "$listen"
+          ),
+          {
+            pos: this.source.startIdx,
+            end: this.source.startIdx,
+          }
+        ),
+        undefined,
+        [
+          expr.ts(),
+          setTextRange(
+            ts.factory.createStringLiteral(eventName.sourceString),
+            eventName
+          ),
+          ...(args.child(0)?.tsa<ts.Expression>() || []),
+        ]
+      ),
       this
     );
   },
@@ -2903,17 +2953,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_when_callback(
-    expressionNode,
-    qMark,
-    _0,
-    eventName,
-    _1,
-    _2,
-    _3,
-    params,
-    block
-  ) {
+  Statement_when_callback(expressionNode, qMark, _0, _1, _2, params, block) {
     let fn = setTextRange(
       ts.factory.createFunctionExpression(
         undefined,
@@ -2932,44 +2972,6 @@ semantics.addOperation<ts.Node>("ts", {
     let mark = qMark
       .child(0)
       ?.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken) });
-
-    if (eventName.sourceString) {
-      let expr = ts.setTextRange(
-        ts.factory.createLogicalOr(
-          setTextRange(
-            ts.factory.createPropertyAccessChain(expression, mark, "on"),
-            eventName.child(0)
-          ),
-          setTextRange(
-            ts.factory.createPropertyAccessChain(
-              expression,
-              mark,
-              "addEventListener"
-            ),
-            eventName.child(0)
-          )
-        ),
-        expression
-      );
-
-      expression = ts.setTextRange(
-        ts.factory.createCallChain(
-          ts.factory.createPropertyAccessChain(expr, mark, "call"),
-          mark,
-          undefined,
-          [
-            expression,
-            setTextRange(
-              ts.factory.createStringLiteral(
-                eventName.child(0).ts<ts.Identifier>().text
-              ),
-              eventName.child(0)
-            ),
-          ]
-        ),
-        expression
-      );
-    }
 
     if (expression.kind == ts.SyntaxKind.CallExpression) {
       let expr = expression as ts.CallExpression;
