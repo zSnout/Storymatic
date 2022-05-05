@@ -1897,6 +1897,19 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralExp_static_self(_) {
     return setTextRange(ts.factory.createIdentifier("$static"), this);
   },
+  LiteralExp_static_symbol(_0, _1) {
+    return setTextRange(ts.factory.createIdentifier("Symbol"), this);
+  },
+  LiteralExp_symbol(_) {
+    return setTextRange(
+      ts.factory.createCallExpression(
+        setTextRange(ts.factory.createIdentifier("Symbol"), this),
+        undefined,
+        []
+      ),
+      this
+    );
+  },
   LiteralExp_topic_token(_) {
     return setTextRange(ts.factory.createIdentifier("$"), this);
   },
