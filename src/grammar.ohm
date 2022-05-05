@@ -39,7 +39,6 @@ Storymatic {
 
   Statement
     = Expression "?"? (#space "of" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
-    | ~("{" "}") Expression #statementTerminator -- expression
     | IfStatement
     | TryStatement
     | BlockFunction
@@ -79,6 +78,7 @@ Storymatic {
     | "rescope" #space NonemptyListOf<Rescopable, ","> #statementTerminator -- rescope
     | "rescope" #space VariableAssignment #statementTerminator -- rescope_assign
     | TypedVariableAssignment -- typed_assignment
+    | ~("{" "}") Expression #statementTerminator -- expression
 
   Rescopable
     = identifier ":" Type -- with_type
@@ -146,6 +146,7 @@ Storymatic {
     | "@" ~(id_continue | "[" | "#" | ".") -- self
     | "@@" ~(id_continue | "[" | "#" | ".") -- static_self
     | "%" -- topic_token
+    | "with" #space Expression SingleStatementBlock<"do"> -- with
     | InlineClassDeclaration
     | InlineFunction
     | JSXElement
