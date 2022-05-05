@@ -175,7 +175,7 @@ Storymatic {
     | "..." Expression -- spread_operator
 
   InlineFunction
-    = "fn" GenericTypeParameterList?
+    = "fn" (#space identifier)? GenericTypeParameterList?
       (#space "of" #space ParameterList)? ("=>" Type)? FunctionBody
 
   BlockFunction

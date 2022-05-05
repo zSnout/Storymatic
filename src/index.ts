@@ -1566,12 +1566,24 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  InlineFunction(_0, generics, _1, _2, _3, params, _4, returnType, body) {
+  InlineFunction(
+    _0,
+    _1,
+    name,
+    generics,
+    _2,
+    _3,
+    _4,
+    params,
+    _5,
+    returnType,
+    body
+  ) {
     return setTextRange(
       ts.factory.createFunctionExpression(
         undefined,
         undefined,
-        undefined,
+        name.child(0)?.ts<ts.Identifier>(),
         generics.child(0)?.tsa(),
         params.child(0)?.tsa(),
         returnType.child(0)?.ts<ts.TypeNode>(),
