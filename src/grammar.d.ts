@@ -36,7 +36,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   EnumMember_assigned?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   EnumMember?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Statement_when_callback?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: NonterminalNode) => T;
-  Statement_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   Statement_with?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_print?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_throw?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
@@ -65,6 +64,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Statement_rescope?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_rescope_assign?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_typed_assignment?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  Statement_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   Statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Rescopable_with_type?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   Rescopable_identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -105,6 +105,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LiteralExp_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp_static_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp_topic_token?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  LiteralExp_with?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   LiteralExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   InlineClassDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: IterationNode, arg12: TerminalNode) => T;
   ArrayEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
