@@ -38,7 +38,7 @@ Storymatic {
     | (identOrWord | string_non_interpolatable) "=" Expression #expressionTerminator -- assigned
 
   Statement
-    = Expression "?"? (#space "with" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
+    = Expression "?"? (#space "of" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
     | ~("{" "}") Expression #statementTerminator -- expression
     | IfStatement
     | TryStatement
