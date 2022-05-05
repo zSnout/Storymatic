@@ -28,7 +28,12 @@ export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
 export function compile(text: string) {
   let match = story.match(text);
   if (match.failed()) throw new SyntaxError(match.message);
-  return semantics(match).ts<ts.SourceFile>();
+
+  scriptHasEvents = false;
+  let file = semantics(match).ts<ts.SourceFile>();
+  (file as any).__storymaticHasEvents = scriptHasEvents;
+
+  return file;
 }
 
 export function transpile(node: ts.Node, flags: Flags = {}) {
@@ -51,14 +56,18 @@ export function transpile(node: ts.Node, flags: Flags = {}) {
 
   let printer = ts.createPrinter({});
   let text = printer.printNode(ts.EmitHint.Unspecified, node, source);
+  if ((node as any).__storymaticHasEvents)
+    text = `if (EventTarget) {
+  (EventTarget.prototype as any).on = function on(name: any, ...args: any[]) { this.addEventListener(name, ...args) };
+  (EventTarget.prototype as any).emit = function emit(name: any, ...args: any[]) { this.dispatchEvent(new Event(name, ...args)) };
+}
+${text}`;
 
   if (flags.typescript) return text;
 
-  let transpiled = ts.transpileModule(text, {
+  return ts.transpileModule(text, {
     compilerOptions: makeCompilerOptions(flags),
-  });
-
-  return transpiled.outputText;
+  }).outputText;
 }
 
 export interface Flags {
@@ -261,6 +270,8 @@ function makeAssignment(name: string, value: ts.Expression) {
     value
   );
 }
+
+let scriptHasEvents = false;
 
 function transformer(context: ts.TransformationContext) {
   return (node: ts.Block) => {
@@ -1891,21 +1902,32 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExp_dispatch_event(expr, qMark, _0, eventName, _1, args, _2) {
+  MemberAccessExp_dispatch_event(
+    expr,
+    qMark,
+    _0,
+    eventName,
+    typeArgs,
+    _1,
+    args,
+    _2
+  ) {
+    scriptHasEvents = true;
+
     return setTextRange(
-      ts.factory.createCallExpression(
-        ts.setTextRange(
-          ts.factory.createIdentifier(
-            qMark.sourceString ? "$emitChain" : "$emit"
-          ),
-          {
-            pos: this.source.startIdx,
-            end: this.source.startIdx,
-          }
-        ),
-        undefined,
-        [
+      ts.factory.createCallChain(
+        ts.factory.createPropertyAccessChain(
           expr.ts(),
+          qMark.tsn({
+            "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+          }),
+          "emit"
+        ),
+        qMark.tsn({
+          "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+        }),
+        typeArgs.child(0)?.tsa(),
+        [
           setTextRange(
             ts.factory.createStringLiteral(eventName.sourceString),
             eventName
@@ -1922,21 +1944,32 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExp_listen_event(expr, qMark, _0, eventName, _1, args, _2) {
+  MemberAccessExp_listen_event(
+    expr,
+    qMark,
+    _0,
+    eventName,
+    typeArgs,
+    _1,
+    args,
+    _2
+  ) {
+    scriptHasEvents = true;
+
     return setTextRange(
-      ts.factory.createCallExpression(
-        ts.setTextRange(
-          ts.factory.createIdentifier(
-            qMark.sourceString ? "$listenChain" : "$listen"
-          ),
-          {
-            pos: this.source.startIdx,
-            end: this.source.startIdx,
-          }
-        ),
-        undefined,
-        [
+      ts.factory.createCallChain(
+        ts.factory.createPropertyAccessChain(
           expr.ts(),
+          qMark.tsn({
+            "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+          }),
+          "on"
+        ),
+        qMark.tsn({
+          "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+        }),
+        typeArgs.child(0)?.tsa(),
+        [
           setTextRange(
             ts.factory.createStringLiteral(eventName.sourceString),
             eventName
