@@ -221,7 +221,7 @@ Storymatic {
     = Child "." identOrWord -- member_access
     | Child "?." identOrWord -- optional_chaining_member_access
     | Child "." Symbol -- symbol_access
-    | Child "?" Symbol -- optional_chaining_symbol_access
+    | Child "?." Symbol -- optional_chaining_symbol_access
     | Child "[" Child "]" -- computed_member_access
     | Child "?" "[" Child "]" -- optional_chaining_computed_member_access
     | Child GenericTypeArgumentList string -- tagged_template_literal

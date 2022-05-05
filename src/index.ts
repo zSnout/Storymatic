@@ -868,29 +868,6 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  ClassCreationExp(node) {
-    return node.ts();
-  },
-  ClassCreationExp_class_creation_no_args(_0, _1, target) {
-    return setTextRange(
-      ts.factory.createNewExpression(target.ts(), undefined, []),
-      this
-    );
-  },
-  ClassCreationExp_class_creation_symbolic(
-    _0,
-    _1,
-    target,
-    typeArgs,
-    _2,
-    args,
-    _3
-  ) {
-    return setTextRange(
-      ts.factory.createNewExpression(target.ts(), typeArgs.tsa(), args.tsa()),
-      this
-    );
-  },
   ClassDeclaration(
     _export,
     _0,
@@ -1887,17 +1864,116 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExp(node) {
     return node.ts();
   },
-  MemberAccessExp_as_expression(expr, _0, _1, _2, type) {
+  MemberAccessExpNonCall(node) {
+    return node.ts();
+  },
+  MemberAccessExpNonCall_as_expression(expr, _0, _1, _2, type) {
     return setTextRange(
       ts.factory.createAsExpression(expr.ts(), type.ts()),
       this
     );
   },
-  MemberAccessExp_computed_member_access(target, _0, index, _1) {
+  MemberAccessExpNonCall_class_creation_no_args(_0, _1, target) {
+    return setTextRange(
+      ts.factory.createNewExpression(target.ts(), undefined, []),
+      this
+    );
+  },
+  MemberAccessExpNonCall_class_creation_symbolic(
+    _0,
+    _1,
+    target,
+    typeArgs,
+    _2,
+    args,
+    _3
+  ) {
+    return setTextRange(
+      ts.factory.createNewExpression(target.ts(), typeArgs.tsa(), args.tsa()),
+      this
+    );
+  },
+  MemberAccessExpNonCall_computed_member_access(target, _0, index, _1) {
     return setTextRange(
       ts.factory.createElementAccessExpression(
         target.ts(),
         index.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  MemberAccessExpNonCall_member_access(target, _, key) {
+    return setTextRange(
+      ts.factory.createPropertyAccessExpression(
+        target.ts(),
+        key.ts<ts.MemberName>()
+      ),
+      this
+    );
+  },
+  MemberAccessExpNonCall_non_null_assertion(target, _) {
+    return setTextRange(ts.factory.createNonNullExpression(target.ts()), this);
+  },
+  MemberAccessExpNonCall_optional_chaining_computed_member_access(
+    target,
+    qDot,
+    _0,
+    index,
+    _1
+  ) {
+    return setTextRange(
+      ts.factory.createElementAccessChain(
+        target.ts(),
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+          qDot
+        ),
+        index.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  MemberAccessExpNonCall_optional_chaining_member_access(target, qDot, key) {
+    return setTextRange(
+      ts.factory.createPropertyAccessChain(
+        target.ts(),
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+          qDot
+        ),
+        key.ts<ts.MemberName>()
+      ),
+      this
+    );
+  },
+  MemberAccessExpNonCall_optional_chaining_symbol_access(target, qDot, symbol) {
+    return setTextRange(
+      ts.factory.createElementAccessChain(
+        target.ts(),
+        setTextRange(
+          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+          qDot
+        ),
+        symbol.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  MemberAccessExpNonCall_symbol_access(target, _, symbol) {
+    return setTextRange(
+      ts.factory.createElementAccessExpression(
+        target.ts(),
+        symbol.ts<ts.Expression>()
+      ),
+      this
+    );
+  },
+  MemberAccessExpNonCall_tagged_template_literal(tag, generics, template) {
+    return setTextRange(
+      ts.factory.createTaggedTemplateExpression(
+        tag.ts(),
+        generics.tsa(),
+        template.ts()
       ),
       this
     );
@@ -1980,37 +2056,6 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExp_member_access(target, _, key) {
-    return setTextRange(
-      ts.factory.createPropertyAccessExpression(
-        target.ts(),
-        key.ts<ts.MemberName>()
-      ),
-      this
-    );
-  },
-  MemberAccessExp_non_null_assertion(target, _) {
-    return setTextRange(ts.factory.createNonNullExpression(target.ts()), this);
-  },
-  MemberAccessExp_optional_chaining_computed_member_access(
-    target,
-    qDot,
-    _0,
-    index,
-    _1
-  ) {
-    return setTextRange(
-      ts.factory.createElementAccessChain(
-        target.ts(),
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-          qDot
-        ),
-        index.ts<ts.Expression>()
-      ),
-      this
-    );
-  },
   MemberAccessExp_optional_chaining_function_call(
     target,
     qDot,
@@ -2028,51 +2073,6 @@ semantics.addOperation<ts.Node>("ts", {
         ),
         typeArgs.tsa(),
         args.tsa()
-      ),
-      this
-    );
-  },
-  MemberAccessExp_optional_chaining_member_access(target, qDot, key) {
-    return setTextRange(
-      ts.factory.createPropertyAccessChain(
-        target.ts(),
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-          qDot
-        ),
-        key.ts<ts.MemberName>()
-      ),
-      this
-    );
-  },
-  MemberAccessExp_optional_chaining_symbol_access(target, qDot, symbol) {
-    return setTextRange(
-      ts.factory.createElementAccessChain(
-        target.ts(),
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-          qDot
-        ),
-        symbol.ts<ts.Expression>()
-      ),
-      this
-    );
-  },
-  MemberAccessExp_symbol_access(target, _, symbol) {
-    return setTextRange(
-      ts.factory.createElementAccessExpression(
-        target.ts(),
-        symbol.ts<ts.Expression>()
-      ),
-      this
-    );
-  },
-  MemberAccessExp_tagged_template_literal(tag, generics, template) {
-    return setTextRange(
-      ts.factory.createTaggedTemplateExpression(
-        tag.ts(),
-        generics.tsa(),
-        template.ts()
       ),
       this
     );
