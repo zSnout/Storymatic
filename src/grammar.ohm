@@ -361,12 +361,12 @@ Storymatic {
   whitespace = (~("\r\n" | "\n") space)+
 
   sign = ("+" | "-")?
-  number = digit+
-  fullNumber = sign digit+ ("." digit+)? (("e" | "E") sign digit+)?
+  number = digit+ ("_" digit+)*
+  fullNumber = sign number ("." number)? (("e" | "E") sign number)?
   unitNumber = ~"0x" fullNumber ~("n" ~id_continue) identifierWord
   decimalNumber = ~"0x" fullNumber ~char
-  hexNumber = sign "0x" hexDigit+
-  bigint = ~"0x" sign digit+ "n"
+  hexNumber = sign "0x" hexDigit ("_" hexDigit+)*
+  bigint = ~"0x" sign number "n"
 
   boolean = "true" | "false"
   null = "null"

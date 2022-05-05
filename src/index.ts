@@ -1341,7 +1341,7 @@ semantics.addOperation<ts.Node>("ts", {
   hexDigit(_) {
     throw new Error("`hexDigit` nodes should never directly be evaluated.");
   },
-  hexNumber(_0, _1, _2) {
+  hexNumber(_0, _1, _2, _3, _4) {
     return setTextRange(
       ts.factory.createNumericLiteral(
         this.sourceString,
@@ -2298,9 +2298,9 @@ semantics.addOperation<ts.Node>("ts", {
       "`nonemptyListOf` nodes should never directly be evaluated."
     );
   },
-  number(number) {
+  number(_0, _1, _2) {
     return setTextRange(
-      ts.factory.createNumericLiteral(number.sourceString),
+      ts.factory.createNumericLiteral(this.sourceString),
       this
     );
   },
