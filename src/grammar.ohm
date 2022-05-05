@@ -234,8 +234,8 @@ Storymatic {
 
   NCMemberAccessExp = MemberAccessExpNonCall<NCMemberAccessExp>
 
-  ArgumentList = ListOf<Argument, ",">
-  NonemptyArgumentList = NonemptyListOf<Argument, ",">
+  ArgumentList = ListOf<Argument, #expressionTerminator>
+  NonemptyArgumentList = NonemptyListOf<Argument, #expressionTerminator>
 
   Argument
     = Expression
