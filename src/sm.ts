@@ -178,6 +178,8 @@ async function buildFile(file: string) {
     console.error(error);
     return;
   }
+
+  console.log(`${file} has been compiled.`);
 }
 
 if (args.build) {
@@ -187,6 +189,7 @@ if (args.build) {
       : "**/*.{sm,story,storymatic}"
   );
 
+  console.log("Starting build process...");
   res.then((files) => files.map(buildFile));
 } else if (args.watch) {
   let res = glob(
@@ -195,6 +198,7 @@ if (args.build) {
       : "**/*.{sm,story,storymatic}"
   );
 
+  console.log("Starting watch process...");
   res.then((files) => files.map(buildFile));
 
   (async () => {
