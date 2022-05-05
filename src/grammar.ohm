@@ -211,13 +211,13 @@ Storymatic {
     | Method<"@"> -- object_method_with_self
 
   MemberAccessExp
-    = NonCallMemberAccessExp<MemberAccessExp>
+    = MemberAccessExpNonCall<MemberAccessExp>
     | MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" identOrWord (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" identOrWord (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
 
-  NonCallMemberAccessExp<Child>
+  MemberAccessExpNonCall<Child>
     = Child "." identOrWord -- member_access
     | Child "?." identOrWord -- optional_chaining_member_access
     | Child "." Symbol -- symbol_access
@@ -231,7 +231,7 @@ Storymatic {
     | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
-  NCMemberAccessExp = NonCallMemberAccessExp<NCMemberAccessExp>
+  NCMemberAccessExp = MemberAccessExpNonCall<NCMemberAccessExp>
 
   ArgumentList = ListOf<Argument, ",">
   NonemptyArgumentList = NonemptyListOf<Argument, ",">
