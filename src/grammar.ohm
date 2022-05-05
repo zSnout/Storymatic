@@ -210,27 +210,27 @@ Storymatic {
     | Method<""> -- object_method
     | Method<"@"> -- object_method_with_self
 
-  ClassCreationExp
-    = "new" #space ClassCreationExp GenericTypeArgumentList
-      "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space ClassCreationExp -- class_creation_no_args
-    | LiteralExp
-
   MemberAccessExp
-    = MemberAccessExp "." identOrWord -- member_access
-    | MemberAccessExp "?." identOrWord -- optional_chaining_member_access
-    | MemberAccessExp "." Symbol -- symbol_access
-    | MemberAccessExp "?" Symbol -- optional_chaining_symbol_access
-    | MemberAccessExp "[" MemberAccessExp "]" -- computed_member_access
-    | MemberAccessExp "?" "[" MemberAccessExp "]" -- optional_chaining_computed_member_access
+    = NonCallMemberAccessExp<MemberAccessExp>
     | MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" identOrWord (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" identOrWord (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
-    | MemberAccessExp GenericTypeArgumentList string -- tagged_template_literal
-    | MemberAccessExp "!" -- non_null_assertion
-    | MemberAccessExp #space "as" #space Type -- as_expression
-    | ClassCreationExp
+
+  NonCallMemberAccessExp<Child>
+    = Child "." identOrWord -- member_access
+    | Child "?." identOrWord -- optional_chaining_member_access
+    | Child "." Symbol -- symbol_access
+    | Child "?" Symbol -- optional_chaining_symbol_access
+    | Child "[" Child "]" -- computed_member_access
+    | Child "?" "[" Child "]" -- optional_chaining_computed_member_access
+    | Child GenericTypeArgumentList string -- tagged_template_literal
+    | Child "!" -- non_null_assertion
+    | Child #space "as" #space Type -- as_expression
+    | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
+    | LiteralExp
+
+  NCMemberAccessExp = NonCallMemberAccessExp<NCMemberAccessExp>
 
   ArgumentList = ListOf<Argument, ",">
   NonemptyArgumentList = NonemptyListOf<Argument, ",">
