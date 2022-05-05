@@ -211,11 +211,11 @@ Storymatic {
     | Method<"@"> -- object_method_with_self
 
   MemberAccessExp
-    = MemberAccessExpNonCall<MemberAccessExp>
-    | MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
+    = MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" identOrWord (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" identOrWord (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
+    | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
     = Child "." identOrWord -- member_access
