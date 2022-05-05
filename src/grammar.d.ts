@@ -237,7 +237,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   fullNumber?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode) => T;
   unitNumber?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   decimalNumber?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  hexNumber?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode) => T;
+  hexNumber?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode) => T;
   bigint?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   boolean?: (this: NonterminalNode, arg0: TerminalNode) => T;
   null?: (this: NonterminalNode, arg0: TerminalNode) => T;
