@@ -38,7 +38,8 @@ Storymatic {
     | (identOrWord | string_non_interpolatable) "=" Expression #expressionTerminator -- assigned
 
   Statement
-    = Expression "?"? (#space "of" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
+    = "await" #space (Assignable "=")? Expression SingleStatementBlock<"do"> -- await_new_thread
+    | Expression "?"? (#space "of" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
     | IfStatement
     | TryStatement
     | BlockFunction
@@ -64,7 +65,6 @@ Storymatic {
     | "break" #statementTerminator -- break
     | "continue" #statementTerminator -- continue
     | "return" #space Expression? #statementTerminator -- return
-    | "await" #space (Assignable "=")? Expression SingleStatementBlock<"do"> -- await_new_thread
     | "import" #space importLocation #statementTerminator -- empty_import
     | "import" #space NonemptyListOf<ImportableItemName, ","> #space "from" #space importLocation #statementTerminator -- import
     | "import" "*" "as" #space identifier #space "from" #space importLocation #statementTerminator -- import_all
