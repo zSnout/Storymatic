@@ -1837,11 +1837,22 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   LiteralExp_with(_0, _1, expr, block) {
+    let pos = {
+      pos: block.source.endIdx,
+      end: block.source.endIdx,
+    };
+
     return createIIFE(
       ts.factory.createBlock(
         [
           makeAssignment("$self", expr.ts()),
           ...block.ts<ts.Block>().statements,
+          ts.setTextRange(
+            ts.factory.createReturnStatement(
+              ts.setTextRange(ts.factory.createIdentifier("$self"), pos)
+            ),
+            pos
+          ),
         ],
         true
       )
