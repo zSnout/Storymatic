@@ -146,8 +146,6 @@ Storymatic {
     | "@" ~(id_continue | "[" | "#" | ".") -- self
     | "@@" ~(id_continue | "[" | "#" | ".") -- static_self
     | "%" -- topic_token
-    | "#" ~(id_continue | "\"" | "[" | "#" | "(") -- symbol
-    | "#" &"(" -- static_symbol
     | "with" #space Expression SingleStatementBlock<"do"> -- with
     | InlineClassDeclaration
     | InlineFunction
