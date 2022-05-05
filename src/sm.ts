@@ -179,7 +179,7 @@ async function buildFile(file: string) {
     return;
   }
 
-  console.log(`${file} has been compiled.`);
+  console.log(`${file} compiled at ${new Date().toLocaleTimeString()}.`);
 }
 
 if (args.build) {
