@@ -485,6 +485,45 @@ function transformer(context: ts.TransformationContext) {
         fnScope.isAsync = true;
       }
 
+      if ((node as any).__storymaticIsIIFE) {
+        let call = ts.visitEachChild(
+          node,
+          (node) => visit(node, fnScope, blockScope),
+          context
+        ) as ts.CallExpression;
+
+        let fn = call.expression as ts.FunctionExpression;
+        let isAsync = false;
+        let isGenerator = false;
+
+        if (fn.asteriskToken) isGenerator = true;
+        if (
+          fn.modifiers?.some(({ kind }) => kind == ts.SyntaxKind.AsyncKeyword)
+        ) {
+          isAsync = true;
+        }
+
+        fnScope.isAsync = fnScope.isAsync || isAsync;
+        fnScope.isGenerator = fnScope.isGenerator || isGenerator;
+
+        if (isGenerator)
+          return ts.setTextRange(
+            ts.factory.createYieldExpression(
+              ts.setTextRange(
+                ts.factory.createToken(ts.SyntaxKind.AsteriskToken),
+                { pos: call.pos, end: call.pos }
+              ),
+              call
+            ),
+            call
+          );
+
+        if (isAsync)
+          return ts.setTextRange(ts.factory.createAwaitExpression(call), call);
+
+        return call;
+      }
+
       return ts.visitEachChild(
         node,
         (node) => visit(node, fnScope, blockScope),
@@ -512,6 +551,31 @@ function traverseScript(node: ts.SourceFile) {
     ),
     node
   );
+}
+
+function createIIFE(block: ts.Block, range: ts.TextRange = block) {
+  let iife = ts.setTextRange(
+    ts.factory.createCallExpression(
+      ts.setTextRange(
+        ts.factory.createFunctionExpression(
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          ts.setTextRange(block, range)
+        ),
+        range
+      ),
+      undefined,
+      undefined
+    ),
+    range
+  );
+
+  (iife as any).__storymaticIsIIFE = true;
+  return iife;
 }
 
 semantics.addOperation<ts.Node>("ts", {
@@ -1766,6 +1830,17 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  LiteralExp_with(_0, _1, expr, block) {
+    return createIIFE(
+      ts.factory.createBlock(
+        [
+          makeAssignment("$self", expr.ts()),
+          ...block.ts<ts.Block>().statements,
+        ],
+        true
+      )
+    );
+  },
   LiteralType(node) {
     return node.ts();
   },
@@ -2244,6 +2319,9 @@ semantics.addOperation<ts.Node>("ts", {
       ),
       this
     );
+  },
+  NCMemberAccessExp(node) {
+    return node.ts();
   },
   NonemptyGenericTypeArgumentList(_0, _1, _2) {
     throw new Error(
