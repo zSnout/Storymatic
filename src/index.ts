@@ -196,9 +196,9 @@ function bindingToAssignment(
     | ts.ObjectBindingPattern
     | ts.ArrayBindingPattern
 ): ts.Expression {
-  if (bound.kind == ts.SyntaxKind.Identifier) {
+  if (bound.kind === ts.SyntaxKind.Identifier) {
     return bound;
-  } else if (bound.kind == ts.SyntaxKind.BindingElement) {
+  } else if (bound.kind === ts.SyntaxKind.BindingElement) {
     if (bound.dotDotDotToken)
       return ts.setTextRange(
         ts.factory.createSpreadElement(bindingToAssignment(bound.name)),
@@ -224,14 +224,14 @@ function bindingToAssignment(
       );
 
     return bindingToAssignment(bound.name);
-  } else if (bound.kind == ts.SyntaxKind.ArrayBindingPattern) {
+  } else if (bound.kind === ts.SyntaxKind.ArrayBindingPattern) {
     return ts.setTextRange(
       ts.factory.createArrayLiteralExpression(
         bound.elements.map((element) => bindingToAssignment(element as any))
       ),
       bound
     );
-  } else if (bound.kind == ts.SyntaxKind.ObjectBindingPattern) {
+  } else if (bound.kind === ts.SyntaxKind.ObjectBindingPattern) {
     return ts.setTextRange(
       ts.factory.createObjectLiteralExpression(
         bound.elements.map((element) => bindingToAssignment(element) as any)
@@ -325,12 +325,13 @@ function transformer(context: ts.TransformationContext) {
       node: ts.Node,
       fnScope: FunctionScope,
       blockScope: BlockScope,
+      isLast: boolean,
       exclude?: ts.BindingName[]
     ): ts.Node {
       if (
-        node.kind == ts.SyntaxKind.FunctionDeclaration ||
-        node.kind == ts.SyntaxKind.FunctionExpression ||
-        node.kind == ts.SyntaxKind.ArrowFunction
+        node.kind === ts.SyntaxKind.FunctionDeclaration ||
+        node.kind === ts.SyntaxKind.FunctionExpression ||
+        node.kind === ts.SyntaxKind.ArrowFunction
       ) {
         let fn = node as
           | ts.FunctionDeclaration
@@ -338,16 +339,11 @@ function transformer(context: ts.TransformationContext) {
           | ts.ArrowFunction;
 
         let scope: FunctionScope = { isAsync: false, isGenerator: false };
+        let params = fn.parameters.flatMap((e) => e.name);
 
         fn = ts.visitEachChild(
           fn,
-          (node) =>
-            visit(
-              node,
-              scope,
-              blockScope,
-              fn.parameters.flatMap((e) => e.name)
-            ),
+          (node) => visit(node, scope, blockScope, true, params),
           context
         );
 
@@ -361,7 +357,7 @@ function transformer(context: ts.TransformationContext) {
 
         let modifiers = fn.modifiers?.concat(asyncModifier) || asyncModifier;
 
-        if (fn.kind == ts.SyntaxKind.FunctionExpression) {
+        if (fn.kind === ts.SyntaxKind.FunctionExpression) {
           return ts.factory.updateFunctionExpression(
             fn,
             modifiers,
@@ -374,7 +370,7 @@ function transformer(context: ts.TransformationContext) {
           );
         }
 
-        if (fn.kind == ts.SyntaxKind.FunctionDeclaration) {
+        if (fn.kind === ts.SyntaxKind.FunctionDeclaration) {
           return ts.factory.updateFunctionDeclaration(
             fn,
             fn.decorators,
@@ -388,7 +384,7 @@ function transformer(context: ts.TransformationContext) {
           );
         }
 
-        if (fn.kind == ts.SyntaxKind.ArrowFunction) {
+        if (fn.kind === ts.SyntaxKind.ArrowFunction) {
           return ts.factory.updateArrowFunction(
             fn,
             modifiers,
@@ -401,7 +397,7 @@ function transformer(context: ts.TransformationContext) {
         }
       }
 
-      if (node.kind == ts.SyntaxKind.Block) {
+      if (node.kind === ts.SyntaxKind.Block) {
         let block = node as ts.Block;
         let scope: BlockScope = {
           localVars: [],
@@ -409,10 +405,11 @@ function transformer(context: ts.TransformationContext) {
         };
 
         exclude?.map((name) => visitBinding(name, fnScope, scope));
+        let last = block.statements[block.statements.length - 1];
 
         block = ts.visitEachChild(
           block,
-          (node) => visit(node, fnScope, scope),
+          (node) => visit(node, fnScope, scope, isLast && node === last),
           context
         );
 
@@ -454,7 +451,7 @@ function transformer(context: ts.TransformationContext) {
         return block;
       }
 
-      if (node.kind == ts.SyntaxKind.BinaryExpression) {
+      if (node.kind === ts.SyntaxKind.BinaryExpression) {
         let bin = node as ts.BinaryExpression;
 
         if (
@@ -465,7 +462,7 @@ function transformer(context: ts.TransformationContext) {
 
           return ts.visitEachChild(
             node,
-            (node) => visit(node, fnScope, blockScope),
+            (node) => visit(node, fnScope, blockScope, isLast),
             context
           );
         }
@@ -477,18 +474,25 @@ function transformer(context: ts.TransformationContext) {
         );
       }
 
-      if (node.kind == ts.SyntaxKind.YieldExpression) {
+      if (ts.isExpressionStatement(node) && isLast) {
+        node = ts.setTextRange(
+          ts.factory.createReturnStatement(node.expression),
+          node
+        );
+      }
+
+      if (node.kind === ts.SyntaxKind.YieldExpression) {
         fnScope.isGenerator = true;
       }
 
-      if (node.kind == ts.SyntaxKind.AwaitExpression) {
+      if (node.kind === ts.SyntaxKind.AwaitExpression) {
         fnScope.isAsync = true;
       }
 
       if ((node as any).__storymaticIsIIFE) {
         let call = ts.visitEachChild(
           node,
-          (node) => visit(node, fnScope, blockScope),
+          (node) => visit(node, fnScope, blockScope, isLast),
           context
         ) as ts.CallExpression;
 
@@ -498,7 +502,7 @@ function transformer(context: ts.TransformationContext) {
 
         if (fn.asteriskToken) isGenerator = true;
         if (
-          fn.modifiers?.some(({ kind }) => kind == ts.SyntaxKind.AsyncKeyword)
+          fn.modifiers?.some(({ kind }) => kind === ts.SyntaxKind.AsyncKeyword)
         ) {
           isAsync = true;
         }
@@ -526,14 +530,16 @@ function transformer(context: ts.TransformationContext) {
 
       return ts.visitEachChild(
         node,
-        (node) => visit(node, fnScope, blockScope),
+        (node) => visit(node, fnScope, blockScope, isLast),
         context
       );
     }
 
     let fnScope: FunctionScope = { isAsync: false, isGenerator: false };
     let blockScope: BlockScope = { localVars: [], exclude: [] };
-    let result = ts.visitNode(node, (node) => visit(node, fnScope, blockScope));
+    let result = ts.visitNode(node, (node) =>
+      visit(node, fnScope, blockScope, false)
+    );
     return result;
   };
 }
@@ -584,14 +590,14 @@ semantics.addOperation<ts.Node>("ts", {
 
     for (let addon of addons.tsa<ts.Expression | ts.Identifier>()) {
       if (
-        addon.kind == ts.SyntaxKind.Identifier ||
-        addon.kind == ts.SyntaxKind.PrivateIdentifier
+        addon.kind === ts.SyntaxKind.Identifier ||
+        addon.kind === ts.SyntaxKind.PrivateIdentifier
       ) {
         expr = ts.factory.createPropertyAccessExpression(
           expr,
           addon as ts.MemberName
         );
-      } else if (addon.kind == ts.SyntaxKind.ParenthesizedExpression) {
+      } else if (addon.kind === ts.SyntaxKind.ParenthesizedExpression) {
         expr = ts.factory.createElementAccessExpression(
           expr,
           (addon as ts.ParenthesizedExpression).expression
@@ -755,9 +761,9 @@ semantics.addOperation<ts.Node>("ts", {
     >();
 
     if (
-      bound.kind == ts.SyntaxKind.BindingElement ||
-      bound.kind == ts.SyntaxKind.ArrayBindingPattern ||
-      bound.kind == ts.SyntaxKind.ObjectBindingPattern
+      bound.kind === ts.SyntaxKind.BindingElement ||
+      bound.kind === ts.SyntaxKind.ArrayBindingPattern ||
+      bound.kind === ts.SyntaxKind.ObjectBindingPattern
     ) {
       return setTextRange(
         ts.factory.createAssignment(bindingToAssignment(bound), expr.ts()),
@@ -1417,7 +1423,7 @@ semantics.addOperation<ts.Node>("ts", {
   IfStatement(ifUnless, _0, condition, block, _1, _2, _3, elseBlock) {
     let cond = condition.ts<ts.Expression>();
 
-    if (ifUnless.sourceString == "unless")
+    if (ifUnless.sourceString === "unless")
       cond = ts.setTextRange(ts.factory.createLogicalNot(cond), cond);
 
     return setTextRange(
@@ -1471,7 +1477,7 @@ semantics.addOperation<ts.Node>("ts", {
   },
   IndexSignatureType(readonly, prefix, _0, ident, _1, key, _2, _3, value) {
     let modifiers: ts.Modifier[] = [];
-    if (prefix.sourceString == "@@")
+    if (prefix.sourceString === "@@")
       modifiers.push(
         setTextRange(
           ts.factory.createToken(ts.SyntaxKind.StaticKeyword),
@@ -1624,7 +1630,7 @@ semantics.addOperation<ts.Node>("ts", {
   },
   IntersectionType(node) {
     let iter = node.asIteration();
-    if (iter.children.length == 1) return iter.child(0).ts();
+    if (iter.children.length === 1) return iter.child(0).ts();
 
     return setTextRange(
       ts.factory.createIntersectionTypeNode(node.tsa()),
@@ -2199,7 +2205,7 @@ semantics.addOperation<ts.Node>("ts", {
       range
     );
 
-    if (prefix.sourceString == "@") {
+    if (prefix.sourceString === "@") {
       block = ts.setTextRange(
         ts.factory.createBlock(
           [
@@ -2211,7 +2217,7 @@ semantics.addOperation<ts.Node>("ts", {
         ),
         block
       );
-    } else if (prefix.sourceString == "@@") {
+    } else if (prefix.sourceString === "@@") {
       block = ts.setTextRange(
         ts.factory.createBlock(
           [
@@ -2549,7 +2555,7 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   QualifiedName(base, _, qualifiers) {
-    if (qualifiers.children.length == 0) return base.ts();
+    if (qualifiers.children.length === 0) return base.ts();
 
     let type = base.ts<ts.EntityName>();
     for (let qualifier of qualifiers.tsa<ts.Identifier>()) {
@@ -2808,8 +2814,8 @@ semantics.addOperation<ts.Node>("ts", {
     let expr = expression.ts<ts.Expression>();
 
     if (
-      expr.kind == ts.SyntaxKind.ClassExpression ||
-      expr.kind == ts.SyntaxKind.FunctionExpression
+      expr.kind === ts.SyntaxKind.ClassExpression ||
+      expr.kind === ts.SyntaxKind.FunctionExpression
     ) {
       expr = ts.setTextRange(
         ts.factory.createParenthesizedExpression(expr),
@@ -3084,7 +3090,7 @@ semantics.addOperation<ts.Node>("ts", {
       .child(0)
       ?.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken) });
 
-    if (expression.kind == ts.SyntaxKind.CallExpression) {
+    if (expression.kind === ts.SyntaxKind.CallExpression) {
       let expr = expression as ts.CallExpression;
 
       expression = ts.setTextRange(
@@ -3263,10 +3269,10 @@ semantics.addOperation<ts.Node>("ts", {
   },
   string_bit(node) {
     let char = node.sourceString;
-    if (char == "\n") char = "\\n";
-    if (char == "\r") char = "\\r";
+    if (char === "\n") char = "\\n";
+    if (char === "\r") char = "\\r";
 
-    if (char.length == 2 && char[0] == "\\") {
+    if (char.length === 2 && char[0] === "\\") {
       let res = {
         b: "\b",
         f: "\f",
@@ -3280,7 +3286,7 @@ semantics.addOperation<ts.Node>("ts", {
       return setTextRange(ts.factory.createStringLiteral(res || char[1]), this);
     }
 
-    if (char.length == 4 && char[0] == "\\" && char[1] == "x") {
+    if (char.length === 4 && char[0] === "\\" && char[1] === "x") {
       return setTextRange(
         ts.factory.createStringLiteral(
           String.fromCodePoint(parseInt(char.slice(2), 16))
@@ -3290,9 +3296,9 @@ semantics.addOperation<ts.Node>("ts", {
     }
 
     if (
-      char.length == 6 &&
-      char[0] == "\\" &&
-      char[1] == "u" &&
+      char.length === 6 &&
+      char[0] === "\\" &&
+      char[1] === "u" &&
       char[2] != "{"
     ) {
       return setTextRange(
@@ -3303,7 +3309,7 @@ semantics.addOperation<ts.Node>("ts", {
       );
     }
 
-    if (char[0] == "\\" && char[1] == "u") {
+    if (char[0] === "\\" && char[1] === "u") {
       return setTextRange(
         ts.factory.createStringLiteral(
           String.fromCodePoint(parseInt(char.slice(3, -1), 16))
@@ -3349,7 +3355,7 @@ semantics.addOperation<ts.Node>("ts", {
     return setTextRange(
       ts.factory.createStringLiteral(
         bits.map((e) => e.text).join(""),
-        open.sourceString == "'"
+        open.sourceString === "'"
       ),
       this
     );
@@ -3358,7 +3364,7 @@ semantics.addOperation<ts.Node>("ts", {
     let head = headNode.ts<ts.TemplateHead>();
     let spans = spansNode.tsa<ts.TemplateSpan>();
 
-    if (spans.length == 0) {
+    if (spans.length === 0) {
       return setTextRange(
         ts.factory.createNoSubstitutionTemplateLiteral(head.text, head.rawText),
         this
@@ -3618,7 +3624,7 @@ semantics.addOperation<ts.Node>("ts", {
   },
   UnionType(node) {
     let iter = node.asIteration();
-    if (iter.children.length == 1) return iter.child(0).ts();
+    if (iter.children.length === 1) return iter.child(0).ts();
 
     return setTextRange(ts.factory.createUnionTypeNode(node.tsa()), this);
   },
