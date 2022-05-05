@@ -437,7 +437,7 @@ Storymatic {
 
   SymbolKey
     = identOrWord -- name
-    | string -- string
+    | (string_non_interpolatable | string) -- string
     | "[" Expression "]" -- computed
 
   space += block_comment | line_comment
