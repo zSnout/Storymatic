@@ -199,8 +199,13 @@ if (args.build) {
 
   (async () => {
     for await (let event of watch(args.src || ".")) {
-      console.log(event);
-      buildFile((args.src ? args.src + "/" : "") + event.filename);
+      if (
+        event.filename.endsWith(".sm") ||
+        event.filename.endsWith(".story") ||
+        event.filename.endsWith(".storymatic")
+      ) {
+        buildFile((args.src ? args.src + "/" : "") + event.filename);
+      }
     }
   })();
 } else if (args.eval) {
