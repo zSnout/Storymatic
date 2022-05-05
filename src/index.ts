@@ -1918,6 +1918,9 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  LiteralType_typeof(_0, _1, expr) {
+    return setTextRange(ts.factory.createTypeQueryNode(expr.ts()), this);
+  },
   LogicalAndExp(node) {
     return node.ts();
   },
@@ -2187,6 +2190,12 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessType_array(element, _0, _1) {
     return setTextRange(ts.factory.createArrayTypeNode(element.ts()), this);
   },
+  MemberAccessType_keyof(_, expr) {
+    return setTextRange(
+      ts.factory.createTypeOperatorNode(ts.SyntaxKind.KeyOfKeyword, expr.ts()),
+      this
+    );
+  },
   MemberAccessType_member_access(target, _0, key, _1) {
     return setTextRange(
       ts.factory.createIndexedAccessTypeNode(target.ts(), key.ts()),
@@ -2198,6 +2207,15 @@ semantics.addOperation<ts.Node>("ts", {
   },
   MemberAccessType_object(_0, members, _1) {
     return setTextRange(ts.factory.createTypeLiteralNode(members.tsa()), this);
+  },
+  MemberAccessType_readonly(_, expr) {
+    return setTextRange(
+      ts.factory.createTypeOperatorNode(
+        ts.SyntaxKind.ReadonlyKeyword,
+        expr.ts()
+      ),
+      this
+    );
   },
   MemberAccessType_tuple(_0, elements, _1) {
     return setTextRange(ts.factory.createTupleTypeNode(elements.tsa()), this);

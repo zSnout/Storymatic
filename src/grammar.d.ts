@@ -310,6 +310,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Extendable?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   QualifiedName?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode) => T;
   LiteralType_type_args?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  LiteralType_typeof?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   LiteralType_infer?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode) => T;
   LiteralType_construct?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   LiteralType_parenthesized?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
@@ -319,6 +320,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessType_named_tuple?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   MemberAccessType_tuple?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   MemberAccessType_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
+  MemberAccessType_readonly?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
+  MemberAccessType_keyof?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   MemberAccessType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   NamedTupleElement_name_value?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
   NamedTupleElement_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode) => T;

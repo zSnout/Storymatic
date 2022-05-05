@@ -406,7 +406,7 @@ Storymatic {
 
   reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "step" | "to" | "through" | "return" | "break" | "continue" | "fn" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "default" | "rescope" | "down" | "type" | "interface" | "namespace" | "with") ~id_continue
   reserved_operators = ("and" | "or" | "not" | "is" ~"nt" | "isnt") ~id_continue
-  reserved_inline = ("new" | "in" | "type" ~"of" | "of" | "from" | "typeof" | "as" | "extends" | "await") ~id_continue
+  reserved_inline = ("new" | "in" | "type" ~"of" | "of" | "from" | "typeof" | "as" | "extends" | "await" | "readonly") ~id_continue
   reserved_primitive = ("true" | "false" | "null" | "undefined") ~id_continue
 
   // `super` and `this` are omitted because they are valid names and used often.
@@ -491,6 +491,7 @@ Storymatic {
     | InlineFunctionType
     | QualifiedName ~"<"
     | QualifiedName NonemptyGenericTypeArgumentList -- type_args
+    | "typeof" #space QualifiedName -- typeof
     | "infer" #space identifier (":" #space Type)? -- infer
     | "new" #space InlineFunctionType -- construct
     | "(" Type ")" -- parenthesized
@@ -501,6 +502,8 @@ Storymatic {
     | "[" ListOf<NamedTupleElement, #expressionTerminator> "]" -- named_tuple
     | "[" ListOf<TupleElement, #expressionTerminator> "]" -- tuple
     | "{" ListOf<TypeObjectEntry, #typeTerminator> "}" -- object
+    | "readonly" ~(#id_continue) MemberAccessType -- readonly
+    | "keyof" ~(#id_continue) MemberAccessType -- keyof
     | LiteralType
 
   NamedTupleElement
