@@ -2874,6 +2874,42 @@ semantics.addOperation<ts.Node>("ts", {
   Statement_break(_0, _1) {
     return setTextRange(ts.factory.createBreakStatement(), this);
   },
+  Statement_conditional(
+    expr,
+    _0,
+    _1,
+    _2,
+    condition,
+    _3,
+    _4,
+    _5,
+    otherwise,
+    _6
+  ) {
+    let thenBlock = setTextRange(
+      ts.factory.createBlock([
+        setTextRange(ts.factory.createExpressionStatement(expr.ts()), expr),
+      ]),
+      expr
+    );
+
+    let otherwiseBlock =
+      otherwise.child(0) &&
+      setTextRange(
+        ts.factory.createBlock([
+          setTextRange(
+            ts.factory.createExpressionStatement(otherwise.child(0).ts()),
+            otherwise.child(0)
+          ),
+        ]),
+        otherwise.child(0)
+      );
+
+    return setTextRange(
+      ts.factory.createIfStatement(condition.ts(), thenBlock, otherwiseBlock),
+      this
+    );
+  },
   Statement_continue(_0, _1) {
     return setTextRange(ts.factory.createContinueStatement(), this);
   },
