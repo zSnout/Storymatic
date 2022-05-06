@@ -325,9 +325,9 @@ function transformer(context: ts.TransformationContext) {
       node: ts.Node,
       fnScope: FunctionScope,
       blockScope: BlockScope,
-      isLast: boolean,
+      autoReturn: false | "return" | `$res${number | ""}`,
       exclude?: ts.BindingName[]
-    ): ts.Node {
+    ): ts.Node | ts.Node[] {
       if (
         node.kind === ts.SyntaxKind.FunctionDeclaration ||
         node.kind === ts.SyntaxKind.FunctionExpression ||
@@ -343,7 +343,7 @@ function transformer(context: ts.TransformationContext) {
 
         fn = ts.visitEachChild(
           fn,
-          (node) => visit(node, scope, blockScope, true, params),
+          (node) => visit(node, scope, blockScope, "return", params),
           context
         );
 
@@ -397,6 +397,63 @@ function transformer(context: ts.TransformationContext) {
         }
       }
 
+      if (autoReturn && ts.isIterationStatement(node, false)) {
+        let result: typeof autoReturn = `$res`;
+        if (autoReturn && autoReturn.startsWith("$res"))
+          result += +autoReturn.slice(4) + 1;
+
+        let end = { pos: node.end, end: node.end };
+
+        return [
+          ts.setTextRange(
+            makeAssignment(result, ts.factory.createArrayLiteralExpression([])),
+            { pos: node.pos, end: node.pos }
+          ),
+          ts.visitEachChild(
+            node,
+            (node) => visit(node, fnScope, blockScope, result),
+            context
+          ),
+          autoReturn == "return"
+            ? ts.setTextRange(
+                ts.factory.createReturnStatement(
+                  ts.setTextRange(ts.factory.createIdentifier(result), end)
+                ),
+                end
+              )
+            : ts.setTextRange(
+                ts.factory.createExpressionStatement(
+                  ts.setTextRange(
+                    ts.factory.createCallExpression(
+                      ts.setTextRange(
+                        ts.factory.createPropertyAccessExpression(
+                          ts.setTextRange(
+                            ts.factory.createIdentifier(autoReturn),
+                            {
+                              pos: node.pos,
+                              end: node.pos,
+                            }
+                          ),
+                          "push"
+                        ),
+                        { pos: node.pos, end: node.pos }
+                      ),
+                      undefined,
+                      [
+                        ts.setTextRange(
+                          ts.factory.createIdentifier(result),
+                          end
+                        ),
+                      ]
+                    ),
+                    node
+                  )
+                ),
+                node
+              ),
+        ];
+      }
+
       if (node.kind === ts.SyntaxKind.Block) {
         let block = node as ts.Block;
         let scope: BlockScope = {
@@ -409,7 +466,13 @@ function transformer(context: ts.TransformationContext) {
 
         block = ts.visitEachChild(
           block,
-          (node) => visit(node, fnScope, scope, isLast && node === last),
+          (node) =>
+            visit(
+              node,
+              fnScope,
+              scope,
+              autoReturn && node === last ? autoReturn : false
+            ),
           context
         );
 
@@ -462,7 +525,7 @@ function transformer(context: ts.TransformationContext) {
 
           return ts.visitEachChild(
             node,
-            (node) => visit(node, fnScope, blockScope, isLast),
+            (node) => visit(node, fnScope, blockScope, autoReturn),
             context
           );
         }
@@ -474,9 +537,38 @@ function transformer(context: ts.TransformationContext) {
         );
       }
 
-      if (ts.isExpressionStatement(node) && isLast) {
+      if (ts.isExpressionStatement(node) && autoReturn == "return") {
         node = ts.setTextRange(
           ts.factory.createReturnStatement(node.expression),
+          node
+        );
+      }
+
+      if (
+        ts.isExpressionStatement(node) &&
+        autoReturn &&
+        autoReturn.startsWith("$res")
+      ) {
+        node = ts.setTextRange(
+          ts.factory.createExpressionStatement(
+            ts.setTextRange(
+              ts.factory.createCallExpression(
+                ts.setTextRange(
+                  ts.factory.createPropertyAccessExpression(
+                    ts.setTextRange(ts.factory.createIdentifier(autoReturn), {
+                      pos: node.pos,
+                      end: node.pos,
+                    }),
+                    "push"
+                  ),
+                  { pos: node.pos, end: node.pos }
+                ),
+                undefined,
+                [node.expression]
+              ),
+              node
+            )
+          ),
           node
         );
       }
@@ -492,7 +584,7 @@ function transformer(context: ts.TransformationContext) {
       if ((node as any).__storymaticIsIIFE) {
         let call = ts.visitEachChild(
           node,
-          (node) => visit(node, fnScope, blockScope, isLast),
+          (node) => visit(node, fnScope, blockScope, autoReturn),
           context
         ) as ts.CallExpression;
 
@@ -530,7 +622,7 @@ function transformer(context: ts.TransformationContext) {
 
       return ts.visitEachChild(
         node,
-        (node) => visit(node, fnScope, blockScope, isLast),
+        (node) => visit(node, fnScope, blockScope, autoReturn),
         context
       );
     }
@@ -1628,25 +1720,7 @@ semantics.addOperation<ts.Node>("ts", {
     let statement: ts.Statement = setTextRange(
       ts.factory.createBlock([
         setTextRange(
-          ts.factory.createExpressionStatement(
-            setTextRange(
-              ts.factory.createCallExpression(
-                ts.setTextRange(
-                  ts.factory.createPropertyAccessExpression(
-                    ts.setTextRange(
-                      ts.factory.createIdentifier("$results"),
-                      start
-                    ),
-                    "push"
-                  ),
-                  start
-                ),
-                undefined,
-                [expression.ts()]
-              ),
-              expression
-            )
-          ),
+          ts.factory.createExpressionStatement(expression.ts()),
           expression
         ),
       ]),
@@ -1664,6 +1738,35 @@ semantics.addOperation<ts.Node>("ts", {
         this
       );
     }
+
+    return createIIFE(
+      ts.setTextRange(
+        ts.factory.createBlock(
+          [
+            ts.setTextRange(
+              ts.factory.createForOfStatement(
+                await.tsn({
+                  await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword),
+                }),
+                ts.factory.createVariableDeclarationList(
+                  [
+                    ts.factory.createVariableDeclaration(
+                      assignable.ts<ts.BindingName>()
+                    ),
+                  ],
+                  ts.NodeFlags.Let
+                ),
+                iterable.ts(),
+                statement
+              ),
+              all
+            ),
+          ],
+          true
+        ),
+        all
+      )
+    );
 
     return createIIFE(
       ts.factory.createBlock(
