@@ -329,9 +329,9 @@ function transformer(context: ts.TransformationContext) {
       exclude?: ts.BindingName[]
     ): ts.Node | ts.Node[] {
       if (
-        node.kind === ts.SyntaxKind.FunctionDeclaration ||
-        node.kind === ts.SyntaxKind.FunctionExpression ||
-        node.kind === ts.SyntaxKind.ArrowFunction
+        ts.isFunctionDeclaration(node) ||
+        ts.isFunctionExpression(node) ||
+        ts.isArrowFunction(node)
       ) {
         let fn = node as
           | ts.FunctionDeclaration
@@ -404,6 +404,17 @@ function transformer(context: ts.TransformationContext) {
 
         let end = { pos: node.end, end: node.end };
 
+        let exclude: ts.BindingName[] | undefined;
+        if (
+          ts.isForStatement(node) ||
+          ts.isForInStatement(node) ||
+          ts.isForOfStatement(node)
+        ) {
+          let init = node.initializer;
+          if (init && ts.isVariableDeclarationList(init))
+            exclude = init.declarations.map((e) => e.name);
+        }
+
         return [
           ts.setTextRange(
             makeAssignment(result, ts.factory.createArrayLiteralExpression([])),
@@ -411,7 +422,7 @@ function transformer(context: ts.TransformationContext) {
           ),
           ts.visitEachChild(
             node,
-            (node) => visit(node, fnScope, blockScope, result),
+            (node) => visit(node, fnScope, blockScope, result, exclude),
             context
           ),
           autoReturn == "return"
