@@ -517,10 +517,7 @@ function transformer(context: ts.TransformationContext) {
       if (node.kind === ts.SyntaxKind.BinaryExpression) {
         let bin = node as ts.BinaryExpression;
 
-        if (
-          ts.SyntaxKind.FirstAssignment <= bin.operatorToken.kind &&
-          ts.SyntaxKind.LastAssignment >= bin.operatorToken.kind
-        ) {
+        if (ts.SyntaxKind.EqualsToken == bin.operatorToken.kind) {
           visitAssignment(bin.left, fnScope, blockScope);
 
           return ts.visitEachChild(
@@ -864,6 +861,33 @@ semantics.addOperation<ts.Node>("ts", {
     }
 
     return setTextRange(ts.factory.createAssignment(bound, expr.ts()), this);
+  },
+  AssignmentExp_update_assignment(target, op, expr) {
+    let all: Record<string, ts.BinaryOperator> = {
+      "+=": ts.SyntaxKind.PlusEqualsToken,
+      "-=": ts.SyntaxKind.MinusEqualsToken,
+      "*=": ts.SyntaxKind.AsteriskEqualsToken,
+      "/=": ts.SyntaxKind.SlashEqualsToken,
+      "%=": ts.SyntaxKind.PercentEqualsToken,
+      "^=": ts.SyntaxKind.AsteriskAsteriskEqualsToken,
+      "&&=": ts.SyntaxKind.AmpersandAmpersandEqualsToken,
+      "and=": ts.SyntaxKind.AmpersandAmpersandEqualsToken,
+      "||=": ts.SyntaxKind.BarBarEqualsToken,
+      "or=": ts.SyntaxKind.BarBarEqualsToken,
+      "??=": ts.SyntaxKind.QuestionQuestionEqualsToken,
+      "<<=": ts.SyntaxKind.LessThanLessThanEqualsToken,
+      ">>=": ts.SyntaxKind.GreaterThanGreaterThanEqualsToken,
+      ">>>=": ts.SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken,
+    };
+
+    return setTextRange(
+      ts.factory.createBinaryExpression(
+        target.ts(),
+        all[op.sourceString]!,
+        expr.ts()
+      ),
+      this
+    );
   },
   AssignmentExp_yield(_0, _1, expr) {
     return setTextRange(

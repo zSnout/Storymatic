@@ -165,12 +165,17 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   ParameterList_params?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode) => T;
   ParameterList_rest_params?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ParameterList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  PostfixExp_increment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode) => T;
+  PostfixExp_decrement?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode) => T;
+  PostfixExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   NotExp_logical_not_symbolic?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   NotExp_logical_not_worded?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   NotExp_unary_plus?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   NotExp_unary_minus?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   NotExp_typeof?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   NotExp_await?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  NotExp_prefix_increment?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
+  NotExp_prefix_decrement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   NotExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ExpExp_exponentiate?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   ExpExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -210,6 +215,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   PipeExp_pipe?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   PipeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AssignmentExp_assignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
+  AssignmentExp_update_assignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AssignmentExp_yield?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   AssignmentExp_yield_from?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
   AssignmentExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;

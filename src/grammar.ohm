@@ -253,6 +253,11 @@ Storymatic {
     = NonemptyListOf<Parameter, #expressionTerminator> (#expressionTerminator RestParameter)? -- params
     | RestParameter -- rest_params
 
+  PostfixExp
+    = (Accessor | identifier) "++" -- increment
+    | (Accessor | identifier) "--" -- decrement
+    | MemberAccessExp
+
   NotExp
     = "!" NotExp -- logical_not_symbolic
     | "not" #space NotExp -- logical_not_worded
@@ -260,7 +265,9 @@ Storymatic {
     | "-" ~digit NotExp -- unary_minus
     | "type" "of" #space NotExp -- typeof
     | "await" #space NotExp -- await
-    | MemberAccessExp
+    | "++" (Accessor | identifier) -- prefix_increment
+    | "--" (Accessor | identifier) -- prefix_decrement
+    | PostfixExp
 
   ExpExp
     = ExpExp "^" NotExp -- exponentiate
@@ -326,6 +333,7 @@ Storymatic {
 
   AssignmentExp
     = AssignableOrAccessor "=" AssignmentExp -- assignment
+    | (Accessor | identifier) ("+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&&=" | "||=" | "??=" | "and=" | "or=" | "<<=" | ">>=" | ">>>=") AssignmentExp -- update_assignment
     | "yield" #space AssignmentExp -- yield
     | "yield" #space "from" #space AssignmentExp -- yield_from
     | PipeExp
