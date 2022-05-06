@@ -1733,14 +1733,10 @@ semantics.addOperation<ts.Node>("ts", {
     _5,
     iterable,
     _6,
-    _7,
+    ifUnless,
     _8,
-    condition
+    guard
   ) {
-    let start = { pos: this.source.startIdx, end: this.source.startIdx };
-    let end = { pos: this.source.endIdx, end: this.source.endIdx };
-    let all = { pos: this.source.startIdx, end: this.source.endIdx };
-
     let statement: ts.Statement = setTextRange(
       ts.factory.createBlock([
         setTextRange(
@@ -1751,23 +1747,25 @@ semantics.addOperation<ts.Node>("ts", {
       expression
     );
 
-    if (condition.sourceString) {
+    if (guard.sourceString) {
+      let cond = guard.child(0).ts<ts.Expression>();
+
+      if (ifUnless.child(0).sourceString === "unless")
+        cond = ts.factory.createLogicalNot(cond);
+
       statement = setTextRange(
         ts.factory.createBlock([
-          setTextRange(
-            ts.factory.createIfStatement(condition.child(0).ts(), statement),
-            this
-          ),
+          setTextRange(ts.factory.createIfStatement(cond, statement), this),
         ]),
         this
       );
     }
 
     return createIIFE(
-      ts.setTextRange(
+      setTextRange(
         ts.factory.createBlock(
           [
-            ts.setTextRange(
+            setTextRange(
               ts.factory.createForOfStatement(
                 await.tsn({
                   await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword),
@@ -1775,7 +1773,8 @@ semantics.addOperation<ts.Node>("ts", {
                 ts.factory.createVariableDeclarationList(
                   [
                     ts.factory.createVariableDeclaration(
-                      assignable.ts<ts.BindingName>()
+                      assignable.child(0)?.ts<ts.BindingName>() ||
+                        ts.factory.createIdentifier("$")
                     ),
                   ],
                   ts.NodeFlags.Let
@@ -1783,53 +1782,116 @@ semantics.addOperation<ts.Node>("ts", {
                 iterable.ts(),
                 statement
               ),
-              all
+              this
             ),
           ],
           true
         ),
-        all
+        this
       )
     );
+  },
+  InlineStatementExp_until(
+    expression,
+    _0,
+    _1,
+    _2,
+    condition,
+    _3,
+    ifUnless,
+    _5,
+    guard
+  ) {
+    let statement: ts.Statement = setTextRange(
+      ts.factory.createBlock([
+        setTextRange(
+          ts.factory.createExpressionStatement(expression.ts()),
+          expression
+        ),
+      ]),
+      expression
+    );
+
+    if (guard.sourceString) {
+      let cond = guard.child(0).ts<ts.Expression>();
+
+      if (ifUnless.child(0).sourceString === "unless")
+        cond = ts.factory.createLogicalNot(cond);
+
+      statement = setTextRange(
+        ts.factory.createBlock([
+          setTextRange(ts.factory.createIfStatement(cond, statement), this),
+        ]),
+        this
+      );
+    }
 
     return createIIFE(
-      ts.factory.createBlock(
-        [
-          ts.setTextRange(
-            makeAssignment(
-              "$results",
-              ts.factory.createArrayLiteralExpression([])
-            ),
-            start
-          ),
-          ts.setTextRange(
-            ts.factory.createForOfStatement(
-              await.tsn({
-                await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword),
-              }),
-              ts.factory.createVariableDeclarationList(
-                [
-                  ts.factory.createVariableDeclaration(
-                    assignable.ts<ts.BindingName>()
-                  ),
-                ],
-                ts.NodeFlags.Let
+      setTextRange(
+        ts.factory.createBlock(
+          [
+            setTextRange(
+              ts.factory.createWhileStatement(
+                ts.factory.createLogicalNot(condition.ts()),
+                statement
               ),
-              iterable.ts(),
-              statement
+              this
             ),
-            all
-          ),
-          ts.setTextRange(
-            ts.factory.createReturnStatement(
-              ts.setTextRange(ts.factory.createIdentifier("$results"), end)
+          ],
+          true
+        ),
+        this
+      )
+    );
+  },
+  InlineStatementExp_while(
+    expression,
+    _0,
+    _1,
+    _2,
+    condition,
+    _3,
+    ifUnless,
+    _5,
+    guard
+  ) {
+    let statement: ts.Statement = setTextRange(
+      ts.factory.createBlock([
+        setTextRange(
+          ts.factory.createExpressionStatement(expression.ts()),
+          expression
+        ),
+      ]),
+      expression
+    );
+
+    if (guard.sourceString) {
+      let cond = guard.child(0).ts<ts.Expression>();
+
+      if (ifUnless.child(0).sourceString === "unless")
+        cond = ts.factory.createLogicalNot(cond);
+
+      statement = setTextRange(
+        ts.factory.createBlock([
+          setTextRange(ts.factory.createIfStatement(cond, statement), this),
+        ]),
+        this
+      );
+    }
+
+    return createIIFE(
+      setTextRange(
+        ts.factory.createBlock(
+          [
+            setTextRange(
+              ts.factory.createWhileStatement(condition.ts(), statement),
+              this
             ),
-            end
-          ),
-        ],
-        true
-      ),
-      all
+          ],
+          true
+        ),
+        this
+      )
     );
   },
   InterfaceDeclaration(
@@ -2627,6 +2689,12 @@ semantics.addOperation<ts.Node>("ts", {
   NotExp_logical_not_worded(_0, _1, expr) {
     return setTextRange(ts.factory.createLogicalNot(expr.ts()), this);
   },
+  NotExp_prefix_decrement(_0, ident) {
+    return setTextRange(ts.factory.createPrefixDecrement(ident.ts()), this);
+  },
+  NotExp_prefix_increment(_0, ident) {
+    return setTextRange(ts.factory.createPrefixIncrement(ident.ts()), this);
+  },
   NotExp_typeof(_0, _1, _2, expr) {
     return setTextRange(ts.factory.createTypeOfExpression(expr.ts()), this);
   },
@@ -2765,6 +2833,15 @@ semantics.addOperation<ts.Node>("ts", {
       ]),
       this
     );
+  },
+  PostfixExp(node) {
+    return node.ts();
+  },
+  PostfixExp_decrement(ident, _) {
+    return setTextRange(ts.factory.createPostfixDecrement(ident.ts()), this);
+  },
+  PostfixExp_increment(ident, _) {
+    return setTextRange(ts.factory.createPostfixIncrement(ident.ts()), this);
   },
   PrimitiveType(node) {
     return setTextRange(ts.factory.createIdentifier(node.sourceString), this);
@@ -3150,7 +3227,10 @@ semantics.addOperation<ts.Node>("ts", {
     );
 
     let declaration = setTextRange(
-      ts.factory.createVariableDeclaration(assignable.ts<ts.BindingName>()),
+      ts.factory.createVariableDeclaration(
+        assignable.child(0)?.ts<ts.BindingName>() ||
+          ts.factory.createIdentifier("$")
+      ),
       assignable
     );
 
@@ -3182,7 +3262,10 @@ semantics.addOperation<ts.Node>("ts", {
   },
   Statement_for_of(_0, _1, assignable, _2, _3, _4, expression, block) {
     let declaration = setTextRange(
-      ts.factory.createVariableDeclaration(assignable.ts<ts.BindingName>()),
+      ts.factory.createVariableDeclaration(
+        assignable.child(0)?.ts<ts.BindingName>() ||
+          ts.factory.createIdentifier("$")
+      ),
       assignable
     );
 

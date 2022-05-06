@@ -57,8 +57,8 @@ Storymatic {
     | "do" #space UnprefixedSingleStatementBlock #space "while" #space Expression #statementTerminator -- do_while
     | "do" #space UnprefixedSingleStatementBlock #space "until" #space Expression #statementTerminator -- do_until
     | "for" #space Assignable #space "in" #space Expression SingleStatementBlock<"do"> -- for_in
-    | "for" #space Assignable #space "of" #space Expression SingleStatementBlock<"do"> -- for_of
-    | "for" #space "await" #space Assignable #space "of" #space Expression SingleStatementBlock<"do"> -- for_await_of
+    | "for" #space (Assignable #space "of" #space)? Expression SingleStatementBlock<"do"> -- for_of
+    | "for" #space "await" #space (Assignable #space "of" #space)? Expression SingleStatementBlock<"do"> -- for_await_of
     | "break" #statementTerminator -- break
     | "continue" #statementTerminator -- continue
     | "return" #space Expression? #statementTerminator -- return
@@ -261,12 +261,12 @@ Storymatic {
   NotExp
     = "!" NotExp -- logical_not_symbolic
     | "not" #space NotExp -- logical_not_worded
-    | "+" ~digit NotExp -- unary_plus
-    | "-" ~digit NotExp -- unary_minus
     | "type" "of" #space NotExp -- typeof
     | "await" #space NotExp -- await
     | "++" (Accessor | identifier) -- prefix_increment
     | "--" (Accessor | identifier) -- prefix_decrement
+    | "+" ~digit NotExp -- unary_plus
+    | "-" ~digit NotExp -- unary_minus
     | PostfixExp
 
   ExpExp
@@ -321,22 +321,24 @@ Storymatic {
     = LogicalOrExp "?" TernaryExp ":" TernaryExp -- symbolic
     | LogicalOrExp
 
-  InlineStatementExp
-    = InlineStatementExp
-      #space "for" #space ("await" #space)? Assignable #space "of" TernaryExp
-      (#space "if" #space TernaryExp)? -- for_of
+  PipeExp
+    = (TernaryExp "|>")+ TernaryExp -- pipe
     | TernaryExp
 
-  PipeExp
-    = (InlineStatementExp "|>")+ InlineStatementExp -- pipe
-    | InlineStatementExp
+  InlineStatementExp
+    = PipeExp
+      #space "for" #space ("await" #space)? (Assignable #space "of")? PipeExp
+      (#space ("if" | "unless") #space PipeExp)? -- for_of
+    | PipeExp #space "while" #space PipeExp (#space ("if" | "unless") #space PipeExp)? -- while
+    | PipeExp #space "until" #space PipeExp (#space ("if" | "unless") #space PipeExp)? -- until
+    | PipeExp
 
   AssignmentExp
     = AssignableOrAccessor "=" AssignmentExp -- assignment
     | (Accessor | identifier) ("+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&&=" | "||=" | "??=" | "and=" | "or=" | "<<=" | ">>=" | ">>>=") AssignmentExp -- update_assignment
     | "yield" #space AssignmentExp -- yield
     | "yield" #space "from" #space AssignmentExp -- yield_from
-    | PipeExp
+    | InlineStatementExp
 
   VariableAssignment = Assignable (":" Type)? "=" Expression
   ExportedVariableAssignment = "export" #space Assignable (":" Type)? "=" Expression
