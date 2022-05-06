@@ -581,6 +581,22 @@ function transformer(context: ts.TransformationContext) {
         );
       }
 
+      if (ts.isExpressionStatement(node)) {
+        if (ts.isParenthesizedExpression(node.expression)) {
+          if ((node.expression.expression as any).__storymaticIsIIFE) {
+            let call = node.expression.expression as ts.CallExpression;
+            let fn = call.expression as ts.FunctionExpression;
+            return ts
+              .visitEachChild(
+                fn.body,
+                (node) => visit(node, fnScope, blockScope, autoReturn),
+                context
+              )
+              .statements.slice();
+          }
+        }
+      }
+
       if (node.kind === ts.SyntaxKind.YieldExpression) {
         fnScope.isGenerator = true;
       }
@@ -626,6 +642,16 @@ function transformer(context: ts.TransformationContext) {
           return ts.setTextRange(ts.factory.createAwaitExpression(call), call);
 
         return call;
+      }
+
+      if (
+        ts.isExpressionStatement(node) &&
+        ts.isParenthesizedExpression(node.expression)
+      ) {
+        node = ts.setTextRange(
+          ts.factory.createExpressionStatement(node.expression.expression),
+          node
+        );
       }
 
       return ts.visitEachChild(
