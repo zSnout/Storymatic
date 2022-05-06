@@ -545,6 +545,22 @@ function transformer(context: ts.TransformationContext) {
         );
       }
 
+      if (ts.isExpressionStatement(node)) {
+        if (ts.isParenthesizedExpression(node.expression)) {
+          if ((node.expression.expression as any).__storymaticIsIIFE) {
+            let call = node.expression.expression as ts.CallExpression;
+            let fn = call.expression as ts.FunctionExpression;
+            return ts
+              .visitEachChild(
+                fn.body,
+                (node) => visit(node, fnScope, blockScope, autoReturn),
+                context
+              )
+              .statements.slice();
+          }
+        }
+      }
+
       if (ts.isExpressionStatement(node) && autoReturn == "return") {
         node = ts.setTextRange(
           ts.factory.createReturnStatement(node.expression),
@@ -579,22 +595,6 @@ function transformer(context: ts.TransformationContext) {
           ),
           node
         );
-      }
-
-      if (ts.isExpressionStatement(node)) {
-        if (ts.isParenthesizedExpression(node.expression)) {
-          if ((node.expression.expression as any).__storymaticIsIIFE) {
-            let call = node.expression.expression as ts.CallExpression;
-            let fn = call.expression as ts.FunctionExpression;
-            return ts
-              .visitEachChild(
-                fn.body,
-                (node) => visit(node, fnScope, blockScope, autoReturn),
-                context
-              )
-              .statements.slice();
-          }
-        }
       }
 
       if (node.kind === ts.SyntaxKind.YieldExpression) {
