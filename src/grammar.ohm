@@ -49,9 +49,6 @@ Storymatic {
     | NamespaceDeclaration
     | SwitchStatement
     | EnumStatement
-    | "with" #space Expression SingleStatementBlock<"do"> -- with
-      // Storymatic's with statement sets the `@` context.
-      // It is not associated with JavaScript's `with` statement.
     | "print" #space Expression #statementTerminator -- print
     | "throw" #space Expression #statementTerminator -- throw
     | "repeat" #space Expression SingleStatementBlock<"do"> -- repeat

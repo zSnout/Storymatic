@@ -3158,37 +3158,6 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_with(_0, _1, context, blockNode) {
-    let block = blockNode.ts<ts.Block>();
-    let decl = setTextRange(
-      ts.factory.createVariableStatement(
-        undefined,
-        setTextRange(
-          ts.factory.createVariableDeclarationList(
-            [
-              setTextRange(
-                ts.factory.createVariableDeclaration(
-                  "$self",
-                  undefined,
-                  undefined,
-                  context.ts<ts.Expression>()
-                ),
-                context
-              ),
-            ],
-            ts.NodeFlags.Let
-          ),
-          context
-        )
-      ),
-      context
-    );
-
-    return setTextRange(
-      ts.factory.createBlock([decl, ...block.statements], true),
-      this
-    );
-  },
   StatementBlock(statements) {
     return setTextRange(
       ts.factory.createSourceFile(
