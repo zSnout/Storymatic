@@ -581,7 +581,7 @@ function createIIFE(block: ts.Block, range: ts.TextRange = block) {
   );
 
   (iife as any).__storymaticIsIIFE = true;
-  return iife;
+  return ts.factory.createParenthesizedExpression(iife);
 }
 
 semantics.addOperation<ts.Node>("ts", {
@@ -1600,6 +1600,109 @@ semantics.addOperation<ts.Node>("ts", {
         returnType.child(0)?.ts<ts.TypeNode>()
       ),
       this
+    );
+  },
+  InlineStatementExp(node) {
+    return node.ts();
+  },
+  InlineStatementExp_for_of(
+    expression,
+    _0,
+    _1,
+    _2,
+    await,
+    _3,
+    assignable,
+    _4,
+    _5,
+    iterable,
+    _6,
+    _7,
+    _8,
+    condition
+  ) {
+    let start = { pos: this.source.startIdx, end: this.source.startIdx };
+    let end = { pos: this.source.endIdx, end: this.source.endIdx };
+    let all = { pos: this.source.startIdx, end: this.source.endIdx };
+
+    let statement: ts.Statement = setTextRange(
+      ts.factory.createBlock([
+        setTextRange(
+          ts.factory.createExpressionStatement(
+            setTextRange(
+              ts.factory.createCallExpression(
+                ts.setTextRange(
+                  ts.factory.createPropertyAccessExpression(
+                    ts.setTextRange(
+                      ts.factory.createIdentifier("$results"),
+                      start
+                    ),
+                    "push"
+                  ),
+                  start
+                ),
+                undefined,
+                [expression.ts()]
+              ),
+              expression
+            )
+          ),
+          expression
+        ),
+      ]),
+      expression
+    );
+
+    if (condition.sourceString) {
+      statement = setTextRange(
+        ts.factory.createBlock([
+          setTextRange(
+            ts.factory.createIfStatement(condition.child(0).ts(), statement),
+            this
+          ),
+        ]),
+        this
+      );
+    }
+
+    return createIIFE(
+      ts.factory.createBlock(
+        [
+          ts.setTextRange(
+            makeAssignment(
+              "$results",
+              ts.factory.createArrayLiteralExpression([])
+            ),
+            start
+          ),
+          ts.setTextRange(
+            ts.factory.createForOfStatement(
+              await.tsn({
+                await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword),
+              }),
+              ts.factory.createVariableDeclarationList(
+                [
+                  ts.factory.createVariableDeclaration(
+                    assignable.ts<ts.BindingName>()
+                  ),
+                ],
+                ts.NodeFlags.Let
+              ),
+              iterable.ts(),
+              statement
+            ),
+            all
+          ),
+          ts.setTextRange(
+            ts.factory.createReturnStatement(
+              ts.setTextRange(ts.factory.createIdentifier("$results"), end)
+            ),
+            end
+          ),
+        ],
+        true
+      ),
+      all
     );
   },
   InterfaceDeclaration(

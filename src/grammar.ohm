@@ -76,6 +76,8 @@ Storymatic {
     | "rescope" #space VariableAssignment #statementTerminator -- rescope_assign
     | TypedVariableAssignment -- typed_assignment
     | ~("{" "}") Expression #statementTerminator -- expression
+    | ~("{" "}") Expression #space "if" #space Expression
+      (#space "else" #space Expression)? #statementTerminator -- conditional
 
   Rescopable
     = identifier ":" Type -- with_type
@@ -127,7 +129,7 @@ Storymatic {
     | terminator
 
   terminator
-    = (spaces &reserved_block | spaces &"}" | spaces end) -- implied
+    = (spaces &"}" | spaces end) -- implied
     | lineTerminator
 
   lineTerminator = whitespace? ("\r\n" | "\n")+ spaces ~lineContinuer
@@ -312,9 +314,15 @@ Storymatic {
     = LogicalOrExp "?" TernaryExp ":" TernaryExp -- symbolic
     | LogicalOrExp
 
-  PipeExp
-    = (TernaryExp "|>")+ TernaryExp -- pipe
+  InlineStatementExp
+    = InlineStatementExp
+      #space "for" #space ("await" #space)? Assignable #space "of" TernaryExp
+      (#space "if" #space TernaryExp)? -- for_of
     | TernaryExp
+
+  PipeExp
+    = (InlineStatementExp "|>")+ InlineStatementExp -- pipe
+    | InlineStatementExp
 
   AssignmentExp
     = AssignableOrAccessor "=" AssignmentExp -- assignment

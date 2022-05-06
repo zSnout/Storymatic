@@ -64,6 +64,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Statement_rescope_assign?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_typed_assignment?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Statement_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  Statement_conditional?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: NonterminalNode) => T;
   Statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Rescopable_with_type?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   Rescopable_identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -204,6 +205,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LogicalOrExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TernaryExp_symbolic?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
   TernaryExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  InlineStatementExp_for_of?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: IterationNode, arg6: NonterminalNode, arg7: NonterminalNode, arg8: TerminalNode, arg9: NonterminalNode, arg10: IterationNode, arg11: IterationNode, arg12: IterationNode, arg13: IterationNode) => T;
+  InlineStatementExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   PipeExp_pipe?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   PipeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AssignmentExp_assignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
