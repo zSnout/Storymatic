@@ -1576,7 +1576,7 @@ semantics.addOperation<ts.Node>("ts", {
   IfExp(node) {
     return node.ts();
   },
-  IfExp_if_unless(expr, ifUnless, _, condition) {
+  IfExp_if(expr, ifUnless, _, condition) {
     let cond = condition.ts<ts.Expression>();
 
     if (ifUnless.sourceString === "unless")
@@ -1773,216 +1773,6 @@ semantics.addOperation<ts.Node>("ts", {
         returnType.child(0)?.ts<ts.TypeNode>()
       ),
       this
-    );
-  },
-  InlineStatementExp(node) {
-    return node.ts();
-  },
-  InlineStatementExp_for_of(
-    expression,
-    _0,
-    _1,
-    _2,
-    await,
-    _3,
-    assignable,
-    _4,
-    _5,
-    iterable,
-    _6,
-    ifUnless,
-    _8,
-    guard
-  ) {
-    let statement: ts.Statement = setTextRange(
-      ts.factory.createBlock([
-        setTextRange(
-          ts.factory.createExpressionStatement(expression.ts()),
-          expression
-        ),
-      ]),
-      expression
-    );
-
-    if (guard.sourceString) {
-      let cond = guard.child(0).ts<ts.Expression>();
-
-      if (ifUnless.child(0).sourceString === "unless")
-        cond = ts.factory.createLogicalNot(cond);
-
-      statement = setTextRange(
-        ts.factory.createBlock([
-          setTextRange(ts.factory.createIfStatement(cond, statement), this),
-        ]),
-        this
-      );
-    }
-
-    return createIIFE(
-      setTextRange(
-        ts.factory.createBlock(
-          [
-            setTextRange(
-              ts.factory.createForOfStatement(
-                await.tsn({
-                  await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword),
-                }),
-                ts.factory.createVariableDeclarationList(
-                  [
-                    ts.factory.createVariableDeclaration(
-                      assignable.child(0)?.ts<ts.BindingName>() ||
-                        ts.factory.createIdentifier("$")
-                    ),
-                  ],
-                  ts.NodeFlags.Let
-                ),
-                iterable.ts(),
-                statement
-              ),
-              this
-            ),
-          ],
-          true
-        ),
-        this
-      )
-    );
-  },
-  InlineStatementExp_print(consoleLog, _, expr) {
-    let console = setTextRange(
-      ts.factory.createIdentifier("console"),
-      consoleLog
-    );
-
-    let log = setTextRange(ts.factory.createIdentifier("log"), consoleLog);
-
-    let cLog = setTextRange(
-      ts.factory.createPropertyAccessExpression(console, log),
-      consoleLog
-    );
-
-    return setTextRange(
-      ts.factory.createCallExpression(cLog, undefined, [expr.ts()]),
-      this
-    );
-  },
-  InlineStatementExp_throw(_0, _1, expression) {
-    return createIIFE(
-      setTextRange(
-        ts.factory.createBlock(
-          [
-            setTextRange(
-              ts.factory.createThrowStatement(expression.ts()),
-              this
-            ),
-          ],
-          true
-        ),
-        this
-      )
-    );
-  },
-  InlineStatementExp_until(
-    expression,
-    _0,
-    _1,
-    _2,
-    condition,
-    _3,
-    ifUnless,
-    _5,
-    guard
-  ) {
-    let statement: ts.Statement = setTextRange(
-      ts.factory.createBlock([
-        setTextRange(
-          ts.factory.createExpressionStatement(expression.ts()),
-          expression
-        ),
-      ]),
-      expression
-    );
-
-    if (guard.sourceString) {
-      let cond = guard.child(0).ts<ts.Expression>();
-
-      if (ifUnless.child(0).sourceString === "unless")
-        cond = ts.factory.createLogicalNot(cond);
-
-      statement = setTextRange(
-        ts.factory.createBlock([
-          setTextRange(ts.factory.createIfStatement(cond, statement), this),
-        ]),
-        this
-      );
-    }
-
-    return createIIFE(
-      setTextRange(
-        ts.factory.createBlock(
-          [
-            setTextRange(
-              ts.factory.createWhileStatement(
-                ts.factory.createLogicalNot(condition.ts()),
-                statement
-              ),
-              this
-            ),
-          ],
-          true
-        ),
-        this
-      )
-    );
-  },
-  InlineStatementExp_while(
-    expression,
-    _0,
-    _1,
-    _2,
-    condition,
-    _3,
-    ifUnless,
-    _5,
-    guard
-  ) {
-    let statement: ts.Statement = setTextRange(
-      ts.factory.createBlock([
-        setTextRange(
-          ts.factory.createExpressionStatement(expression.ts()),
-          expression
-        ),
-      ]),
-      expression
-    );
-
-    if (guard.sourceString) {
-      let cond = guard.child(0).ts<ts.Expression>();
-
-      if (ifUnless.child(0).sourceString === "unless")
-        cond = ts.factory.createLogicalNot(cond);
-
-      statement = setTextRange(
-        ts.factory.createBlock([
-          setTextRange(ts.factory.createIfStatement(cond, statement), this),
-        ]),
-        this
-      );
-    }
-
-    return createIIFE(
-      setTextRange(
-        ts.factory.createBlock(
-          [
-            setTextRange(
-              ts.factory.createWhileStatement(condition.ts(), statement),
-              this
-            ),
-          ],
-          true
-        ),
-        this
-      )
     );
   },
   InterfaceDeclaration(
@@ -3079,7 +2869,7 @@ semantics.addOperation<ts.Node>("ts", {
   ) {
     let $ = setTextRange(
       ts.factory.createAwaitExpression(
-        setTextRange(ts.factory.createIdentifier("$"), awaitKeyword)
+        setTextRange(ts.factory.createIdentifier("$awaited"), awaitKeyword)
       ),
       awaitKeyword
     );
@@ -3128,7 +2918,7 @@ semantics.addOperation<ts.Node>("ts", {
             undefined,
             undefined,
             undefined,
-            "$"
+            "$awaited"
           ),
           awaitKeyword
         ),
@@ -3144,62 +2934,6 @@ semantics.addOperation<ts.Node>("ts", {
           this
         )
       ),
-      this
-    );
-  },
-  Statement_break(_0, _1) {
-    return setTextRange(ts.factory.createBreakStatement(), this);
-  },
-  Statement_conditional(
-    expr,
-    _0,
-    _1,
-    _2,
-    condition,
-    _3,
-    _4,
-    _5,
-    otherwise,
-    _6
-  ) {
-    let thenBlock = setTextRange(
-      ts.factory.createBlock([
-        setTextRange(ts.factory.createExpressionStatement(expr.ts()), expr),
-      ]),
-      expr
-    );
-
-    let otherwiseBlock =
-      otherwise.child(0) &&
-      setTextRange(
-        ts.factory.createBlock([
-          setTextRange(
-            ts.factory.createExpressionStatement(otherwise.child(0).ts()),
-            otherwise.child(0)
-          ),
-        ]),
-        otherwise.child(0)
-      );
-
-    return setTextRange(
-      ts.factory.createIfStatement(condition.ts(), thenBlock, otherwiseBlock),
-      this
-    );
-  },
-  Statement_continue(_0, _1) {
-    return setTextRange(ts.factory.createContinueStatement(), this);
-  },
-  Statement_do_until(_0, _1, block, _2, _3, _4, condition, _5) {
-    let cond = setTextRange(
-      ts.factory.createLogicalNot(condition.ts()),
-      condition
-    );
-
-    return setTextRange(ts.factory.createDoStatement(block.ts(), cond), this);
-  },
-  Statement_do_while(_0, _1, block, _2, _3, _4, condition, _5) {
-    return setTextRange(
-      ts.factory.createDoStatement(block.ts(), condition.ts()),
       this
     );
   },
@@ -3266,77 +3000,14 @@ semantics.addOperation<ts.Node>("ts", {
   Statement_export_variable(expr, _) {
     return expr.ts();
   },
-  Statement_expression(expression, _) {
-    let expr = expression.ts<ts.Expression>();
-
-    if (
-      expr.kind === ts.SyntaxKind.ClassExpression ||
-      expr.kind === ts.SyntaxKind.FunctionExpression
-    ) {
-      expr = ts.setTextRange(
-        ts.factory.createParenthesizedExpression(expr),
-        expr
-      );
-    }
-
-    return setTextRange(ts.factory.createExpressionStatement(expr), this);
+  Statement_expression(node, _) {
+    return node.ts();
   },
-  Statement_for_await_of(
-    _0,
-    _1,
-    awaitKeyword,
-    _3,
-    assignable,
-    _4,
-    _5,
-    _6,
-    expression,
-    block
-  ) {
-    let await = setTextRange(
-      ts.factory.createToken(ts.SyntaxKind.AwaitKeyword),
-      awaitKeyword
-    );
-
+  Statement_for(_0, _1, _await, _2, assignable, _3, _4, expression, block) {
     let declaration = setTextRange(
       ts.factory.createVariableDeclaration(
         assignable.child(0)?.ts<ts.BindingName>() ||
-          ts.factory.createIdentifier("$")
-      ),
-      assignable
-    );
-
-    let list = setTextRange(
-      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
-      assignable
-    );
-
-    return setTextRange(
-      ts.factory.createForOfStatement(await, list, expression.ts(), block.ts()),
-      this
-    );
-  },
-  Statement_for_in(_0, _1, assignable, _2, _3, _4, expression, block) {
-    let declaration = setTextRange(
-      ts.factory.createVariableDeclaration(assignable.ts<ts.BindingName>()),
-      assignable
-    );
-
-    let list = setTextRange(
-      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
-      assignable
-    );
-
-    return setTextRange(
-      ts.factory.createForInStatement(list, expression.ts(), block.ts()),
-      this
-    );
-  },
-  Statement_for_of(_0, _1, assignable, _2, _3, _4, expression, block) {
-    let declaration = setTextRange(
-      ts.factory.createVariableDeclaration(
-        assignable.child(0)?.ts<ts.BindingName>() ||
-          ts.factory.createIdentifier("$")
+          ts.factory.createIdentifier("$loop")
       ),
       assignable
     );
@@ -3348,7 +3019,9 @@ semantics.addOperation<ts.Node>("ts", {
 
     return setTextRange(
       ts.factory.createForOfStatement(
-        undefined,
+        _await
+          .child(0)
+          .tsn({ await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword) }),
         list,
         expression.ts(),
         block.ts()
@@ -3356,7 +3029,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_import(_0, _1, imports, _2, _3, _4, filename, _5) {
+  Statement_import(_0, _1, imports, _2, _3, filename, _4) {
     return setTextRange(
       ts.factory.createImportDeclaration(
         undefined,
@@ -3374,7 +3047,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_import_all(_0, star, _2, _3, ident, _4, _5, _6, filename, _7) {
+  Statement_import_all(_0, star, _2, _3, ident, _4, _5, filename, _6) {
     return setTextRange(
       ts.factory.createImportDeclaration(
         undefined,
@@ -3430,7 +3103,7 @@ semantics.addOperation<ts.Node>("ts", {
             [
               ts.setTextRange(
                 ts.factory.createVariableDeclaration(
-                  ts.setTextRange(ts.factory.createIdentifier("$"), pos)
+                  ts.setTextRange(ts.factory.createIdentifier("$loop"), pos)
                 ),
                 pos
               ),
@@ -3489,25 +3162,8 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_return(_0, _1, expression, _2) {
-    return setTextRange(
-      ts.factory.createReturnStatement(
-        expression.child(0)?.ts<ts.Expression>()
-      ),
-      this
-    );
-  },
   Statement_typed_assignment(node) {
     return node.ts();
-  },
-  Statement_until(_0, _1, expression, block) {
-    return setTextRange(
-      ts.factory.createWhileStatement(
-        setTextRange(ts.factory.createLogicalNot(expression.ts()), expression),
-        block.ts()
-      ),
-      this
-    );
   },
   Statement_when_callback(expressionNode, qMark, _0, _1, _2, params, block) {
     let fn = setTextRange(
@@ -3550,9 +3206,14 @@ semantics.addOperation<ts.Node>("ts", {
 
     return setTextRange(ts.factory.createExpressionStatement(expression), this);
   },
-  Statement_while(_0, _1, expression, block) {
+  Statement_while(whileUntil, _, expression, block) {
+    let cond = expression.ts<ts.Expression>();
+
+    if (whileUntil.sourceString == "until")
+      cond = ts.factory.createLogicalNot(cond);
+
     return setTextRange(
-      ts.factory.createWhileStatement(expression.ts(), block.ts()),
+      ts.factory.createWhileStatement(cond, block.ts()),
       this
     );
   },
@@ -3857,6 +3518,92 @@ semantics.addOperation<ts.Node>("ts", {
         ifFalse.ts()
       ),
       this
+    );
+  },
+  TopLevelExp(node) {
+    return node.ts();
+  },
+  TopLevelExp_break(_) {
+    return setTextRange(ts.factory.createBreakStatement(), this);
+  },
+  TopLevelExp_continue(_) {
+    return setTextRange(ts.factory.createContinueStatement(), this);
+  },
+  TopLevelExp_expression(node) {
+    let expr = node.ts<ts.Expression>();
+
+    if (
+      expr.kind === ts.SyntaxKind.ClassExpression ||
+      expr.kind === ts.SyntaxKind.FunctionExpression
+    ) {
+      expr = ts.setTextRange(
+        ts.factory.createParenthesizedExpression(expr),
+        expr
+      );
+    }
+
+    return setTextRange(ts.factory.createExpressionStatement(expr), this);
+  },
+  TopLevelExp_return(_, expr) {
+    return setTextRange(
+      ts.factory.createReturnStatement(expr.child(0)?.ts<ts.Expression>()),
+      this
+    );
+  },
+  TopLevelExp_throw(_, expr) {
+    return setTextRange(
+      ts.factory.createThrowStatement(expr.ts<ts.Expression>()),
+      this
+    );
+  },
+  TopLevelIfExp(node) {
+    return node.ts();
+  },
+  TopLevelIfExp_if(expr, ifUnless, _, condition) {
+    let cond = condition.ts<ts.Expression>();
+
+    if (ifUnless.sourceString === "unless")
+      cond = ts.setTextRange(ts.factory.createLogicalNot(cond), cond);
+
+    return setTextRange(ts.factory.createIfStatement(cond, expr.ts()), this);
+  },
+  TopLevelForExp(node) {
+    return node.ts();
+  },
+  TopLevelForExp_for(
+    expr,
+    _0,
+    _1,
+    await,
+    _2,
+    assignable,
+    _3,
+    _4,
+    iterable,
+    _5,
+    _6,
+    guard
+  ) {
+    let statement = expr.ts<ts.Statement>();
+
+    if (guard.sourceString)
+      statement = ts.factory.createIfStatement(guard.child(0).ts(), statement);
+
+    return ts.factory.createForOfStatement(
+      await
+        .child(0)
+        ?.tsn({ await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword) }),
+
+      ts.factory.createVariableDeclarationList(
+        [
+          ts.factory.createVariableDeclaration(
+            assignable.child(0)?.ts<ts.BindingName>() || "$loop"
+          ),
+        ],
+        ts.NodeFlags.Let
+      ),
+      iterable.ts(),
+      statement
     );
   },
   TryStatement(_0, _1, block, _catch, _finally) {
