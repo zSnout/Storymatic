@@ -57,7 +57,7 @@ export function transpile(node: ts.Node, flags: Flags = {}) {
   let printer = ts.createPrinter({});
   let text = printer.printNode(ts.EmitHint.Unspecified, node, source);
   if ((node as any).__storymaticHasEvents)
-    text = `if (EventTarget) {
+    text = `if (typeof EventTarget === "function") {
   (EventTarget.prototype as any).on = function on(name: any, ...args: any[]) { this.addEventListener(name, ...args) };
   (EventTarget.prototype as any).emit = function emit(name: any, ...args: any[]) { this.dispatchEvent(new Event(name, ...args)) };
 }
