@@ -49,33 +49,23 @@ Storymatic {
     | NamespaceDeclaration
     | SwitchStatement
     | EnumStatement
-    | "repeat" #space Expression SingleStatementBlock<"do"> -- repeat
-    | "while" #space Expression SingleStatementBlock<"do"> -- while
-    | "until" #space Expression SingleStatementBlock<"do"> -- until
-    | "do" #space UnprefixedSingleStatementBlock #space "while" #space Expression #statementTerminator -- do_while
-    | "do" #space UnprefixedSingleStatementBlock #space "until" #space Expression #statementTerminator -- do_until
-    | "for" #space Assignable #space "in" #space Expression SingleStatementBlock<"do"> -- for_in
-    | "for" #space (Assignable #space "of" #space)? Expression SingleStatementBlock<"do"> -- for_of
-    | "for" #space "await" #space (Assignable #space "of" #space)? Expression SingleStatementBlock<"do"> -- for_await_of
-    | "break" #statementTerminator -- break
-    | "continue" #statementTerminator -- continue
-    | "return" #space Expression? #statementTerminator -- return
-    | "import" #space importLocation #statementTerminator -- empty_import
-    | "import" #space NonemptyListOf<ImportableItemName, ","> #space "from" #space importLocation #statementTerminator -- import
-    | "import" "*" "as" #space identifier #space "from" #space importLocation #statementTerminator -- import_all
-    | "import" "*" identifier #space "from" #space importLocation #statementTerminator -- import_default
+    | "repeat" #postWord Expression SingleStatementBlock<"do"> -- repeat
+    | ("while" | "until") #postWord Expression SingleStatementBlock<"do"> -- while
+    | "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression SingleStatementBlock<"do"> -- for
+    | "import" #postWord importLocation #statementTerminator -- empty_import
+    | "import" #postWord NonemptyListOf<ImportableItemName, ","> "from" #postWord importLocation #statementTerminator -- import
+    | "import" "*" "as" #postWord identifier "from" #postWord importLocation #statementTerminator -- import_all
+    | "import" "*" identifier #postWord "from" #postWord importLocation #statementTerminator -- import_default
     | "export" #statementTerminator -- empty_export
-    | "export" #space NonemptyListOf<ExportableItemName, ","> #space "from" #space importLocation #statementTerminator -- export_from
-    | "export" "*" "from" #space importLocation #statementTerminator -- export_all_from
+    | "export" #postWord NonemptyListOf<ExportableItemName, ","> #space "from" #space importLocation #statementTerminator -- export_from
+    | "export" "*" "from" #postWord importLocation #statementTerminator -- export_all_from
     | "export" #space NonemptyListOf<ExportableItemName, ","> #statementTerminator -- export
     | "export" "*" Expression #statementTerminator -- export_default
     | ExportedVariableAssignment #statementTerminator -- export_variable
     | "rescope" #space NonemptyListOf<Rescopable, ","> #statementTerminator -- rescope
     | "rescope" #space VariableAssignment #statementTerminator -- rescope_assign
     | TypedVariableAssignment -- typed_assignment
-    | ~("{" "}") Expression #statementTerminator -- expression
-    | ~("{" "}") Expression #space "if" #space Expression
-      (#space "else" #space Expression)? #statementTerminator -- conditional
+    | ~("{" "}") TopLevelIfExp #statementTerminator -- expression
 
   Rescopable
     = identifier ":" Type -- with_type
@@ -130,11 +120,33 @@ Storymatic {
     = (spaces &"}" | spaces end) -- implied
     | lineTerminator
 
-  lineTerminator = whitespace? ("\r" | "\n")+ spaces ~lineContinuer
+  lineTerminator
+    = whitespace? ("\r" | "\n")+ spaces ~lineContinuer
+
   lineContinuer
     = "+" | "-" | "*" | "/" | "^" | "%" | "==" | "!=" | "[" | "(" | "." | "?." | "?" | ":" | "<" | ">" | "&&" | "||" | "??" | reserved_operators
 
-  Expression = AssignmentExp
+  TopLevelIfExp
+    = TopLevelWhileExp ("if" | "unless") #postWord Expression -- if
+    | TopLevelWhileExp
+
+  TopLevelWhileExp
+    = TopLevelForExp ("while" | "until") #postWord Expression ("when" #postWord Expression)? -- while
+    | TopLevelForExp
+
+  TopLevelForExp
+    = TopLevelExp "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression ("when" #postWord Expression)? -- for
+    | TopLevelExp
+
+  TopLevelExp
+    = "break" -- break
+    | "continue" -- continue
+    | "return" AssignmentExp? -- return
+    | "throw" AssignmentExp -- throw
+    | Expression -- expression
+
+  Expression
+    = IfExp
 
   LiteralExp
     = "(" Expression ")" -- parenthesized
@@ -326,26 +338,25 @@ Storymatic {
     = (TernaryExp "|>")+ TernaryExp -- pipe
     | TernaryExp
 
-  InlineStatementExp
-    = InlineStatementExp
-      #space "for" #space ("await" #space)? (Assignable #space "of")? PipeExp
-      (#space ("if" | "unless") #space PipeExp)? -- for_of
-    | InlineStatementExp #space "while" #space PipeExp (#space ("if" | "unless") #space PipeExp)? -- while
-    | InlineStatementExp #space "until" #space PipeExp (#space ("if" | "unless") #space PipeExp)? -- until
-    | "print" #space PipeExp -- print
-    | "throw" #space PipeExp -- throw
-    | PipeExp
-
-  IfExp
-    = IfExp ("if" | "unless") #postWord IfExp -- if_unless
-    | InlineStatementExp
-
   AssignmentExp
     = AssignableOrAccessor "=" AssignmentExp -- assignment
     | (Accessor | identifier) ("+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&&=" | "||=" | "??=" | "and=" | "or=" | "<<=" | ">>=" | ">>>=") AssignmentExp -- update_assignment
     | "yield" #space AssignmentExp -- yield
     | "yield" #space "from" #space AssignmentExp -- yield_from
-    | IfExp
+    | PipeExp
+
+  ForExp
+    = AssignmentExp "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? ForExp ("when" #postWord Expression)? -- for
+    | "print" #space AssignmentExp -- print
+    | AssignmentExp
+
+  WhileExp
+    = ForExp ("while" | "until") #postWord WhileExp ("when" #postWord Expression)? -- while
+    | ForExp
+
+  IfExp
+    = WhileExp ("if" | "unless") #postWord IfExp -- if
+    | WhileExp
 
   VariableAssignment = Assignable (":" Type)? "=" Expression
   ExportedVariableAssignment = "export" #space Assignable (":" Type)? "=" Expression
@@ -426,7 +437,7 @@ Storymatic {
     = string_interpolatable<"\"", applySyntactic<Type>>
     | string_interpolatable<"'", applySyntactic<Type>>
 
-  reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "step" | "to" | "through" | "return" | "break" | "continue" | "fn" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "default" | "rescope" | "down" | "type" | "interface" | "namespace" | "with") ~id_continue
+  reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "step" | "to" | "through" | "return" | "break" | "continue" | "fn" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "default" | "rescope" | "down" | "type" | "interface" | "namespace" | "with" | "when") ~id_continue
   reserved_operators = ("and" | "or" | "not" | "is" ~"nt" | "isnt") ~id_continue
   reserved_inline = ("new" | "in" | "type" ~"of" | "of" | "from" | "typeof" | "as" | "extends" | "await" | "readonly" | "infer") ~id_continue
   reserved_primitive = ("true" | "false" | "null" | "undefined") ~id_continue
