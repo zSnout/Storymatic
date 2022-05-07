@@ -225,7 +225,7 @@ Storymatic {
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" word (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" word (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
-    | MemberAccessExp #(~"\"") NonemptyArgumentList -- implied_call
+    | MemberAccessExp #(~("\"" | whitespace? ("\n" | "\r"))) NonemptyArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
