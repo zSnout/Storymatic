@@ -550,10 +550,18 @@ function transformer(context: ts.TransformationContext) {
           if ((node.expression.expression as any).__storymaticIsIIFE) {
             let call = node.expression.expression as ts.CallExpression;
             let fn = call.expression as ts.FunctionExpression;
+            let last = fn.body.statements[fn.body.statements.length - 1];
+
             return ts
               .visitEachChild(
                 fn.body,
-                (node) => visit(node, fnScope, blockScope, autoReturn),
+                (node) =>
+                  visit(
+                    node,
+                    fnScope,
+                    blockScope,
+                    autoReturn && node === last ? autoReturn : false
+                  ),
                 context
               )
               .statements.slice();
@@ -2084,25 +2092,34 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   LiteralExp_with(_0, _1, expr, block) {
-    let pos = {
-      pos: block.source.endIdx,
-      end: block.source.endIdx,
-    };
-
-    return createIIFE(
-      ts.factory.createBlock(
+    return ts.factory.createCallExpression(
+      ts.factory.createFunctionExpression(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
         [
-          makeAssignment("$self", expr.ts()),
-          ...block.ts<ts.Block>().statements,
-          ts.setTextRange(
-            ts.factory.createExpressionStatement(
-              ts.setTextRange(ts.factory.createIdentifier("$self"), pos)
-            ),
-            pos
+          ts.factory.createParameterDeclaration(
+            undefined,
+            undefined,
+            undefined,
+            "$self"
           ),
         ],
-        true
-      )
+        undefined,
+        ts.factory.createBlock(
+          block
+            .ts<ts.Block>()
+            .statements.concat(
+              ts.factory.createExpressionStatement(
+                ts.factory.createIdentifier("$self")
+              )
+            ),
+          true
+        )
+      ),
+      undefined,
+      [expr.ts()]
     );
   },
   LiteralType(node) {
