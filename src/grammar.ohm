@@ -34,8 +34,8 @@ Storymatic {
   EnumStatement = ("export" #space)? "enum" #space identifier "{" EnumMember* "}"
 
   EnumMember
-    = (identOrWord | string_non_interpolatable) #expressionTerminator -- auto_assign
-    | (identOrWord | string_non_interpolatable) "=" Expression #expressionTerminator -- assigned
+    = (word | string_non_interpolatable) #expressionTerminator -- auto_assign
+    | (word | string_non_interpolatable) "=" Expression #expressionTerminator -- assigned
 
   Statement
     = "await" #space (Assignable "=")? Expression SingleStatementBlock<"do"> -- await_new_thread
@@ -49,8 +49,6 @@ Storymatic {
     | NamespaceDeclaration
     | SwitchStatement
     | EnumStatement
-    | "print" #space Expression #statementTerminator -- print
-    | "throw" #space Expression #statementTerminator -- throw
     | "repeat" #space Expression SingleStatementBlock<"do"> -- repeat
     | "while" #space Expression SingleStatementBlock<"do"> -- while
     | "until" #space Expression SingleStatementBlock<"do"> -- until
@@ -132,7 +130,7 @@ Storymatic {
     = (spaces &"}" | spaces end) -- implied
     | lineTerminator
 
-  lineTerminator = whitespace? ("\r\n" | "\n")+ spaces ~lineContinuer
+  lineTerminator = whitespace? ("\r" | "\n")+ spaces ~lineContinuer
   lineContinuer
     = "+" | "-" | "*" | "/" | "^" | "%" | "==" | "!=" | "[" | "(" | "." | "?." | "?" | ":" | "<" | ">" | "&&" | "||" | "??" | reserved_operators
 
@@ -196,7 +194,7 @@ Storymatic {
     | WrappedStatementBlock
 
   MethodName
-    = identOrWord -- identifier
+    = word -- identifier
     | Symbol -- symbol
     | string_non_interpolatable -- string_key
     | string -- computed_string_key
@@ -213,13 +211,13 @@ Storymatic {
   MemberAccessExp
     = MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp "?"? ":" identOrWord (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
-    | MemberAccessExp "?"? "::" identOrWord (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
+    | MemberAccessExp "?"? ":" word (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
+    | MemberAccessExp "?"? "::" word (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
-    = Child "." identOrWord -- member_access
-    | Child "?." identOrWord -- optional_chaining_member_access
+    = Child "." word -- member_access
+    | Child "?." word -- optional_chaining_member_access
     | Child "." Symbol -- symbol_access
     | Child "?." Symbol -- optional_chaining_symbol_access
     | Child "[" Child "]" -- computed_member_access
@@ -319,26 +317,35 @@ Storymatic {
 
   TernaryExp
     = LogicalOrExp "?" TernaryExp ":" TernaryExp -- symbolic
+    | ("if" | "unless") #postWord TernaryExp "then" #postWord TernaryExp "else" #postWord TernaryExp -- if_then_else
     | LogicalOrExp
+
+  postWord = space* ~id_continue | space+
 
   PipeExp
     = (TernaryExp "|>")+ TernaryExp -- pipe
     | TernaryExp
 
   InlineStatementExp
-    = PipeExp
+    = InlineStatementExp
       #space "for" #space ("await" #space)? (Assignable #space "of")? PipeExp
       (#space ("if" | "unless") #space PipeExp)? -- for_of
-    | PipeExp #space "while" #space PipeExp (#space ("if" | "unless") #space PipeExp)? -- while
-    | PipeExp #space "until" #space PipeExp (#space ("if" | "unless") #space PipeExp)? -- until
+    | InlineStatementExp #space "while" #space PipeExp (#space ("if" | "unless") #space PipeExp)? -- while
+    | InlineStatementExp #space "until" #space PipeExp (#space ("if" | "unless") #space PipeExp)? -- until
+    | "print" #space PipeExp -- print
+    | "throw" #space PipeExp -- throw
     | PipeExp
+
+  IfExp
+    = IfExp ("if" | "unless") #postWord IfExp -- if_unless
+    | InlineStatementExp
 
   AssignmentExp
     = AssignableOrAccessor "=" AssignmentExp -- assignment
     | (Accessor | identifier) ("+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&&=" | "||=" | "??=" | "and=" | "or=" | "<<=" | ">>=" | ">>>=") AssignmentExp -- update_assignment
     | "yield" #space AssignmentExp -- yield
     | "yield" #space "from" #space AssignmentExp -- yield_from
-    | InlineStatementExp
+    | IfExp
 
   VariableAssignment = Assignable (":" Type)? "=" Expression
   ExportedVariableAssignment = "export" #space Assignable (":" Type)? "=" Expression
@@ -370,16 +377,16 @@ Storymatic {
   AccessorPropertyBase = Property | StaticProperty
 
   AccessorAddon
-    = "." identOrWord -- member_access
+    = "." word -- member_access
     | "." Symbol -- symbol_access
     | "[" Expression "]" -- computed_member_access
 
-  whitespace = (~("\r\n" | "\n") space)+
+  whitespace = (~("\r" | "\n") space)+
 
   sign = ("+" | "-")?
   number = digit+ ("_" digit+)*
   fullNumber = sign number ("." number)? (("e" | "E") sign number)?
-  unitNumber = ~"0x" fullNumber ~("n" ~id_continue) identifierWord
+  unitNumber = ~"0x" fullNumber ~("n" ~id_continue) identifier
   decimalNumber = ~"0x" fullNumber ~char
   hexNumber = sign "0x" hexDigit+ ("_" hexDigit+)*
   bigint = ~"0x" sign number "n"
@@ -421,7 +428,7 @@ Storymatic {
 
   reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "step" | "to" | "through" | "return" | "break" | "continue" | "fn" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "default" | "rescope" | "down" | "type" | "interface" | "namespace" | "with") ~id_continue
   reserved_operators = ("and" | "or" | "not" | "is" ~"nt" | "isnt") ~id_continue
-  reserved_inline = ("new" | "in" | "type" ~"of" | "of" | "from" | "typeof" | "as" | "extends" | "await" | "readonly") ~id_continue
+  reserved_inline = ("new" | "in" | "type" ~"of" | "of" | "from" | "typeof" | "as" | "extends" | "await" | "readonly" | "infer") ~id_continue
   reserved_primitive = ("true" | "false" | "null" | "undefined") ~id_continue
 
   // `super` and `this` are omitted because they are valid names and used often.
@@ -430,19 +437,15 @@ Storymatic {
 
   char = letter | "_"
   word = char+ (number char*)*
-  identifierWord = ~reserved word
-  identifierNumber = char* (number char*)+
-  identifierWords = identifierWord (whitespace (identifierWord | identifierNumber))*
-  identifier = identifierWords
-  identOrWord = identifier | word
+  identifier = ~reserved word
 
   Property
-    = "@" identOrWord -- identifier
+    = "@" word -- identifier
     | "@" Symbol -- symbol
     | "@" "[" Expression "]" -- computed
 
   StaticProperty
-    = "@@" identOrWord -- identifier
+    = "@@" word -- identifier
     | "@@" Symbol -- symbol
     | "@@" "[" Expression "]" -- computed
 
@@ -451,7 +454,7 @@ Storymatic {
     | "##" SymbolKey -- builtin_symbol
 
   SymbolKey
-    = identOrWord -- name
+    = word -- name
     | (string_non_interpolatable | string) -- string
     | "[" Expression "]" -- computed
 
@@ -490,12 +493,12 @@ Storymatic {
     | "object" | "null" | "undefined" | "void" | "any" | "unknown" | "this"
 
   Implementable
-    = ~("infer" ~(#id_continue)) identifier ("." ~("infer" ~(#id_continue)) identOrWord)* GenericTypeArgumentList &("," | "implements" | "{")
+    = identifier ("." word)* GenericTypeArgumentList &("," | "implements" | "{")
 
   Extendable
-    = ~("infer" ~(#id_continue)) identifier ("." ~("infer" ~(#id_continue)) identOrWord)* NonemptyGenericTypeArgumentList &("," | "implements" | "{")
+    = identifier ("." word)* NonemptyGenericTypeArgumentList &("," | "implements" | "{")
 
-  QualifiedName = ~("infer" ~(#id_continue)) identifier ("." ~("infer" ~(#id_continue)) identOrWord)*
+  QualifiedName = identifier ("." word)*
 
   LiteralType
     = PrimitiveType ~(id_continue | ".")
@@ -522,15 +525,15 @@ Storymatic {
     | LiteralType
 
   NamedTupleElement
-    = identOrWord "?"? ":" Type -- name_value
-    | "..." identOrWord ":" Type -- spread_operator
+    = word "?"? ":" Type -- name_value
+    | "..." word ":" Type -- spread_operator
 
   TupleElement
     = Type "?"? -- value
     | "..." Type -- spread_operator
 
   TypeObjectKey
-    = identOrWord -- identifier
+    = word -- identifier
     | string_non_interpolatable -- string
     | decimalNumber -- numerical_key
     | "[" Accessor "]" -- computed_accessor

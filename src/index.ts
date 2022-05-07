@@ -1573,6 +1573,26 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  IfExp(node) {
+    return node.ts();
+  },
+  IfExp_if_unless(expr, ifUnless, _, condition) {
+    let cond = condition.ts<ts.Expression>();
+
+    if (ifUnless.sourceString === "unless")
+      cond = ts.setTextRange(ts.factory.createLogicalNot(cond), cond);
+
+    return setTextRange(
+      ts.factory.createConditionalExpression(
+        cond,
+        undefined,
+        expr.ts(),
+        undefined,
+        ts.factory.createVoidZero()
+      ),
+      this
+    );
+  },
   IfStatement(ifUnless, _0, condition, block, _1, _2, _3, elseBlock) {
     let cond = condition.ts<ts.Expression>();
 
@@ -1828,6 +1848,40 @@ semantics.addOperation<ts.Node>("ts", {
       )
     );
   },
+  InlineStatementExp_print(consoleLog, _, expr) {
+    let console = setTextRange(
+      ts.factory.createIdentifier("console"),
+      consoleLog
+    );
+
+    let log = setTextRange(ts.factory.createIdentifier("log"), consoleLog);
+
+    let cLog = setTextRange(
+      ts.factory.createPropertyAccessExpression(console, log),
+      consoleLog
+    );
+
+    return setTextRange(
+      ts.factory.createCallExpression(cLog, undefined, [expr.ts()]),
+      this
+    );
+  },
+  InlineStatementExp_throw(_0, _1, expression) {
+    return createIIFE(
+      setTextRange(
+        ts.factory.createBlock(
+          [
+            setTextRange(
+              ts.factory.createThrowStatement(expression.ts()),
+              this
+            ),
+          ],
+          true
+        ),
+        this
+      )
+    );
+  },
   InlineStatementExp_until(
     expression,
     _0,
@@ -1978,30 +2032,8 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  identOrWord(node) {
-    return node.ts();
-  },
   identifier(node) {
     return node.ts();
-  },
-  identifierNumber(_0, _1, _2) {
-    return setTextRange(
-      ts.factory.createNumericLiteral(this.sourceString),
-      this
-    );
-  },
-  identifierWord(word) {
-    return word.ts();
-  },
-  identifierWords(firstWord, _, otherWords) {
-    let first = firstWord.ts<ts.Identifier>();
-    let idents = otherWords.tsa<ts.Identifier | ts.NumericLiteral>();
-    let others = idents.map((e) => e.text[0].toUpperCase() + e.text.slice(1));
-
-    return setTextRange(
-      ts.factory.createIdentifier(first.text + others.join("")),
-      this
-    );
   },
   id_continue(_) {
     throw new Error("`id_continue` nodes should never directly be evaluated.");
@@ -2939,6 +2971,9 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  postWord(_) {
+    throw new Error("`postWord` nodes should never directly be evaluated.");
+  },
   QualifiedName(base, _, qualifiers) {
     if (qualifiers.children.length === 0) return base.ts();
 
@@ -3381,26 +3416,6 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_print(consoleLog, _0, expr, _1) {
-    let console = setTextRange(
-      ts.factory.createIdentifier("console"),
-      consoleLog
-    );
-
-    let log = setTextRange(ts.factory.createIdentifier("log"), consoleLog);
-
-    let cLog = setTextRange(
-      ts.factory.createPropertyAccessExpression(console, log),
-      consoleLog
-    );
-
-    let call = setTextRange(
-      ts.factory.createCallExpression(cLog, undefined, [expr.ts()]),
-      this
-    );
-
-    return setTextRange(ts.factory.createExpressionStatement(call), this);
-  },
   Statement_repeat(_0, _1, count, block) {
     let pos: ts.TextRange = {
       pos: this.source.startIdx,
@@ -3481,9 +3496,6 @@ semantics.addOperation<ts.Node>("ts", {
       ),
       this
     );
-  },
-  Statement_throw(_0, _1, expression, _2) {
-    return setTextRange(ts.factory.createThrowStatement(expression.ts()), this);
   },
   Statement_typed_assignment(node) {
     return node.ts();
@@ -3801,6 +3813,33 @@ semantics.addOperation<ts.Node>("ts", {
   },
   TernaryExp(node) {
     return node.ts();
+  },
+  TernaryExp_if_then_else(
+    ifUnless,
+    _0,
+    condition,
+    _1,
+    _2,
+    ifTrue,
+    _3,
+    _4,
+    ifFalse
+  ) {
+    let cond = condition.ts<ts.Expression>();
+
+    if (ifUnless.sourceString === "unless")
+      cond = ts.setTextRange(ts.factory.createLogicalNot(cond), cond);
+
+    return setTextRange(
+      ts.factory.createConditionalExpression(
+        cond,
+        undefined,
+        ifTrue.ts(),
+        undefined,
+        ifFalse.ts()
+      ),
+      this
+    );
   },
   TernaryExp_symbolic(condition, questionToken, ifTrue, colonToken, ifFalse) {
     return setTextRange(
