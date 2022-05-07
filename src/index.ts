@@ -928,7 +928,10 @@ semantics.addOperation<ts.Node>("ts", {
   },
   AssignmentExp_yield(_0, _1, expr) {
     return setTextRange(
-      ts.factory.createYieldExpression(undefined, expr.ts<ts.Expression>()),
+      ts.factory.createYieldExpression(
+        undefined,
+        expr.child(0)?.ts<ts.Expression>()
+      ),
       this
     );
   },
@@ -1513,6 +1516,87 @@ semantics.addOperation<ts.Node>("ts", {
   FinallyStatement(_0, _1, block) {
     return block.ts();
   },
+  ForExp(node) {
+    return node.ts();
+  },
+  ForExp_for(
+    expr,
+    _0,
+    _1,
+    await,
+    _2,
+    assignable,
+    _3,
+    _4,
+    iterable,
+    _5,
+    _6,
+    guard
+  ) {
+    let statement: ts.Statement = ts.factory.createExpressionStatement(
+      expr.ts()
+    );
+
+    if (guard.sourceString)
+      statement = ts.factory.createIfStatement(guard.child(0).ts(), statement);
+
+    return createIIFE(
+      ts.factory.createBlock(
+        [
+          ts.factory.createForOfStatement(
+            await.child(0)?.tsn({
+              await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword),
+            }),
+
+            ts.factory.createVariableDeclarationList(
+              [
+                ts.factory.createVariableDeclaration(
+                  assignable.child(0)?.ts<ts.BindingName>() || "$loop"
+                ),
+              ],
+              ts.NodeFlags.Let
+            ),
+            iterable.ts(),
+            statement
+          ),
+        ],
+        true
+      )
+    );
+  },
+  ForExp_print(_0, _1, expr) {
+    return ts.factory.createCallExpression(
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createIdentifier("console"),
+        "log"
+      ),
+      undefined,
+      [expr.ts()]
+    );
+  },
+  WhileExp(node) {
+    return node.ts();
+  },
+  WhileExp_while(expr, whileUntil, _0, condition, _1, _2, guard) {
+    let statement: ts.Statement = ts.factory.createExpressionStatement(
+      expr.ts()
+    );
+
+    if (guard.sourceString)
+      statement = ts.factory.createIfStatement(guard.child(0).ts(), statement);
+
+    let cond = condition.ts<ts.Expression>();
+
+    if (whileUntil.sourceString == "until")
+      cond = ts.factory.createLogicalNot(cond);
+
+    return createIIFE(
+      ts.factory.createBlock(
+        [ts.factory.createWhileStatement(cond, statement)],
+        true
+      )
+    );
+  },
   FunctionBody(node) {
     return node.ts();
   },
@@ -2011,7 +2095,7 @@ semantics.addOperation<ts.Node>("ts", {
           makeAssignment("$self", expr.ts()),
           ...block.ts<ts.Block>().statements,
           ts.setTextRange(
-            ts.factory.createReturnStatement(
+            ts.factory.createExpressionStatement(
               ts.setTextRange(ts.factory.createIdentifier("$self"), pos)
             ),
             pos
@@ -3605,6 +3689,22 @@ semantics.addOperation<ts.Node>("ts", {
       iterable.ts(),
       statement
     );
+  },
+  TopLevelWhileExp(node) {
+    return node.ts();
+  },
+  TopLevelWhileExp_while(expr, whileUntil, _0, condition, _1, _2, guard) {
+    let statement = expr.ts<ts.Statement>();
+
+    if (guard.sourceString)
+      statement = ts.factory.createIfStatement(guard.child(0).ts(), statement);
+
+    let cond = condition.ts<ts.Expression>();
+
+    if (whileUntil.sourceString == "until")
+      cond = ts.factory.createLogicalNot(cond);
+
+    return ts.factory.createWhileStatement(cond, statement);
   },
   TryStatement(_0, _1, block, _catch, _finally) {
     let catchBlock = _catch.child(0)?.ts<ts.CatchClause>();

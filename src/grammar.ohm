@@ -341,7 +341,7 @@ Storymatic {
   AssignmentExp
     = AssignableOrAccessor "=" AssignmentExp -- assignment
     | (Accessor | identifier) ("+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&&=" | "||=" | "??=" | "and=" | "or=" | "<<=" | ">>=" | ">>>=") AssignmentExp -- update_assignment
-    | "yield" #space AssignmentExp -- yield
+    | "yield" #space AssignmentExp? -- yield
     | "yield" #space "from" #space AssignmentExp -- yield_from
     | PipeExp
 
