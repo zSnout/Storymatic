@@ -1717,6 +1717,11 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  ImpliedCallArgumentList(_) {
+    throw new Error(
+      "`ImpliedCallArgumentList` nodes should never directly be evaluated."
+    );
+  },
   ImportableItemName(node) {
     return node.ts();
   },
@@ -2631,11 +2636,6 @@ semantics.addOperation<ts.Node>("ts", {
   NonemptyGenericTypeArgumentList(_0, _1, _2) {
     throw new Error(
       "`NonemptyGenericTypeArgumentList` nodes should never directly be evaluated."
-    );
-  },
-  NonemptyArgumentList(_) {
-    throw new Error(
-      "`NonemptyArgumentList` nodes should never directly be evaluated."
     );
   },
   NonemptyListOf(_0, _1, _2) {
