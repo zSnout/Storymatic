@@ -2327,11 +2327,11 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExpNonCall_tagged_template_literal(tag, generics, template) {
+  MemberAccessExpNonCall_tagged_template_literal(tag, template) {
     return setTextRange(
       ts.factory.createTaggedTemplateExpression(
         tag.ts(),
-        generics.tsa(),
+        undefined,
         template.ts()
       ),
       this
@@ -2376,6 +2376,12 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExp_function_call(target, typeArgs, _0, args, _1) {
     return setTextRange(
       ts.factory.createCallExpression(target.ts(), typeArgs.tsa(), args.tsa()),
+      this
+    );
+  },
+  MemberAccessExp_implied_call(target, args) {
+    return setTextRange(
+      ts.factory.createCallExpression(target.ts(), undefined, args.tsa()),
       this
     );
   },
