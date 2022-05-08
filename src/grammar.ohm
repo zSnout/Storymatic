@@ -151,6 +151,7 @@ Storymatic {
     | "@@" ~(id_continue | "[" | "#" | ".") -- static_self
     | "%" -- topic_token
     | "with" #space Expression SingleStatementBlock<"do"> -- with
+    | "do" WrappedStatementBlock -- do
     | InlineClassDeclaration
     | InlineFunction
     | JSXElement
@@ -163,7 +164,6 @@ Storymatic {
     | Property
     | undefined
     | boolean
-    | Symbol
     | string_non_interpolatable
     | string
     | null
@@ -202,7 +202,6 @@ Storymatic {
 
   MethodName
     = word -- identifier
-    | Symbol -- symbol
     | string_non_interpolatable -- string_key
     | string -- computed_string_key
     | decimalNumber -- numerical_key
@@ -220,21 +219,19 @@ Storymatic {
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" word (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" word (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
-    | MemberAccessExp #(~("\"" | whitespace? ("\n" | "\r"))) ~"[" ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #whitespace ~("\"" | "[" | "(" | NonemptyGenericTypeArgumentList) ImpliedCallArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
     = Child "." word -- member_access
     | Child "?." word -- optional_chaining_member_access
-    | Child "." Symbol -- symbol_access
-    | Child "?." Symbol -- optional_chaining_symbol_access
     | Child "?"? "[" Expression "]" -- computed_member_access
-    | Child "?"? "[" Expression? ".." Expression? "]" -- array_slice
+    | Child "?"? "[" Expression? ("..." | "..") Expression? "]" -- array_slice
     | Child #string -- tagged_template_literal
     | Child "!" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
     | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space NCMemberAccessExp #(~("\"" | whitespace? ("\n" | "\r"))) ~(NonemptyGenericTypeArgumentList | "(" | "[") ImpliedCallArgumentList -- class_creation_implied
+    | "new" #space NCMemberAccessExp #whitespace ~("\"" | "[" | "(" | NonemptyGenericTypeArgumentList) ImpliedCallArgumentList -- class_creation_implied
     | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
@@ -337,6 +334,7 @@ Storymatic {
 
   AssignmentExp
     = AssignableOrAccessor "=" AssignmentExp -- assignment
+    | (Accessor | identifier) "[" Expression? ("..." | "..") Expression? "]" "=" AssignmentExp -- splice
     | (Accessor | identifier) ("+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&&=" | "||=" | "??=" | "and=" | "or=" | "<<=" | ">>=" | ">>>=") AssignmentExp -- update_assignment
     | "yield" #space AssignmentExp? -- yield
     | "yield" #space "from" #space AssignmentExp -- yield_from
@@ -386,7 +384,6 @@ Storymatic {
 
   AccessorAddon
     = "." word -- member_access
-    | "." Symbol -- symbol_access
     | "[" Expression "]" -- computed_member_access
 
   whitespace = (~("\r" | "\n") space)+
@@ -449,22 +446,11 @@ Storymatic {
 
   Property
     = "@" word -- identifier
-    | "@" Symbol -- symbol
     | "@" "[" Expression "]" -- computed
 
   StaticProperty
     = "@@" word -- identifier
-    | "@@" Symbol -- symbol
     | "@@" "[" Expression "]" -- computed
-
-  Symbol
-    = "#" SymbolKey -- symbol_for
-    | "##" SymbolKey -- builtin_symbol
-
-  SymbolKey
-    = word -- name
-    | (string_non_interpolatable | string) -- string
-    | "[" Expression "]" -- computed
 
   space += block_comment | line_comment
   block_comment = "/*" (~"*/" any)* "*/"

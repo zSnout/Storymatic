@@ -760,9 +760,6 @@ semantics.addOperation<ts.Node>("ts", {
   AccessorAddon_member_access(_, prop) {
     return prop.ts();
   },
-  AccessorAddon_symbol_access(_, symbol) {
-    return symbol.ts();
-  },
   AccessorBase(node) {
     return node.ts();
   },
@@ -906,6 +903,66 @@ semantics.addOperation<ts.Node>("ts", {
     }
 
     return setTextRange(ts.factory.createAssignment(bound, expr.ts()), this);
+  },
+  AssignmentExp_splice(accessor, _0, start, dotdot, end, _2, _3, target) {
+    let startExpr =
+      start.child(0)?.ts<ts.Expression>() || ts.factory.createNumericLiteral(0);
+
+    let endExpr = end.child(0)?.ts<ts.Expression>();
+    let targetExpr = target.ts<ts.Expression>();
+
+    if (endExpr && dotdot.sourceString == "..") {
+      if (ts.isNumericLiteral(endExpr)) {
+        endExpr = ts.factory.createNumericLiteral(1 + +endExpr.text);
+      } else {
+        endExpr = ts.factory.createAdd(
+          endExpr,
+          ts.factory.createNumericLiteral(1)
+        );
+      }
+    }
+
+    let ref: ts.Expression = ts.factory.createIdentifier("$ref");
+    let assignment: ts.Expression = ts.factory.createAssignment(
+      ref,
+      targetExpr
+    );
+
+    if (ts.isLiteralExpression(targetExpr) || ts.isIdentifier(targetExpr)) {
+      ref = assignment = targetExpr;
+    }
+
+    let range: ts.Expression = endExpr
+      ? ts.factory.createSubtract(endExpr, startExpr)
+      : ts.factory.createNumericLiteral("9e9");
+
+    if (
+      endExpr &&
+      ts.isNumericLiteral(startExpr) &&
+      ts.isNumericLiteral(endExpr)
+    ) {
+      range = ts.factory.createNumericLiteral(+endExpr.text - +startExpr.text);
+    }
+
+    return ts.factory.createComma(
+      ts.factory.createCallExpression(
+        ts.factory.createPropertyAccessExpression(accessor.ts(), "splice"),
+        undefined,
+        [
+          ts.factory.createSpreadElement(
+            ts.factory.createCallExpression(
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createArrayLiteralExpression([startExpr, range]),
+                "concat"
+              ),
+              undefined,
+              [assignment]
+            )
+          ),
+        ]
+      ),
+      ref
+    );
   },
   AssignmentExp_update_assignment(target, op, expr) {
     let all: Record<string, ts.BinaryOperator> = {
@@ -2054,6 +2111,21 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
+  LiteralExp_do(_, block) {
+    return ts.factory.createCallExpression(
+      ts.factory.createFunctionExpression(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        block.ts()
+      ),
+      undefined,
+      undefined
+    );
+  },
   LiteralExp_object(_0, entries, _1, _2) {
     return setTextRange(
       ts.factory.createObjectLiteralExpression(entries.tsa()),
@@ -2201,7 +2273,28 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExpNonCall(node) {
     return node.ts();
   },
-  MemberAccessExpNonCall_array_slice(target, qMark, _0, start, _1, end, _2) {
+  MemberAccessExpNonCall_array_slice(
+    target,
+    qMark,
+    _0,
+    start,
+    dotdot,
+    end,
+    _2
+  ) {
+    let endExpr = end.child(0)?.ts<ts.Expression>();
+
+    if (endExpr && dotdot.sourceString == "..") {
+      if (ts.isNumericLiteral(endExpr)) {
+        endExpr = ts.factory.createNumericLiteral(1 + +endExpr.text);
+      } else {
+        endExpr = ts.factory.createAdd(
+          endExpr,
+          ts.factory.createNumericLiteral("1")
+        );
+      }
+    }
+
     return ts.factory.createCallExpression(
       ts.factory.createPropertyAccessChain(
         target.ts(),
@@ -2212,9 +2305,10 @@ semantics.addOperation<ts.Node>("ts", {
       ),
       undefined,
       [
-        start.child(0)?.ts<ts.Expression>() || ts.factory.createVoidZero(),
-        end.child(0)?.ts<ts.Expression>() || ts.factory.createVoidZero(),
-      ]
+        start.child(0)?.ts<ts.Expression>() ||
+          ts.factory.createNumericLiteral(0),
+        endExpr,
+      ].filter((e) => e)
     );
   },
   MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
@@ -2223,7 +2317,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExpNonCall_class_creation_implied(_0, _1, target, args) {
+  MemberAccessExpNonCall_class_creation_implied(_0, _1, _2, target, args) {
     return setTextRange(
       ts.factory.createNewExpression(target.ts(), undefined, args.tsa()),
       this
@@ -2286,28 +2380,6 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExpNonCall_optional_chaining_symbol_access(target, qDot, symbol) {
-    return setTextRange(
-      ts.factory.createElementAccessChain(
-        target.ts(),
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-          qDot
-        ),
-        symbol.ts<ts.Expression>()
-      ),
-      this
-    );
-  },
-  MemberAccessExpNonCall_symbol_access(target, _, symbol) {
-    return setTextRange(
-      ts.factory.createElementAccessExpression(
-        target.ts(),
-        symbol.ts<ts.Expression>()
-      ),
-      this
-    );
-  },
   MemberAccessExpNonCall_tagged_template_literal(tag, template) {
     return setTextRange(
       ts.factory.createTaggedTemplateExpression(
@@ -2360,7 +2432,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExp_implied_call(target, args) {
+  MemberAccessExp_implied_call(target, _, args) {
     return setTextRange(
       ts.factory.createCallExpression(target.ts(), undefined, args.tsa()),
       this
@@ -2543,12 +2615,6 @@ semantics.addOperation<ts.Node>("ts", {
   },
   MethodName_string_key(node) {
     return node.ts();
-  },
-  MethodName_symbol(symbol) {
-    return setTextRange(
-      ts.factory.createComputedPropertyName(symbol.ts()),
-      this
-    );
   },
   MulExp(node) {
     return node.ts();
@@ -2831,15 +2897,6 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createPropertyAccessExpression(
         setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
         prop.ts<ts.Identifier>()
-      ),
-      this
-    );
-  },
-  Property_symbol(atSymbol, symbol) {
-    return setTextRange(
-      ts.factory.createElementAccessExpression(
-        setTextRange(ts.factory.createIdentifier("self"), atSymbol),
-        symbol.ts<ts.Expression>()
       ),
       this
     );
@@ -3334,15 +3391,6 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  StaticProperty_symbol(atSymbol, symbol) {
-    return setTextRange(
-      ts.factory.createElementAccessExpression(
-        setTextRange(ts.factory.createIdentifier("$static"), atSymbol),
-        symbol.ts<ts.Expression>()
-      ),
-      this
-    );
-  },
   SwitchStatement(_0, _1, target, open, cases, defaultNode, close) {
     let blocks: readonly ts.CaseBlock[] = cases.tsa();
     if (defaultNode.sourceString) {
@@ -3356,46 +3404,6 @@ semantics.addOperation<ts.Node>("ts", {
 
     return setTextRange(
       ts.factory.createSwitchStatement(target.ts(), block),
-      this
-    );
-  },
-  Symbol(node) {
-    return node.ts();
-  },
-  SymbolKey(node) {
-    return node.ts();
-  },
-  SymbolKey_computed(_0, expr, _1) {
-    return setTextRange(expr.ts(), this);
-  },
-  SymbolKey_name(ident) {
-    return setTextRange(
-      ts.factory.createStringLiteralFromNode(ident.ts()),
-      this
-    );
-  },
-  SymbolKey_string(str) {
-    return str.ts();
-  },
-  Symbol_builtin_symbol(hashMarks, key) {
-    return setTextRange(
-      ts.factory.createElementAccessExpression(
-        setTextRange(ts.factory.createIdentifier("Symbol"), hashMarks),
-        key.ts<ts.Expression>()
-      ),
-      this
-    );
-  },
-  Symbol_symbol_for(hashMark, key) {
-    let Symbol = setTextRange(ts.factory.createIdentifier("Symbol"), hashMark);
-    let _for = setTextRange(ts.factory.createIdentifier("for"), hashMark);
-    let Symbol_for = setTextRange(
-      ts.factory.createPropertyAccessExpression(Symbol, _for),
-      hashMark
-    );
-
-    return setTextRange(
-      ts.factory.createCallExpression(Symbol_for, undefined, [key.ts()]),
       this
     );
   },
