@@ -457,8 +457,8 @@ Storymatic {
   line_comment = "//" (~("\r" | "\n") any)* &("\r" | "\n" | end)
 
   JSXElement
-    = "<" JSXTagName GenericTypeArgumentList JSXAttribute* ">" JSXChild* "</" JSXTagName ">" -- open_close
-    | "<" JSXTagName GenericTypeArgumentList JSXAttribute* "/" ">" -- self_closing
+    = "<" #jsxTagName GenericTypeArgumentList JSXAttribute* ">" JSXChild* "</" #jsxTagName ">" -- open_close
+    | "<" #jsxTagName GenericTypeArgumentList JSXAttribute* "/" ">" -- self_closing
 
   jsx_string = (~("<" | "{") any)+
 
@@ -476,8 +476,8 @@ Storymatic {
 
   JSXAttributeKey = word
 
-  JSXTagName
-    = JSXTagName "." word -- property_access
+  jsxTagName
+    = jsxTagName "." word -- property_access
     | word -- standard
 
   Type = ConditionalType

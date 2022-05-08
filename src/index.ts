@@ -2077,10 +2077,10 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  JSXTagName(node) {
+  jsxTagName(node) {
     return node.ts();
   },
-  JSXTagName_property_access(tag, _, key) {
+  jsxTagName_property_access(tag, _, key) {
     return setTextRange(
       ts.factory.createPropertyAccessExpression(
         tag.ts(),
@@ -2089,7 +2089,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  JSXTagName_standard(node) {
+  jsxTagName_standard(node) {
     return node.ts();
   },
   jsx_string(bits) {

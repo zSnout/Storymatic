@@ -300,9 +300,9 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   JSXAttribute_spread_attributes?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
   JSXAttribute?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   JSXAttributeKey?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  JSXTagName_property_access?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
-  JSXTagName_standard?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  JSXTagName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  jsxTagName_property_access?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
+  jsxTagName_standard?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  jsxTagName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Type?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   PrimitiveType?: (this: NonterminalNode, arg0: TerminalNode) => T;
   Implementable?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
