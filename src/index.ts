@@ -1451,27 +1451,11 @@ semantics.addOperation<ts.Node>("ts", {
   ExpExp_exponentiate(left, _, right) {
     return setTextRange(ts.factory.createExponent(left.ts(), right.ts()), this);
   },
-  ExportableItemName(node) {
-    return node.ts();
-  },
-  ExportableItemName_rewrite(scriptName, _0, _1, _2, exportName) {
-    return setTextRange(
-      ts.factory.createExportSpecifier(
-        false,
-        scriptName.ts<ts.Identifier>(),
-        exportName.ts<ts.Identifier>()
-      ),
-      this
-    );
-  },
-  ExportableItemName_standard(ident) {
-    return setTextRange(
-      ts.factory.createExportSpecifier(
-        false,
-        undefined,
-        ident.ts<ts.Identifier>()
-      ),
-      this
+  Exportable(type, _0, name, _1, _2, _3, as) {
+    return ts.factory.createExportSpecifier(
+      !!type.child(0)?.sourceString,
+      as.child(0)?.sourceString,
+      name.sourceString
     );
   },
   ExportedVariableAssignment(_export, _0, assignable, _1, type, _2, expr) {
@@ -1722,27 +1706,13 @@ semantics.addOperation<ts.Node>("ts", {
       "`ImpliedCallArgumentList` nodes should never directly be evaluated."
     );
   },
-  ImportableItemName(node) {
-    return node.ts();
-  },
-  ImportableItemName_rewrite(exportName, _0, _1, _2, scriptName) {
-    return setTextRange(
-      ts.factory.createImportSpecifier(
-        false,
-        exportName.ts<ts.Identifier>(),
-        scriptName.ts<ts.Identifier>()
-      ),
-      this
-    );
-  },
-  ImportableItemName_standard(ident) {
-    return setTextRange(
-      ts.factory.createImportSpecifier(
-        false,
-        undefined,
-        ident.ts<ts.Identifier>()
-      ),
-      this
+  Importable(type, _0, name, _1, _2, _3, as) {
+    return ts.factory.createImportSpecifier(
+      !!type.child(0)?.sourceString,
+      as.child(0)?.sourceString
+        ? ts.factory.createIdentifier(name.child(0).sourceString)
+        : undefined,
+      ts.factory.createIdentifier(name.sourceString)
     );
   },
   IndexSignatureType(readonly, prefix, _0, ident, _1, key, _2, _3, value) {
@@ -2231,9 +2201,31 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExpNonCall(node) {
     return node.ts();
   },
-  MemberAccessExpNonCall_as_expression(expr, _0, _1, _2, type) {
+  MemberAccessExpNonCall_array_slice(target, qMark, _0, start, _1, end, _2) {
+    return ts.factory.createCallExpression(
+      ts.factory.createPropertyAccessChain(
+        target.ts(),
+        qMark.tsn({
+          "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+        }),
+        "slice"
+      ),
+      undefined,
+      [
+        start.child(0)?.ts<ts.Expression>() || ts.factory.createVoidZero(),
+        end.child(0)?.ts<ts.Expression>() || ts.factory.createVoidZero(),
+      ]
+    );
+  },
+  MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
     return setTextRange(
       ts.factory.createAsExpression(expr.ts(), type.ts()),
+      this
+    );
+  },
+  MemberAccessExpNonCall_class_creation_implied(_0, _1, target, args) {
+    return setTextRange(
+      ts.factory.createNewExpression(target.ts(), undefined, args.tsa()),
       this
     );
   },
@@ -2257,10 +2249,13 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExpNonCall_computed_member_access(target, _0, index, _1) {
+  MemberAccessExpNonCall_computed_member_access(target, qMark, _0, index, _1) {
     return setTextRange(
-      ts.factory.createElementAccessExpression(
+      ts.factory.createElementAccessChain(
         target.ts(),
+        qMark.tsn({
+          "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+        }),
         index.ts<ts.Expression>()
       ),
       this
@@ -2277,25 +2272,6 @@ semantics.addOperation<ts.Node>("ts", {
   },
   MemberAccessExpNonCall_non_null_assertion(target, _) {
     return setTextRange(ts.factory.createNonNullExpression(target.ts()), this);
-  },
-  MemberAccessExpNonCall_optional_chaining_computed_member_access(
-    target,
-    qDot,
-    _0,
-    index,
-    _1
-  ) {
-    return setTextRange(
-      ts.factory.createElementAccessChain(
-        target.ts(),
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-          qDot
-        ),
-        index.ts<ts.Expression>()
-      ),
-      this
-    );
   },
   MemberAccessExpNonCall_optional_chaining_member_access(target, qDot, key) {
     return setTextRange(
@@ -3066,12 +3042,12 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_export(_0, _1, exports, _2) {
+  Statement_export(_0, _1, type, _2, exports, _3, _4) {
     return setTextRange(
       ts.factory.createExportDeclaration(
         undefined,
         undefined,
-        false,
+        !!type.sourceString,
         setTextRange(ts.factory.createNamedExports(exports.tsa()), exports)
       ),
       this
@@ -3089,15 +3065,15 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_export_default(_0, _1, expression, _2) {
+  Statement_export_default(_0, _1, _2, _3, expression, _4) {
     return setTextRange(ts.factory.createExportDefault(expression.ts()), this);
   },
-  Statement_export_from(_0, _1, exports, _2, _3, _4, filename, _5) {
+  Statement_export_from(_0, _1, type, _2, exports, _3, _4, _5, filename, _6) {
     return setTextRange(
       ts.factory.createExportDeclaration(
         undefined,
         undefined,
-        false,
+        !!type.sourceString,
         setTextRange(ts.factory.createNamedExports(exports.tsa()), exports),
         filename.ts<ts.Expression>()
       ),
@@ -3136,14 +3112,14 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_import(_0, _1, imports, _2, _3, filename, _4) {
+  Statement_import(_0, _1, type, _2, imports, _3, _4, _5, filename, _6) {
     return setTextRange(
       ts.factory.createImportDeclaration(
         undefined,
         undefined,
         setTextRange(
           ts.factory.createImportClause(
-            false,
+            !!type.sourceString,
             undefined,
             setTextRange(ts.factory.createNamedImports(imports.tsa()), imports)
           ),
@@ -3178,14 +3154,14 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  Statement_import_default(_0, _1, ident, _2, _3, _4, filename, _5) {
+  Statement_import_default(_0, _1, type, _2, ident, _3, _4, _5, filename, _6) {
     return setTextRange(
       ts.factory.createImportDeclaration(
         undefined,
         undefined,
         setTextRange(
           ts.factory.createImportClause(
-            false,
+            !!type.sourceString,
             ident.ts<ts.Identifier>(),
             undefined
           ),

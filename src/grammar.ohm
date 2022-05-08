@@ -53,14 +53,14 @@ Storymatic {
     | ("while" | "until") #postWord Expression SingleStatementBlock<"do"> -- while
     | "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression SingleStatementBlock<"do"> -- for
     | "import" #postWord importLocation #statementTerminator -- empty_import
-    | "import" #postWord NonemptyListOf<ImportableItemName, ","> "from" #postWord importLocation #statementTerminator -- import
+    | "import" (#space "type")? "{" NonemptyListOf<Importable, ","> "}" "from" #postWord importLocation #statementTerminator -- import
     | "import" "*" "as" #postWord identifier "from" #postWord importLocation #statementTerminator -- import_all
-    | "import" "*" identifier #postWord "from" #postWord importLocation #statementTerminator -- import_default
+    | "import" (#space "type")? #postWord identifier #postWord "from" #postWord importLocation #statementTerminator -- import_default
     | "export" #statementTerminator -- empty_export
-    | "export" #postWord NonemptyListOf<ExportableItemName, ","> #space "from" #space importLocation #statementTerminator -- export_from
+    | "export" (#space "type")? "{" NonemptyListOf<Exportable, ","> "}" "from" #postWord importLocation #statementTerminator -- export_from
     | "export" "*" "from" #postWord importLocation #statementTerminator -- export_all_from
-    | "export" #space NonemptyListOf<ExportableItemName, ","> #statementTerminator -- export
-    | "export" "*" Expression #statementTerminator -- export_default
+    | "export" (#space "type")? "{" NonemptyListOf<Exportable, ","> "}" #statementTerminator -- export
+    | "export" #postWord "default" #postWord Expression #statementTerminator -- export_default
     | ExportedVariableAssignment #statementTerminator -- export_variable
     | "rescope" #space NonemptyListOf<Rescopable, ","> #statementTerminator -- rescope
     | "rescope" #space VariableAssignment #statementTerminator -- rescope_assign
@@ -88,16 +88,11 @@ Storymatic {
     | IndexSignatureType<"@@"> #statementTerminator -- static_index_signature
 
   importLocation
-    = (~(space | "\\" | "\"" | "\'" | statementTerminator) any)+ &statementTerminator -- filename
+    = (~(space | "{" | "\\" | "\"" | "\'" | statementTerminator) any)+ &statementTerminator -- filename
     | string_non_interpolatable
 
-  ImportableItemName
-    = identifier #space "as" #space identifier -- rewrite
-    | identifier -- standard
-
-  ExportableItemName
-    = identifier #space "as" #space identifier -- rewrite
-    | identifier -- standard
+  Importable = ("type" #space)? word (#space "as" #space word)?
+  Exportable = ("type" #space)? word (#space "as" #space word)?
 
   statementTerminator
     = spaces ";" -- semicolon
@@ -225,7 +220,7 @@ Storymatic {
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" word (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" word (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
-    | MemberAccessExp #(~("\"" | whitespace? ("\n" | "\r"))) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #(~("\"" | whitespace? ("\n" | "\r"))) ~"[" ImpliedCallArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
@@ -233,12 +228,13 @@ Storymatic {
     | Child "?." word -- optional_chaining_member_access
     | Child "." Symbol -- symbol_access
     | Child "?." Symbol -- optional_chaining_symbol_access
-    | Child "[" Child "]" -- computed_member_access
-    | Child "?" "[" Child "]" -- optional_chaining_computed_member_access
+    | Child "?"? "[" Expression "]" -- computed_member_access
+    | Child "?"? "[" Expression? ".." Expression? "]" -- array_slice
     | Child #string -- tagged_template_literal
     | Child "!" -- non_null_assertion
-    | Child #space "as" #space Type -- as_expression
+    | Child "as" #postWord Type -- as_expression
     | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
+    | "new" #space NCMemberAccessExp #(~("\"" | whitespace? ("\n" | "\r"))) ~(NonemptyGenericTypeArgumentList | "(" | "[") ImpliedCallArgumentList -- class_creation_implied
     | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
