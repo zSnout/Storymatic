@@ -2317,7 +2317,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExpNonCall_class_creation_implied(_0, _1, _2, target, args) {
+  MemberAccessExpNonCall_class_creation_implied(_0, _1, target, _2, args) {
     return setTextRange(
       ts.factory.createNewExpression(target.ts(), undefined, args.tsa()),
       this
@@ -2432,7 +2432,7 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  MemberAccessExp_implied_call(target, _, args) {
+  MemberAccessExp_implied_call(target, _0, args) {
     return setTextRange(
       ts.factory.createCallExpression(target.ts(), undefined, args.tsa()),
       this
@@ -3885,13 +3885,8 @@ semantics.addOperation<ts.Node>("ts", {
       this
     );
   },
-  terminator(_) {
+  terminator(_0, _1) {
     throw new Error("`terminator` nodes should never directly be evaluated.");
-  },
-  terminator_implied(_0, _1) {
-    throw new Error(
-      "`terminator_implied` nodes should never directly be evaluated."
-    );
   },
   thenOrDo(_) {
     throw new Error("`thenOrDo` nodes should never directly be evaluated.");

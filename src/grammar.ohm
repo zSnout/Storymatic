@@ -112,14 +112,15 @@ Storymatic {
     | terminator
 
   terminator
-    = (spaces &"}" | spaces end) -- implied
-    | lineTerminator
+    = spaces &"}"
+    | spaces end
+    | (~("\r" | "\n") space)* ("\r" | "\n")+
 
   lineTerminator
     = whitespace? ("\r" | "\n")+ spaces ~lineContinuer
 
   lineContinuer
-    = "+" | "-" | "*" | "/" | "^" | "%" | "==" | "!=" | "[" | "(" | "." | "?." | "?" | ":" | "<" | ">" | "&&" | "||" | "??" | reserved_operators
+    = "+" | "-" | "*" | ("/" ~("/" | "*")) | "^" | "%" | "==" | "!=" | "[" | "(" | "." | "?." | "?" | ":" | "<" | ">" | "&&" | "||" | "??" | reserved_operators
 
   TopLevelIfExp
     = TopLevelWhileExp ("if" | "unless") #postWord Expression -- if
@@ -219,7 +220,7 @@ Storymatic {
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" word (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" word (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
-    | MemberAccessExp #whitespace ~("\"" | "[" | "(" | NonemptyGenericTypeArgumentList) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #(whitespace ~("\n" | "\r" | "[" | "(" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
@@ -231,7 +232,7 @@ Storymatic {
     | Child "!" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
     | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space NCMemberAccessExp #whitespace ~("\"" | "[" | "(" | NonemptyGenericTypeArgumentList) ImpliedCallArgumentList -- class_creation_implied
+    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "[" | "(" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- class_creation_implied
     | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
@@ -342,7 +343,7 @@ Storymatic {
 
   ForExp
     = AssignmentExp "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? ForExp ("when" #postWord Expression)? -- for
-    | "print" #space AssignmentExp -- print
+    | "print" #whitespace #(~("\n" | "\r")) AssignmentExp -- print
     | AssignmentExp
 
   WhileExp
@@ -386,7 +387,7 @@ Storymatic {
     = "." word -- member_access
     | "[" Expression "]" -- computed_member_access
 
-  whitespace = (~("\r" | "\n") space)+
+  whitespace = (~("\r" | "\n" | line_comment | block_comment) space)+
 
   sign = ("+" | "-")?
   number = digit+ ("_" digit+)*
