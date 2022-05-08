@@ -116,9 +116,6 @@ Storymatic {
     | spaces end
     | (~("\r" | "\n") space)* ("\r" | "\n")+
 
-  lineTerminator
-    = whitespace? ("\r" | "\n")+ spaces ~lineContinuer
-
   lineContinuer
     = "+" | "-" | "*" | ("/" ~("/" | "*")) | "^" | "%" | "==" | "!=" | "[" | "(" | "." | "?." | "?" | ":" | "<" | ">" | "&&" | "||" | "??" | reserved_operators
 

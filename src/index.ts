@@ -2256,11 +2256,6 @@ semantics.addOperation<ts.Node>("ts", {
       "`lineContinuer` nodes should never directly be evaluated."
     );
   },
-  lineTerminator(_0, _1, _2) {
-    throw new Error(
-      "`lineTerminator` nodes should never directly be evaluated."
-    );
-  },
   line_comment(_0, _1, _2) {
     throw new Error("`line_comment` nodes should never directly be evaluated.");
   },
