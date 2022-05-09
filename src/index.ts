@@ -281,6 +281,8 @@ function transformer(context: ts.TransformationContext) {
       autoReturn: false | "return" | `$res${number | ""}`,
       exclude?: ts.BindingName[]
     ): ts.Node | ts.Node[] {
+      console.log(ts.SyntaxKind[node.kind]);
+
       if (
         ts.isFunctionDeclaration(node) ||
         ts.isFunctionExpression(node) ||
@@ -377,7 +379,7 @@ function transformer(context: ts.TransformationContext) {
             ? ts.factory.createReturnStatement(
                 ts.factory.createIdentifier(result)
               )
-            : (ts.factory.createExpressionStatement(
+            : ts.factory.createExpressionStatement(
                 ts.factory.createCallExpression(
                   ts.factory.createPropertyAccessExpression(
                     ts.factory.createIdentifier(autoReturn),
@@ -387,7 +389,6 @@ function transformer(context: ts.TransformationContext) {
                   [ts.factory.createIdentifier(result)]
                 )
               ),
-              node),
         ];
       }
 
@@ -430,9 +431,7 @@ function transformer(context: ts.TransformationContext) {
         );
 
         if (names.length)
-          return (
-            ts.factory.createBlock([decl, ...block.statements], true), block
-          );
+          return ts.factory.createBlock([decl, ...block.statements], true);
 
         return block;
       }
@@ -452,9 +451,9 @@ function transformer(context: ts.TransformationContext) {
       }
 
       if (ts.isVariableStatement(node)) {
-        node.declarationList.declarations.map((node) =>
-          visitBinding(node.name, fnScope, blockScope)
-        );
+        node.declarationList.declarations.map((node) => {
+          visitBinding(node.name, fnScope, blockScope);
+        });
       }
 
       if (ts.isExpressionStatement(node)) {
@@ -532,15 +531,12 @@ function transformer(context: ts.TransformationContext) {
         fnScope.isGenerator = fnScope.isGenerator || isGenerator;
 
         if (isGenerator)
-          return (
-            ts.factory.createYieldExpression(
-              ts.factory.createToken(ts.SyntaxKind.AsteriskToken),
-              call
-            ),
+          return ts.factory.createYieldExpression(
+            ts.factory.createToken(ts.SyntaxKind.AsteriskToken),
             call
           );
 
-        if (isAsync) return ts.factory.createAwaitExpression(call), call;
+        if (isAsync) return ts.factory.createAwaitExpression(call);
 
         return call;
       }
@@ -549,9 +545,7 @@ function transformer(context: ts.TransformationContext) {
         ts.isExpressionStatement(node) &&
         ts.isParenthesizedExpression(node.expression)
       ) {
-        node =
-          (ts.factory.createExpressionStatement(node.expression.expression),
-          node);
+        node = ts.factory.createExpressionStatement(node.expression.expression);
       }
 
       return ts.visitEachChild(
@@ -575,13 +569,10 @@ function traverseScript(node: ts.SourceFile) {
     transformer,
   ]);
 
-  return (
-    ts.factory.createSourceFile(
-      result.transformed[0].statements,
-      ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
-      0
-    ),
-    node
+  return ts.factory.createSourceFile(
+    result.transformed[0].statements,
+    ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+    0
   );
 }
 
