@@ -700,7 +700,7 @@ semantics.addOperation<ts.Node>("ts", {
       initializer.ts<ts.Expression>()
     );
   },
-  Assignable_array(_0, elements, _1, spreadable, _2, _3) {
+  Assignable_array(_0, elements, _1, _2, spreadable, _3, _4) {
     let members = elements.tsa<ts.BindingElement>().slice();
 
     if (spreadable.sourceString) {
@@ -722,7 +722,7 @@ semantics.addOperation<ts.Node>("ts", {
       node.ts<ts.Identifier>()
     );
   },
-  Assignable_object(_0, elements, _1, spreadable, _2, _3) {
+  Assignable_object(_0, elements, _1, _2, spreadable, _3, _4) {
     let members = elements.tsa<ts.BindingElement>().slice();
 
     if (spreadable.sourceString) {
@@ -848,7 +848,7 @@ semantics.addOperation<ts.Node>("ts", {
       expr.child(0)?.ts<ts.Expression>()
     );
   },
-  AssignmentExp_yield_from(_0, _1, _2, expr) {
+  AssignmentExp_yield_from(_0, _1, _2, _3, expr) {
     return ts.factory.createYieldExpression(
       ts.factory.createToken(ts.SyntaxKind.AsteriskToken),
       expr.ts<ts.Expression>()
@@ -1065,6 +1065,7 @@ semantics.addOperation<ts.Node>("ts", {
     privacy,
     readonly,
     _0,
+    _1,
     name,
     modifier,
     _2,
@@ -1663,7 +1664,7 @@ semantics.addOperation<ts.Node>("ts", {
   JSXElement(node) {
     return node.ts();
   },
-  JSXElement_open_close(tag, typeArgs, attrNode, children, _) {
+  JSXElement_open_close(_0, tag, typeArgs, attrNode, _1, children, _2, _3, _4) {
     let attrs = ts.factory.createJsxAttributes(attrNode.tsa());
 
     let open = ts.factory.createJsxOpeningElement(
@@ -1926,7 +1927,7 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExpNonCall_non_null_assertion(target, _) {
     return ts.factory.createNonNullExpression(target.ts());
   },
-  MemberAccessExpNonCall_optional_chaining_member_access(target, key) {
+  MemberAccessExpNonCall_optional_chaining_member_access(target, _, key) {
     return ts.factory.createPropertyAccessChain(
       target.ts(),
       ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
@@ -2012,10 +2013,11 @@ semantics.addOperation<ts.Node>("ts", {
   },
   MemberAccessExp_optional_chaining_function_call(
     target,
-    typeArgs,
     _0,
+    typeArgs,
+    _1,
     args,
-    _1
+    _2
   ) {
     return ts.factory.createCallChain(
       target.ts(),
@@ -2154,7 +2156,7 @@ semantics.addOperation<ts.Node>("ts", {
       value.ts()
     );
   },
-  NamedTupleElement_spread_operator(name, _, value) {
+  NamedTupleElement_spread_operator(_0, name, _1, value) {
     return ts.factory.createNamedTupleMember(
       ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
       name.ts(),
@@ -2344,13 +2346,13 @@ semantics.addOperation<ts.Node>("ts", {
   Property(node) {
     return node.ts();
   },
-  Property_computed(_0, expr, _1) {
+  Property_computed(_0, _1, expr, _2) {
     return ts.factory.createElementAccessExpression(
       ts.factory.createIdentifier("$self"),
       expr.ts<ts.Expression>()
     );
   },
-  Property_identifier(prop) {
+  Property_identifier(_, prop) {
     return ts.factory.createPropertyAccessExpression(
       ts.factory.createIdentifier("$self"),
       prop.ts<ts.Identifier>()
@@ -2385,7 +2387,7 @@ semantics.addOperation<ts.Node>("ts", {
   RestParameter(node) {
     return node.ts();
   },
-  RestParameter_with_type(assignable, _, type) {
+  RestParameter_with_type(_0, assignable, _1, type) {
     return ts.factory.createParameterDeclaration(
       undefined,
       undefined,
@@ -2395,7 +2397,7 @@ semantics.addOperation<ts.Node>("ts", {
       type.ts<ts.TypeNode>()
     );
   },
-  RestParameter_without_type(assignable) {
+  RestParameter_without_type(_0, assignable) {
     return ts.factory.createParameterDeclaration(
       undefined,
       undefined,
@@ -2433,7 +2435,7 @@ semantics.addOperation<ts.Node>("ts", {
   Statement(node) {
     return node.ts();
   },
-  Statement_await_new_thread(_0, assignable, _1, expression, blockNode) {
+  Statement_await_new_thread(_0, _1, assignable, _2, expression, blockNode) {
     let $ = ts.factory.createAwaitExpression(
       ts.factory.createIdentifier("$awaited")
     );
@@ -2566,7 +2568,7 @@ semantics.addOperation<ts.Node>("ts", {
       filename.ts()
     );
   },
-  Statement_import_all(_0, _2, _3, ident, _4, _5, filename, _6) {
+  Statement_import_all(_0, _1, _2, _3, ident, _4, _5, filename, _6) {
     return ts.factory.createImportDeclaration(
       undefined,
       undefined,
@@ -2685,19 +2687,19 @@ semantics.addOperation<ts.Node>("ts", {
   StaticProperty(node) {
     return node.ts();
   },
-  StaticProperty_computed(_0, expr, _1) {
+  StaticProperty_computed(_0, _1, expr, _2) {
     return ts.factory.createElementAccessExpression(
       ts.factory.createIdentifier("$static"),
       expr.ts<ts.Expression>()
     );
   },
-  StaticProperty_identifier(prop) {
+  StaticProperty_identifier(_, prop) {
     return ts.factory.createPropertyAccessExpression(
       ts.factory.createIdentifier("$static"),
       prop.ts<ts.Identifier>()
     );
   },
-  SwitchStatement(_0, _1, target, cases, defaultNode) {
+  SwitchStatement(_0, _1, target, _2, cases, defaultNode, _3) {
     let blocks: readonly ts.CaseBlock[] = cases.tsa();
     if (defaultNode.sourceString) {
       blocks = blocks.concat(defaultNode.child(0).ts<ts.CaseBlock>());
@@ -2867,7 +2869,7 @@ semantics.addOperation<ts.Node>("ts", {
       ifFalse.ts()
     );
   },
-  TernaryExp_symbolic(condition, ifTrue, ifFalse) {
+  TernaryExp_symbolic(condition, _0, ifTrue, _1, ifFalse) {
     return ts.factory.createConditionalExpression(
       condition.ts(),
       ts.factory.createToken(ts.SyntaxKind.QuestionToken),
@@ -3077,7 +3079,7 @@ semantics.addOperation<ts.Node>("ts", {
       "`TypeParameterList_rest_params` nodes should never directly be evaluated."
     );
   },
-  TypeRestParameter(ident, _, type) {
+  TypeRestParameter(_0, ident, _1, type) {
     return ts.factory.createParameterDeclaration(
       undefined,
       undefined,
