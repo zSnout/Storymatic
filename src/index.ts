@@ -25,8 +25,29 @@ export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   };
 }
 
+export function addArrows(text: string) {
+  return text
+    .split("\n")
+    .map((line): [indent: number, text: string] => [
+      line.length - line.trimStart().length,
+      line,
+    ])
+    .reduce(
+      ([prevIndent, text], [indent, line]) => {
+        if (indent < prevIndent) {
+          text = `${text}\n${"⇦".repeat(prevIndent - indent)}${line}`;
+        } else if (indent > prevIndent) {
+          text = `${text}\n${"⇨".repeat(indent - prevIndent)}${line}`;
+        } else text = `${text}\n${line}`;
+
+        return [indent, text];
+      },
+      [0, ""]
+    );
+}
+
 export function compile(text: string) {
-  let match = story.match(text);
+  let match = story.match(addArrows(text)[1]);
   if (match.failed()) throw new SyntaxError(match.message);
 
   scriptHasEvents = false;
