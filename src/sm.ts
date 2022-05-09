@@ -11,7 +11,7 @@ import glob = require("fast-glob");
 let args = yargs
   .scriptName("sm")
   .option("typescript", {
-    alias: "ts",
+    alias: ["T", "ts"],
     desc: "compile code to TypeScript",
     type: "boolean",
   })
