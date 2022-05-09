@@ -314,8 +314,6 @@ function transformer(context: ts.TransformationContext) {
       autoReturn: false | "return" | `$res${number | ""}`,
       exclude?: ts.BindingName[]
     ): ts.Node | ts.Node[] {
-      console.log(ts.SyntaxKind[node.kind]);
-
       if (
         ts.isFunctionDeclaration(node) ||
         ts.isFunctionExpression(node) ||
