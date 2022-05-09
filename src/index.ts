@@ -77,13 +77,6 @@ export interface Flags {
   jsx?: string;
 }
 
-function setTextRange<T extends ts.TextRange>(range: T, location: ohm.Node) {
-  return ts.setTextRange(range, {
-    pos: location.source.startIdx,
-    end: location.source.endIdx,
-  });
-}
-
 semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   _terminal() {
     throw new Error(".tsa() must not be called on a TerminalNode.");
@@ -105,10 +98,7 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
     return iterNode.tsa();
   },
   _iter(...children) {
-    return setTextRange(
-      ts.factory.createNodeArray(children.map((e) => e.ts())),
-      this
-    );
+    return ts.factory.createNodeArray(children.map((e) => e.ts()));
   },
 
   GenericTypeArgumentList(node) {
@@ -118,13 +108,13 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
     return node.tsa();
   },
   GenericTypeArgumentList_empty() {
-    return setTextRange(ts.factory.createNodeArray([]), this);
+    return ts.factory.createNodeArray([]);
   },
   GenericTypeParameterList(_0, params, _1) {
     return params.tsa();
   },
   NonemptyGenericTypeArgumentList(_0, typeArgs, _1) {
-    return setTextRange(typeArgs.tsa(), this);
+    return typeArgs.tsa();
   },
   ParameterList(node) {
     return node.tsa();
@@ -133,18 +123,15 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
     let params = paramNodes.tsa<ts.ParameterDeclaration>();
 
     if (rest.sourceString) {
-      return setTextRange(
-        ts.factory.createNodeArray(
-          params.concat(rest.child(0).ts<ts.ParameterDeclaration>())
-        ),
-        this
+      return ts.factory.createNodeArray(
+        params.concat(rest.child(0).ts<ts.ParameterDeclaration>())
       );
     } else {
-      return setTextRange(params, this);
+      return params;
     }
   },
   ParameterList_rest_params(rest) {
-    return setTextRange(ts.factory.createNodeArray([rest.ts()]), this);
+    return ts.factory.createNodeArray([rest.ts()]);
   },
   TypeParameterList(node) {
     return node.tsa();
@@ -153,18 +140,15 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
     let params = paramNodes.tsa<ts.ParameterDeclaration>();
 
     if (rest.sourceString) {
-      return setTextRange(
-        ts.factory.createNodeArray(
-          params.concat(rest.child(0).ts<ts.ParameterDeclaration>())
-        ),
-        this
+      return ts.factory.createNodeArray(
+        params.concat(rest.child(0).ts<ts.ParameterDeclaration>())
       );
     } else {
-      return setTextRange(params, this);
+      return params;
     }
   },
   TypeParameterList_rest_params(rest) {
-    return setTextRange(ts.factory.createNodeArray([rest.ts()]), this);
+    return ts.factory.createNodeArray([rest.ts()]);
   },
 });
 
@@ -173,19 +157,19 @@ semantics.addOperation<ts.Node | undefined>("tsn(map)", {
     let args = this.args.map as Record<string, ts.Node>;
     let res = args[this.sourceString];
     if (!res) return undefined;
-    return setTextRange(res, this);
+    return res;
   },
   _nonterminal() {
     let args = this.args.map as Record<string, ts.Node>;
     let res = args[this.sourceString];
     if (!res) return undefined;
-    return setTextRange(res, this);
+    return res;
   },
   _iter() {
     let args = this.args.map as Record<string, ts.Node>;
     let res = args[this.sourceString];
     if (!res) return undefined;
-    return setTextRange(res, this);
+    return res;
   },
 });
 
@@ -200,43 +184,28 @@ function bindingToAssignment(
     return bound;
   } else if (bound.kind === ts.SyntaxKind.BindingElement) {
     if (bound.dotDotDotToken)
-      return ts.setTextRange(
-        ts.factory.createSpreadElement(bindingToAssignment(bound.name)),
-        bound
-      );
+      return ts.factory.createSpreadElement(bindingToAssignment(bound.name));
 
     if (bound.propertyName)
-      return ts.setTextRange(
-        ts.factory.createPropertyAssignment(
-          bound.propertyName,
-          bindingToAssignment(bound.name)
-        ),
-        bound
+      return ts.factory.createPropertyAssignment(
+        bound.propertyName,
+        bindingToAssignment(bound.name)
       ) as any;
 
     if (bound.initializer)
-      return ts.setTextRange(
-        ts.factory.createAssignment(
-          bindingToAssignment(bound.name),
-          bound.initializer
-        ),
-        bound
+      return ts.factory.createAssignment(
+        bindingToAssignment(bound.name),
+        bound.initializer
       );
 
     return bindingToAssignment(bound.name);
   } else if (bound.kind === ts.SyntaxKind.ArrayBindingPattern) {
-    return ts.setTextRange(
-      ts.factory.createArrayLiteralExpression(
-        bound.elements.map((element) => bindingToAssignment(element as any))
-      ),
-      bound
+    return ts.factory.createArrayLiteralExpression(
+      bound.elements.map((element) => bindingToAssignment(element as any))
     );
   } else if (bound.kind === ts.SyntaxKind.ObjectBindingPattern) {
-    return ts.setTextRange(
-      ts.factory.createObjectLiteralExpression(
-        bound.elements.map((element) => bindingToAssignment(element) as any)
-      ),
-      bound
+    return ts.factory.createObjectLiteralExpression(
+      bound.elements.map((element) => bindingToAssignment(element) as any)
     );
   }
 
@@ -246,28 +215,12 @@ function bindingToAssignment(
 }
 
 function makeAssignment(name: string, value: ts.Expression) {
-  return ts.setTextRange(
-    ts.factory.createVariableStatement(
-      undefined,
-      ts.setTextRange(
-        ts.factory.createVariableDeclarationList(
-          [
-            ts.setTextRange(
-              ts.factory.createVariableDeclaration(
-                name,
-                undefined,
-                undefined,
-                value
-              ),
-              value
-            ),
-          ],
-          ts.NodeFlags.Let
-        ),
-        value
-      )
-    ),
-    value
+  return ts.factory.createVariableStatement(
+    undefined,
+    ts.factory.createVariableDeclarationList(
+      [ts.factory.createVariableDeclaration(name, undefined, undefined, value)],
+      ts.NodeFlags.Let
+    )
   );
 }
 
@@ -402,8 +355,6 @@ function transformer(context: ts.TransformationContext) {
         if (autoReturn && autoReturn.startsWith("$res"))
           result += +autoReturn.slice(4) + 1;
 
-        let end = { pos: node.end, end: node.end };
-
         let exclude: ts.BindingName[] | undefined;
         if (
           ts.isForStatement(node) ||
@@ -416,52 +367,27 @@ function transformer(context: ts.TransformationContext) {
         }
 
         return [
-          ts.setTextRange(
-            makeAssignment(result, ts.factory.createArrayLiteralExpression([])),
-            { pos: node.pos, end: node.pos }
-          ),
+          makeAssignment(result, ts.factory.createArrayLiteralExpression([])),
           ts.visitEachChild(
             node,
             (node) => visit(node, fnScope, blockScope, result, exclude),
             context
           ),
           autoReturn == "return"
-            ? ts.setTextRange(
-                ts.factory.createReturnStatement(
-                  ts.setTextRange(ts.factory.createIdentifier(result), end)
-                ),
-                end
+            ? ts.factory.createReturnStatement(
+                ts.factory.createIdentifier(result)
               )
-            : ts.setTextRange(
-                ts.factory.createExpressionStatement(
-                  ts.setTextRange(
-                    ts.factory.createCallExpression(
-                      ts.setTextRange(
-                        ts.factory.createPropertyAccessExpression(
-                          ts.setTextRange(
-                            ts.factory.createIdentifier(autoReturn),
-                            {
-                              pos: node.pos,
-                              end: node.pos,
-                            }
-                          ),
-                          "push"
-                        ),
-                        { pos: node.pos, end: node.pos }
-                      ),
-                      undefined,
-                      [
-                        ts.setTextRange(
-                          ts.factory.createIdentifier(result),
-                          end
-                        ),
-                      ]
-                    ),
-                    node
-                  )
-                ),
-                node
+            : (ts.factory.createExpressionStatement(
+                ts.factory.createCallExpression(
+                  ts.factory.createPropertyAccessExpression(
+                    ts.factory.createIdentifier(autoReturn),
+                    "push"
+                  ),
+                  undefined,
+                  [ts.factory.createIdentifier(result)]
+                )
               ),
+              node),
         ];
       }
 
@@ -487,8 +413,6 @@ function transformer(context: ts.TransformationContext) {
           context
         );
 
-        let pos = { pos: block.pos, end: block.pos };
-
         let names = [
           ...new Set(
             scope.localVars
@@ -497,29 +421,17 @@ function transformer(context: ts.TransformationContext) {
           ),
         ];
 
-        let decl = ts.setTextRange(
-          ts.factory.createVariableStatement(
-            undefined,
-            ts.setTextRange(
-              ts.factory.createVariableDeclarationList(
-                names.map((name) =>
-                  ts.setTextRange(
-                    ts.factory.createVariableDeclaration(name),
-                    pos
-                  )
-                ),
-                ts.NodeFlags.Let
-              ),
-              pos
-            )
-          ),
-          pos
+        let decl = ts.factory.createVariableStatement(
+          undefined,
+          ts.factory.createVariableDeclarationList(
+            names.map((name) => ts.factory.createVariableDeclaration(name)),
+            ts.NodeFlags.Let
+          )
         );
 
         if (names.length)
-          return ts.setTextRange(
-            ts.factory.createBlock([decl, ...block.statements], true),
-            block
+          return (
+            ts.factory.createBlock([decl, ...block.statements], true), block
           );
 
         return block;
@@ -570,10 +482,7 @@ function transformer(context: ts.TransformationContext) {
       }
 
       if (ts.isExpressionStatement(node) && autoReturn == "return") {
-        node = ts.setTextRange(
-          ts.factory.createReturnStatement(node.expression),
-          node
-        );
+        node = ts.factory.createReturnStatement(node.expression);
       }
 
       if (
@@ -581,27 +490,15 @@ function transformer(context: ts.TransformationContext) {
         autoReturn &&
         autoReturn.startsWith("$res")
       ) {
-        node = ts.setTextRange(
-          ts.factory.createExpressionStatement(
-            ts.setTextRange(
-              ts.factory.createCallExpression(
-                ts.setTextRange(
-                  ts.factory.createPropertyAccessExpression(
-                    ts.setTextRange(ts.factory.createIdentifier(autoReturn), {
-                      pos: node.pos,
-                      end: node.pos,
-                    }),
-                    "push"
-                  ),
-                  { pos: node.pos, end: node.pos }
-                ),
-                undefined,
-                [node.expression]
-              ),
-              node
-            )
-          ),
-          node
+        node = ts.factory.createExpressionStatement(
+          ts.factory.createCallExpression(
+            ts.factory.createPropertyAccessExpression(
+              ts.factory.createIdentifier(autoReturn),
+              "push"
+            ),
+            undefined,
+            [node.expression]
+          )
         );
       }
 
@@ -635,19 +532,15 @@ function transformer(context: ts.TransformationContext) {
         fnScope.isGenerator = fnScope.isGenerator || isGenerator;
 
         if (isGenerator)
-          return ts.setTextRange(
+          return (
             ts.factory.createYieldExpression(
-              ts.setTextRange(
-                ts.factory.createToken(ts.SyntaxKind.AsteriskToken),
-                { pos: call.pos, end: call.pos }
-              ),
+              ts.factory.createToken(ts.SyntaxKind.AsteriskToken),
               call
             ),
             call
           );
 
-        if (isAsync)
-          return ts.setTextRange(ts.factory.createAwaitExpression(call), call);
+        if (isAsync) return ts.factory.createAwaitExpression(call), call;
 
         return call;
       }
@@ -656,10 +549,9 @@ function transformer(context: ts.TransformationContext) {
         ts.isExpressionStatement(node) &&
         ts.isParenthesizedExpression(node.expression)
       ) {
-        node = ts.setTextRange(
-          ts.factory.createExpressionStatement(node.expression.expression),
-          node
-        );
+        node =
+          (ts.factory.createExpressionStatement(node.expression.expression),
+          node);
       }
 
       return ts.visitEachChild(
@@ -683,7 +575,7 @@ function traverseScript(node: ts.SourceFile) {
     transformer,
   ]);
 
-  return ts.setTextRange(
+  return (
     ts.factory.createSourceFile(
       result.transformed[0].statements,
       ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
@@ -693,25 +585,19 @@ function traverseScript(node: ts.SourceFile) {
   );
 }
 
-function createIIFE(block: ts.Block, range: ts.TextRange = block) {
-  let iife = ts.setTextRange(
-    ts.factory.createCallExpression(
-      ts.setTextRange(
-        ts.factory.createFunctionExpression(
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          ts.setTextRange(block, range)
-        ),
-        range
-      ),
+function createIIFE(block: ts.Block) {
+  let iife = ts.factory.createCallExpression(
+    ts.factory.createFunctionExpression(
       undefined,
-      undefined
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      block
     ),
-    range
+    undefined,
+    undefined
   );
 
   (iife as any).__storymaticIsIIFE = true;
@@ -739,23 +625,15 @@ semantics.addOperation<ts.Node>("ts", {
       } else {
         expr = ts.factory.createElementAccessExpression(expr, addon);
       }
-
-      expr = ts.setTextRange(expr, {
-        pos: base.source.startIdx,
-        end: addon.end,
-      });
     }
 
-    return setTextRange(expr, this);
+    return expr;
   },
   AccessorAddon(node) {
     return node.ts();
   },
   AccessorAddon_computed_member_access(_0, expr, _1) {
-    return setTextRange(
-      ts.factory.createParenthesizedExpression(expr.ts()),
-      this
-    );
+    return ts.factory.createParenthesizedExpression(expr.ts());
   },
   AccessorAddon_member_access(_, prop) {
     return prop.ts();
@@ -773,10 +651,10 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   AddExp_addition(left, _, right) {
-    return setTextRange(ts.factory.createAdd(left.ts(), right.ts()), this);
+    return ts.factory.createAdd(left.ts(), right.ts());
   },
   AddExp_subtraction(left, _, right) {
-    return setTextRange(ts.factory.createSubtract(left.ts(), right.ts()), this);
+    return ts.factory.createSubtract(left.ts(), right.ts());
   },
   Argument(node) {
     return node.ts();
@@ -785,13 +663,13 @@ semantics.addOperation<ts.Node>("ts", {
     throw new Error("`ArgumentList` nodes should never directly be evaluated.");
   },
   Argument_spread_operator(_, expr) {
-    return setTextRange(ts.factory.createSpreadElement(expr.ts()), this);
+    return ts.factory.createSpreadElement(expr.ts());
   },
   ArrayEntry(node) {
     return node.ts();
   },
   ArrayEntry_spread_operator(_, expr) {
-    return setTextRange(ts.factory.createSpreadElement(expr.ts()), this);
+    return ts.factory.createSpreadElement(expr.ts());
   },
   Assignable(node) {
     return node.ts();
@@ -800,13 +678,10 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   AssignableKeyWithRewrite_rewrite(name, _, assignable) {
-    return setTextRange(
-      ts.factory.createBindingElement(
-        undefined,
-        name.ts<ts.PropertyName>(),
-        assignable.ts<ts.BindingName>()
-      ),
-      this
+    return ts.factory.createBindingElement(
+      undefined,
+      name.ts<ts.PropertyName>(),
+      assignable.ts<ts.BindingName>()
     );
   },
   AssignableOrAccessor(node) {
@@ -818,67 +693,49 @@ semantics.addOperation<ts.Node>("ts", {
   AssignableWithDefault_with_default(assignableNode, _, initializer) {
     let assignable = assignableNode.ts<ts.BindingElement>();
 
-    return setTextRange(
-      ts.factory.createBindingElement(
-        assignable.dotDotDotToken,
-        assignable.propertyName,
-        assignable.name,
-        initializer.ts<ts.Expression>()
-      ),
-      this
+    return ts.factory.createBindingElement(
+      assignable.dotDotDotToken,
+      assignable.propertyName,
+      assignable.name,
+      initializer.ts<ts.Expression>()
     );
   },
-  Assignable_array(_0, elements, _1, dotDotDot, spreadable, _2, _3) {
+  Assignable_array(_0, elements, _1, spreadable, _2, _3) {
     let members = elements.tsa<ts.BindingElement>().slice();
 
     if (spreadable.sourceString) {
       members.push(
-        setTextRange(
-          ts.factory.createBindingElement(
-            setTextRange(
-              ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-              dotDotDot.child(0)
-            ),
-            undefined,
-            spreadable.child(0).ts<ts.BindingName>()
-          ),
-          this
+        ts.factory.createBindingElement(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          undefined,
+          spreadable.child(0).ts<ts.BindingName>()
         )
       );
     }
 
-    return setTextRange(ts.factory.createArrayBindingPattern(members), this);
+    return ts.factory.createArrayBindingPattern(members);
   },
   Assignable_identifier(node) {
-    return setTextRange(
-      ts.factory.createBindingElement(
-        undefined,
-        undefined,
-        node.ts<ts.Identifier>()
-      ),
-      this
+    return ts.factory.createBindingElement(
+      undefined,
+      undefined,
+      node.ts<ts.Identifier>()
     );
   },
-  Assignable_object(_0, elements, _1, dotDotDot, spreadable, _2, _3) {
+  Assignable_object(_0, elements, _1, spreadable, _2, _3) {
     let members = elements.tsa<ts.BindingElement>().slice();
 
     if (spreadable.sourceString) {
       members.push(
-        setTextRange(
-          ts.factory.createBindingElement(
-            setTextRange(
-              ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-              dotDotDot.child(0)
-            ),
-            undefined,
-            spreadable.child(0).ts<ts.BindingName>()
-          ),
-          this
+        ts.factory.createBindingElement(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          undefined,
+          spreadable.child(0).ts<ts.BindingName>()
         )
       );
     }
 
-    return setTextRange(ts.factory.createObjectBindingPattern(members), this);
+    return ts.factory.createObjectBindingPattern(members);
   },
   AssignmentExp(node) {
     return node.ts();
@@ -896,13 +753,10 @@ semantics.addOperation<ts.Node>("ts", {
       bound.kind === ts.SyntaxKind.ArrayBindingPattern ||
       bound.kind === ts.SyntaxKind.ObjectBindingPattern
     ) {
-      return setTextRange(
-        ts.factory.createAssignment(bindingToAssignment(bound), expr.ts()),
-        this
-      );
+      return ts.factory.createAssignment(bindingToAssignment(bound), expr.ts());
     }
 
-    return setTextRange(ts.factory.createAssignment(bound, expr.ts()), this);
+    return ts.factory.createAssignment(bound, expr.ts());
   },
   AssignmentExp_splice(accessor, _0, start, dotdot, end, _2, _3, target) {
     let startExpr =
@@ -982,31 +836,22 @@ semantics.addOperation<ts.Node>("ts", {
       ">>>=": ts.SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken,
     };
 
-    return setTextRange(
-      ts.factory.createBinaryExpression(
-        target.ts(),
-        all[op.sourceString]!,
-        expr.ts()
-      ),
-      this
+    return ts.factory.createBinaryExpression(
+      target.ts(),
+      all[op.sourceString]!,
+      expr.ts()
     );
   },
   AssignmentExp_yield(_0, _1, expr) {
-    return setTextRange(
-      ts.factory.createYieldExpression(
-        undefined,
-        expr.child(0)?.ts<ts.Expression>()
-      ),
-      this
+    return ts.factory.createYieldExpression(
+      undefined,
+      expr.child(0)?.ts<ts.Expression>()
     );
   },
-  AssignmentExp_yield_from(_0, _1, from, _2, expr) {
-    return setTextRange(
-      ts.factory.createYieldExpression(
-        setTextRange(ts.factory.createToken(ts.SyntaxKind.AsteriskToken), from),
-        expr.ts<ts.Expression>()
-      ),
-      this
+  AssignmentExp_yield_from(_0, _1, _2, expr) {
+    return ts.factory.createYieldExpression(
+      ts.factory.createToken(ts.SyntaxKind.AsteriskToken),
+      expr.ts<ts.Expression>()
     );
   },
   alnum(_) {
@@ -1019,22 +864,13 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   BitwiseExp_left_shift(left, _, right) {
-    return setTextRange(
-      ts.factory.createLeftShift(left.ts(), right.ts()),
-      this
-    );
+    return ts.factory.createLeftShift(left.ts(), right.ts());
   },
   BitwiseExp_right_shift(left, _, right) {
-    return setTextRange(
-      ts.factory.createRightShift(left.ts(), right.ts()),
-      this
-    );
+    return ts.factory.createRightShift(left.ts(), right.ts());
   },
   BitwiseExp_unsigned_right_shift(left, _, right) {
-    return setTextRange(
-      ts.factory.createUnsignedRightShift(left.ts(), right.ts()),
-      this
-    );
+    return ts.factory.createUnsignedRightShift(left.ts(), right.ts());
   },
   BlockFunction(
     _export,
@@ -1051,25 +887,17 @@ semantics.addOperation<ts.Node>("ts", {
     returnType,
     body
   ) {
-    return setTextRange(
-      ts.factory.createFunctionDeclaration(
-        undefined,
-        _export.sourceString
-          ? [
-              setTextRange(
-                ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
-                _export
-              ),
-            ]
-          : [],
-        undefined,
-        ident.ts<ts.Identifier>(),
-        generics.child(0)?.tsa(),
-        params.child(0)?.tsa(),
-        returnType.child(0)?.ts<ts.TypeNode>(),
-        body.ts<ts.Block>()
-      ),
-      this
+    return ts.factory.createFunctionDeclaration(
+      undefined,
+      _export.sourceString
+        ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+        : [],
+      undefined,
+      ident.ts<ts.Identifier>(),
+      generics.child(0)?.tsa(),
+      params.child(0)?.tsa(),
+      returnType.child(0)?.ts<ts.TypeNode>(),
+      body.ts<ts.Block>()
     );
   },
   BlockFunctionType(
@@ -1085,23 +913,17 @@ semantics.addOperation<ts.Node>("ts", {
     _5,
     returnType
   ) {
-    return setTextRange(
-      ts.factory.createMethodSignature(
-        undefined,
-        name.ts<ts.PropertyName>(),
-        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-        generics.child(0)?.tsa(),
-        params.child(0)?.tsa(),
-        returnType.ts<ts.TypeNode>()
-      ),
-      this
+    return ts.factory.createMethodSignature(
+      undefined,
+      name.ts<ts.PropertyName>(),
+      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+      generics.child(0)?.tsa(),
+      params.child(0)?.tsa(),
+      returnType.ts<ts.TypeNode>()
     );
   },
   bigint(_0, _1, _2) {
-    return setTextRange(
-      ts.factory.createBigIntLiteral(this.sourceString),
-      this
-    );
+    return ts.factory.createBigIntLiteral(this.sourceString);
   },
   block_comment(_0, _1, _2) {
     throw new Error(
@@ -1115,31 +937,24 @@ semantics.addOperation<ts.Node>("ts", {
     })!;
   },
   CaseClause(_0, _1, expr, _2) {
-    return setTextRange(ts.factory.createCaseClause(expr.ts(), []), this);
+    return ts.factory.createCaseClause(expr.ts(), []);
   },
   CaseStatement(clauseNodes, blockNode) {
     let clauses = [...clauseNodes.tsa<ts.CaseClause>()];
     let finalClause = clauses.pop()!;
 
-    let breakStatement = ts.setTextRange(ts.factory.createBreakStatement(), {
-      pos: blockNode.source.startIdx,
-      end: blockNode.source.endIdx,
-    });
+    let breakStatement = ts.factory.createBreakStatement();
 
     let block = blockNode.ts<ts.Block>();
     let statements = block.statements.concat(breakStatement);
 
-    let clause = ts.setTextRange(
-      ts.factory.createCaseClause(finalClause.expression, [
-        ts.setTextRange(ts.factory.createBlock(statements, true), block),
+    let clause =
+      (ts.factory.createCaseClause(finalClause.expression, [
+        (ts.factory.createBlock(statements, true), block),
       ]),
-      finalClause
-    );
+      finalClause);
 
-    return setTextRange(
-      ts.factory.createCaseBlock(clauses.concat(clause)),
-      this
-    );
+    return ts.factory.createCaseBlock(clauses.concat(clause));
   },
   CaseTerminator(_) {
     throw "`CaseTerminator` nodes should never directly be evaluated.";
@@ -1151,12 +966,9 @@ semantics.addOperation<ts.Node>("ts", {
     throw "`CaseTerminator_terminator` nodes should never directly be evaluated.";
   },
   CatchStatement(_0, _1, ident, _2, _3, _4, block) {
-    return setTextRange(
-      ts.factory.createCatchClause(
-        ident.child(0)?.ts<ts.Identifier>(),
-        block.ts()
-      ),
-      this
+    return ts.factory.createCatchClause(
+      ident.child(0)?.ts<ts.Identifier>(),
+      block.ts()
     );
   },
   ClassDeclaration(
@@ -1182,39 +994,30 @@ semantics.addOperation<ts.Node>("ts", {
 
     if (extendTarget.sourceString) {
       heritage.push(
-        setTextRange(
-          ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
-            extendTarget.child(0).ts(),
-          ]),
-          extendTarget.child(0)
-        )
+        ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+          extendTarget.child(0).ts(),
+        ])
       );
     }
 
     if (implementTargets.sourceString) {
       heritage.push(
-        setTextRange(
-          ts.factory.createHeritageClause(
-            ts.SyntaxKind.ImplementsKeyword,
-            implementTargets.child(0).tsa()
-          ),
-          implementTargets.child(0)
+        ts.factory.createHeritageClause(
+          ts.SyntaxKind.ImplementsKeyword,
+          implementTargets.child(0).tsa()
         )
       );
     }
 
-    return setTextRange(
-      ts.factory.createClassDeclaration(
-        undefined,
-        _export.sourceString
-          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
-          : [],
-        ident.ts<ts.Identifier>(),
-        generics.tsa(),
-        heritage,
-        elements.tsa()
-      ),
-      this
+    return ts.factory.createClassDeclaration(
+      undefined,
+      _export.sourceString
+        ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+        : [],
+      ident.ts<ts.Identifier>(),
+      generics.tsa(),
+      heritage,
+      elements.tsa()
     );
   },
   ClassElement(node) {
@@ -1242,35 +1045,26 @@ semantics.addOperation<ts.Node>("ts", {
     let modifiers: ts.Modifier[] = [];
     if (privacy.sourceString) modifiers.push(privacy.ts());
     if (readonly.sourceString)
-      modifiers.push(
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword),
-          readonly
-        )
-      );
+      modifiers.push(ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword));
 
     let exclOrQues = modifier.child(0)?.tsn({
       "!": ts.factory.createToken(ts.SyntaxKind.ExclamationToken),
       "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken),
     });
 
-    return setTextRange(
-      ts.factory.createPropertyDeclaration(
-        undefined,
-        modifiers,
-        name.ts<ts.PropertyName>(),
-        exclOrQues,
-        type.child(0)?.ts<ts.TypeNode>(),
-        initializer.child(0)?.ts<ts.Expression>()
-      ),
-      this
+    return ts.factory.createPropertyDeclaration(
+      undefined,
+      modifiers,
+      name.ts<ts.PropertyName>(),
+      exclOrQues,
+      type.child(0)?.ts<ts.TypeNode>(),
+      initializer.child(0)?.ts<ts.Expression>()
     );
   },
   ClassElement_static_property(
     privacy,
     readonly,
     _0,
-    atAt,
     name,
     modifier,
     _2,
@@ -1281,31 +1075,21 @@ semantics.addOperation<ts.Node>("ts", {
   ) {
     let modifiers: ts.Modifier[] = [];
     if (privacy.sourceString) modifiers.push(privacy.ts());
-    modifiers.push(
-      setTextRange(ts.factory.createToken(ts.SyntaxKind.StaticKeyword), atAt)
-    );
+    modifiers.push(ts.factory.createToken(ts.SyntaxKind.StaticKeyword));
     if (readonly.sourceString)
-      modifiers.push(
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword),
-          readonly
-        )
-      );
+      modifiers.push(ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword));
 
     let ques = modifier.child(0)?.tsn({
       "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken),
     });
 
-    return setTextRange(
-      ts.factory.createPropertyDeclaration(
-        undefined,
-        modifiers,
-        name.ts<ts.PropertyName>(),
-        ques,
-        type.child(0)?.ts<ts.TypeNode>(),
-        initializer.child(0)?.ts<ts.Expression>()
-      ),
-      this
+    return ts.factory.createPropertyDeclaration(
+      undefined,
+      modifiers,
+      name.ts<ts.PropertyName>(),
+      ques,
+      type.child(0)?.ts<ts.TypeNode>(),
+      initializer.child(0)?.ts<ts.Expression>()
     );
   },
   ClassElement_static_index_signature(signature, _) {
@@ -1318,74 +1102,47 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   CompareExp_greater_than(left, _, right) {
-    return setTextRange(
-      ts.factory.createGreaterThan(left.ts(), right.ts()),
-      this
-    );
+    return ts.factory.createGreaterThan(left.ts(), right.ts());
   },
   CompareExp_greater_than_equal(left, _, right) {
-    return setTextRange(
-      ts.factory.createGreaterThanEquals(left.ts(), right.ts()),
-      this
-    );
+    return ts.factory.createGreaterThanEquals(left.ts(), right.ts());
   },
   CompareExp_instanceof(left, _0, _1, _2, _3, _4, right) {
-    return setTextRange(
+    return ts.factory.createBinaryExpression(
+      left.ts(),
+      ts.SyntaxKind.InstanceOfKeyword,
+      right.ts()
+    );
+  },
+  CompareExp_less_than(left, _, right) {
+    return ts.factory.createLessThan(left.ts(), right.ts());
+  },
+  CompareExp_less_than_equal(left, _, right) {
+    return ts.factory.createLessThanEquals(left.ts(), right.ts());
+  },
+  CompareExp_not_instanceof(left, _0, _1, _2, _3, _4, right) {
+    return ts.factory.createLogicalNot(
       ts.factory.createBinaryExpression(
         left.ts(),
         ts.SyntaxKind.InstanceOfKeyword,
         right.ts()
-      ),
-      this
-    );
-  },
-  CompareExp_less_than(left, _, right) {
-    return setTextRange(ts.factory.createLessThan(left.ts(), right.ts()), this);
-  },
-  CompareExp_less_than_equal(left, _, right) {
-    return setTextRange(
-      ts.factory.createLessThanEquals(left.ts(), right.ts()),
-      this
-    );
-  },
-  CompareExp_not_instanceof(left, _0, _1, _2, _3, _4, right) {
-    return setTextRange(
-      ts.factory.createLogicalNot(
-        setTextRange(
-          ts.factory.createBinaryExpression(
-            left.ts(),
-            ts.SyntaxKind.InstanceOfKeyword,
-            right.ts()
-          ),
-          this
-        )
-      ),
-      this
+      )
     );
   },
   CompareExp_not_within(left, _0, _1, _2, _3, _4, right) {
-    return setTextRange(
-      ts.factory.createLogicalNot(
-        setTextRange(
-          ts.factory.createBinaryExpression(
-            left.ts(),
-            ts.SyntaxKind.InKeyword,
-            right.ts()
-          ),
-          this
-        )
-      ),
-      this
-    );
-  },
-  CompareExp_within(left, _0, _1, _2, _3, _4, right) {
-    return setTextRange(
+    return ts.factory.createLogicalNot(
       ts.factory.createBinaryExpression(
         left.ts(),
         ts.SyntaxKind.InKeyword,
         right.ts()
-      ),
-      this
+      )
+    );
+  },
+  CompareExp_within(left, _0, _1, _2, _3, _4, right) {
+    return ts.factory.createBinaryExpression(
+      left.ts(),
+      ts.SyntaxKind.InKeyword,
+      right.ts()
     );
   },
   ConditionalType(node) {
@@ -1402,14 +1159,11 @@ semantics.addOperation<ts.Node>("ts", {
     _4,
     ifFalse
   ) {
-    return setTextRange(
-      ts.factory.createConditionalTypeNode(
-        target.ts(),
-        mustBe.ts(),
-        ifTrue.ts(),
-        ifFalse.ts()
-      ),
-      this
+    return ts.factory.createConditionalTypeNode(
+      target.ts(),
+      mustBe.ts(),
+      ifTrue.ts(),
+      ifFalse.ts()
     );
   },
   char(_) {
@@ -1422,12 +1176,9 @@ semantics.addOperation<ts.Node>("ts", {
     throw "`colonTerminator_colon` nodes should never directly be evaluated.";
   },
   DefaultStatement(_0, _1, block) {
-    let _default = setTextRange(
-      ts.factory.createDefaultClause([block.ts()]),
-      this
-    );
+    let _default = ts.factory.createDefaultClause([block.ts()]);
 
-    return setTextRange(ts.factory.createCaseBlock([_default]), this);
+    return ts.factory.createCaseBlock([_default]);
   },
   decimalNumber(number) {
     return number.ts();
@@ -1442,47 +1193,32 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   EnumMember_assigned(key, _0, value, _1) {
-    return setTextRange(
-      ts.factory.createEnumMember(
-        key.ts<ts.PropertyName>(),
-        value.ts<ts.Expression>()
-      ),
-      this
+    return ts.factory.createEnumMember(
+      key.ts<ts.PropertyName>(),
+      value.ts<ts.Expression>()
     );
   },
   EnumMember_auto_assign(key, _) {
-    return setTextRange(
-      ts.factory.createEnumMember(key.ts<ts.PropertyName>()),
-      this
-    );
+    return ts.factory.createEnumMember(key.ts<ts.PropertyName>());
   },
   EnumStatement(_export, _0, _1, _2, ident, _3, members, _4) {
-    return setTextRange(
-      ts.factory.createEnumDeclaration(
-        undefined,
-        _export.sourceString
-          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
-          : undefined,
-        ident.ts<ts.Identifier>(),
-        members.tsa()
-      ),
-      this
+    return ts.factory.createEnumDeclaration(
+      undefined,
+      _export.sourceString
+        ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+        : undefined,
+      ident.ts<ts.Identifier>(),
+      members.tsa()
     );
   },
   EqualityExp(node) {
     return node.ts();
   },
   EqualityExp_equal_to(left, _, right) {
-    return setTextRange(
-      ts.factory.createStrictEquality(left.ts(), right.ts()),
-      this
-    );
+    return ts.factory.createStrictEquality(left.ts(), right.ts());
   },
   EqualityExp_not_equal_to(left, _, right) {
-    return setTextRange(
-      ts.factory.createStrictInequality(left.ts(), right.ts()),
-      this
-    );
+    return ts.factory.createStrictInequality(left.ts(), right.ts());
   },
   Expression(node) {
     return node.ts();
@@ -1491,22 +1227,16 @@ semantics.addOperation<ts.Node>("ts", {
     let ident = base.ts<ts.Expression>();
 
     for (let accessor of accessors.tsa<ts.Identifier>()) {
-      ident = ts.setTextRange(
-        ts.factory.createPropertyAccessExpression(ident, accessor),
-        { pos: base.source.startIdx, end: accessor.end }
-      );
+      ident = ts.factory.createPropertyAccessExpression(ident, accessor);
     }
 
-    return setTextRange(
-      ts.factory.createExpressionWithTypeArguments(ident, generics.tsa()),
-      this
-    );
+    return ts.factory.createExpressionWithTypeArguments(ident, generics.tsa());
   },
   ExpExp(node) {
     return node.ts();
   },
   ExpExp_exponentiate(left, _, right) {
-    return setTextRange(ts.factory.createExponent(left.ts(), right.ts()), this);
+    return ts.factory.createExponent(left.ts(), right.ts());
   },
   Exportable(type, _0, name, _1, _2, _3, as) {
     return ts.factory.createExportSpecifier(
@@ -1516,32 +1246,21 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   ExportedVariableAssignment(_export, _0, assignable, _1, type, _2, expr) {
-    let declaration = setTextRange(
-      ts.factory.createVariableDeclaration(
-        assignable.ts<ts.BindingName>(),
-        undefined,
-        type.child(0)?.ts<ts.TypeNode>(),
-        expr.ts<ts.Expression>()
-      ),
-      this
+    let declaration = ts.factory.createVariableDeclaration(
+      assignable.ts<ts.BindingName>(),
+      undefined,
+      type.child(0)?.ts<ts.TypeNode>(),
+      expr.ts<ts.Expression>()
     );
 
-    let list = setTextRange(
-      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
-      this
+    let list = ts.factory.createVariableDeclarationList(
+      [declaration],
+      ts.NodeFlags.Let
     );
 
-    return setTextRange(
-      ts.factory.createVariableStatement(
-        [
-          setTextRange(
-            ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
-            _export
-          ),
-        ],
-        list
-      ),
-      this
+    return ts.factory.createVariableStatement(
+      [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
+      list
     );
   },
   emptyListOf() {
@@ -1650,19 +1369,13 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   FunctionBody_expression(_0, _1, expression) {
-    return setTextRange(
-      ts.factory.createBlock(
-        [ts.factory.createReturnStatement(expression.ts<ts.Expression>())],
-        true
-      ),
-      this
+    return ts.factory.createBlock(
+      [ts.factory.createReturnStatement(expression.ts<ts.Expression>())],
+      true
     );
   },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
-    return setTextRange(
-      ts.factory.createNumericLiteral(this.sourceString),
-      this
-    );
+    return ts.factory.createNumericLiteral(this.sourceString);
   },
   GenericTypeArgumentList(_) {
     throw new Error(
@@ -1680,13 +1393,10 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   GenericTypeParameter(name, _0, constraint, _1, defaultType) {
-    return setTextRange(
-      ts.factory.createTypeParameterDeclaration(
-        name.ts<ts.Identifier>(),
-        constraint.child(0)?.ts<ts.TypeNode>(),
-        defaultType.child(0)?.ts<ts.TypeNode>()
-      ),
-      this
+    return ts.factory.createTypeParameterDeclaration(
+      name.ts<ts.Identifier>(),
+      constraint.child(0)?.ts<ts.TypeNode>(),
+      defaultType.child(0)?.ts<ts.TypeNode>()
     );
   },
   GenericTypeParameterList(_0, _1, _2) {
@@ -1698,12 +1408,9 @@ semantics.addOperation<ts.Node>("ts", {
     throw new Error("`hexDigit` nodes should never directly be evaluated.");
   },
   hexNumber(_0, _1, _2, _3, _4) {
-    return setTextRange(
-      ts.factory.createNumericLiteral(
-        this.sourceString,
-        ts.TokenFlags.HexSpecifier
-      ),
-      this
+    return ts.factory.createNumericLiteral(
+      this.sourceString,
+      ts.TokenFlags.HexSpecifier
     );
   },
   IfExp(node) {
@@ -1713,50 +1420,38 @@ semantics.addOperation<ts.Node>("ts", {
     let cond = condition.ts<ts.Expression>();
 
     if (ifUnless.sourceString === "unless")
-      cond = ts.setTextRange(ts.factory.createLogicalNot(cond), cond);
+      cond = (ts.factory.createLogicalNot(cond), cond);
 
-    return setTextRange(
-      ts.factory.createConditionalExpression(
-        cond,
-        undefined,
-        expr.ts(),
-        undefined,
-        ts.factory.createVoidZero()
-      ),
-      this
+    return ts.factory.createConditionalExpression(
+      cond,
+      undefined,
+      expr.ts(),
+      undefined,
+      ts.factory.createVoidZero()
     );
   },
   IfStatement(ifUnless, _0, condition, block, _1, _2, _3, elseBlock) {
     let cond = condition.ts<ts.Expression>();
 
     if (ifUnless.sourceString === "unless")
-      cond = ts.setTextRange(ts.factory.createLogicalNot(cond), cond);
+      cond = (ts.factory.createLogicalNot(cond), cond);
 
-    return setTextRange(
-      ts.factory.createIfStatement(
-        cond,
-        block.ts(),
-        elseBlock.child(0)?.ts<ts.Block>()
-      ),
-      this
+    return ts.factory.createIfStatement(
+      cond,
+      block.ts(),
+      elseBlock.child(0)?.ts<ts.Block>()
     );
   },
   Implementable(base, _0, accessors, generics, _1) {
     let ident = base.ts<ts.Expression>();
 
     for (let accessor of accessors.tsa<ts.Identifier>()) {
-      ident = ts.setTextRange(
-        ts.factory.createPropertyAccessExpression(ident, accessor),
-        { pos: base.source.startIdx, end: accessor.end }
-      );
+      ident = ts.factory.createPropertyAccessExpression(ident, accessor);
     }
 
-    if (!generics.sourceString) return setTextRange(ident, this);
+    if (!generics.sourceString) return ident;
 
-    return setTextRange(
-      ts.factory.createExpressionWithTypeArguments(ident, generics.tsa()),
-      this
-    );
+    return ts.factory.createExpressionWithTypeArguments(ident, generics.tsa());
   },
   ImpliedCallArgumentList(_) {
     throw new Error(
@@ -1775,40 +1470,24 @@ semantics.addOperation<ts.Node>("ts", {
   IndexSignatureType(readonly, prefix, _0, ident, _1, key, _2, _3, value) {
     let modifiers: ts.Modifier[] = [];
     if (prefix.sourceString === "@@")
-      modifiers.push(
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.StaticKeyword),
-          prefix
-        )
-      );
+      modifiers.push(ts.factory.createToken(ts.SyntaxKind.StaticKeyword));
     if (readonly.sourceString)
-      modifiers.push(
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword),
-          readonly
-        )
-      );
+      modifiers.push(ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword));
 
-    return setTextRange(
-      ts.factory.createIndexSignature(
-        undefined,
-        modifiers,
-        [
-          ts.setTextRange(
-            ts.factory.createParameterDeclaration(
-              undefined,
-              undefined,
-              undefined,
-              ident.ts<ts.Identifier>(),
-              undefined,
-              key.ts<ts.TypeNode>()
-            ),
-            { pos: ident.source.startIdx, end: key.source.endIdx }
-          ),
-        ],
-        value.ts()
-      ),
-      this
+    return ts.factory.createIndexSignature(
+      undefined,
+      modifiers,
+      [
+        ts.factory.createParameterDeclaration(
+          undefined,
+          undefined,
+          undefined,
+          ident.ts<ts.Identifier>(),
+          undefined,
+          key.ts<ts.TypeNode>()
+        ),
+      ],
+      value.ts()
     );
   },
   InlineClassDeclaration(
@@ -1830,37 +1509,28 @@ semantics.addOperation<ts.Node>("ts", {
 
     if (extendTarget.sourceString) {
       heritage.push(
-        setTextRange(
-          ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
-            extendTarget.child(0).ts(),
-          ]),
-          extendTarget.child(0)
-        )
+        ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+          extendTarget.child(0).ts(),
+        ])
       );
     }
 
     if (implementTargets.sourceString) {
       heritage.push(
-        setTextRange(
-          ts.factory.createHeritageClause(
-            ts.SyntaxKind.ImplementsKeyword,
-            implementTargets.child(0).tsa()
-          ),
-          implementTargets.child(0)
+        ts.factory.createHeritageClause(
+          ts.SyntaxKind.ImplementsKeyword,
+          implementTargets.child(0).tsa()
         )
       );
     }
 
-    return setTextRange(
-      ts.factory.createClassExpression(
-        undefined,
-        undefined,
-        undefined,
-        generics.tsa(),
-        heritage,
-        elements.tsa()
-      ),
-      this
+    return ts.factory.createClassExpression(
+      undefined,
+      undefined,
+      undefined,
+      generics.tsa(),
+      heritage,
+      elements.tsa()
     );
   },
   InlineFunction(
@@ -1876,27 +1546,21 @@ semantics.addOperation<ts.Node>("ts", {
     returnType,
     body
   ) {
-    return setTextRange(
-      ts.factory.createFunctionExpression(
-        undefined,
-        undefined,
-        name.child(0)?.ts<ts.Identifier>(),
-        generics.child(0)?.tsa(),
-        params.child(0)?.tsa(),
-        returnType.child(0)?.ts<ts.TypeNode>(),
-        body.ts<ts.Block>()
-      ),
-      this
+    return ts.factory.createFunctionExpression(
+      undefined,
+      undefined,
+      name.child(0)?.ts<ts.Identifier>(),
+      generics.child(0)?.tsa(),
+      params.child(0)?.tsa(),
+      returnType.child(0)?.ts<ts.TypeNode>(),
+      body.ts<ts.Block>()
     );
   },
   InlineFunctionType(_0, generics, _1, _2, _3, params, _4, returnType) {
-    return setTextRange(
-      ts.factory.createFunctionTypeNode(
-        generics.child(0)?.tsa(),
-        params.child(0)?.tsa(),
-        returnType.child(0)?.ts<ts.TypeNode>()
-      ),
-      this
+    return ts.factory.createFunctionTypeNode(
+      generics.child(0)?.tsa(),
+      params.child(0)?.tsa(),
+      returnType.child(0)?.ts<ts.TypeNode>()
     );
   },
   InterfaceDeclaration(
@@ -1918,33 +1582,24 @@ semantics.addOperation<ts.Node>("ts", {
       .child(0)
       ?.tsa<ts.ExpressionWithTypeArguments>();
 
-    return setTextRange(
-      ts.factory.createInterfaceDeclaration(
-        undefined,
-        _export.sourceString
-          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
-          : undefined,
-        ident.ts<ts.Identifier>(),
-        generics.child(0)?.tsa(),
-        heritage && [
-          ts.factory.createHeritageClause(
-            ts.SyntaxKind.ExtendsKeyword,
-            heritage
-          ),
-        ],
-        members.tsa()
-      ),
-      this
+    return ts.factory.createInterfaceDeclaration(
+      undefined,
+      _export.sourceString
+        ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+        : undefined,
+      ident.ts<ts.Identifier>(),
+      generics.child(0)?.tsa(),
+      heritage && [
+        ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, heritage),
+      ],
+      members.tsa()
     );
   },
   IntersectionType(node) {
     let iter = node.asIteration();
     if (iter.children.length === 1) return iter.child(0).ts();
 
-    return setTextRange(
-      ts.factory.createIntersectionTypeNode(node.tsa()),
-      this
-    );
+    return ts.factory.createIntersectionTypeNode(node.tsa());
   },
   identifier(node) {
     return node.ts();
@@ -1956,10 +1611,7 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   importLocation_filename(filename, _) {
-    return setTextRange(
-      ts.factory.createStringLiteral(filename.sourceString),
-      this
-    );
+    return ts.factory.createStringLiteral(filename.sourceString);
   },
   JSXAttribute(node) {
     return node.ts();
@@ -1968,125 +1620,78 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   JSXAttribute_spread_attributes(_0, _1, expression, _2) {
-    return setTextRange(
-      ts.factory.createJsxSpreadAttribute(expression.ts()),
-      this
-    );
+    return ts.factory.createJsxSpreadAttribute(expression.ts());
   },
   JSXAttribute_value_computed_string(key, _, value) {
-    return setTextRange(
-      ts.factory.createJsxAttribute(
-        key.ts(),
-        setTextRange(
-          ts.factory.createJsxExpression(undefined, value.ts<ts.Expression>()),
-          value
-        )
-      ),
-      this
+    return ts.factory.createJsxAttribute(
+      key.ts(),
+      ts.factory.createJsxExpression(undefined, value.ts<ts.Expression>())
     );
   },
   JSXAttribute_value_expression(key, _0, _1, dotDotDot, value, _2) {
     let spread = dotDotDot.sourceString
-      ? setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-          dotDotDot
-        )
+      ? ts.factory.createToken(ts.SyntaxKind.DotDotDotToken)
       : undefined;
 
-    return setTextRange(
-      ts.factory.createJsxAttribute(
-        key.ts(),
-        setTextRange(
-          ts.factory.createJsxExpression(spread, value.ts<ts.Expression>()),
-          value
-        )
-      ),
-      this
+    return ts.factory.createJsxAttribute(
+      key.ts(),
+      ts.factory.createJsxExpression(spread, value.ts<ts.Expression>())
     );
   },
   JSXAttribute_value_string(key, _, string) {
-    return setTextRange(
-      ts.factory.createJsxAttribute(key.ts(), string.ts<ts.StringLiteral>()),
-      this
+    return ts.factory.createJsxAttribute(
+      key.ts(),
+      string.ts<ts.StringLiteral>()
     );
   },
   JSXAttribute_value_true(key) {
-    return setTextRange(
-      ts.factory.createJsxAttribute(key.ts(), undefined),
-      this
-    );
+    return ts.factory.createJsxAttribute(key.ts(), undefined);
   },
   JSXChild(node) {
     return node.ts();
   },
   JSXChild_interpolation(_0, dotDotDot, expression, _1) {
     let spread = dotDotDot.sourceString
-      ? setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-          dotDotDot
-        )
+      ? ts.factory.createToken(ts.SyntaxKind.DotDotDotToken)
       : undefined;
 
-    return setTextRange(
-      ts.factory.createJsxExpression(spread, expression.ts<ts.Expression>()),
-      this
+    return ts.factory.createJsxExpression(
+      spread,
+      expression.ts<ts.Expression>()
     );
   },
   JSXElement(node) {
     return node.ts();
   },
-  JSXElement_open_close(
-    openLeft,
-    tag,
-    typeArgs,
-    attrNode,
-    openRight,
-    children,
-    closeLeft,
-    _,
-    closeRight
-  ) {
-    let attrs = setTextRange(
-      ts.factory.createJsxAttributes(attrNode.tsa()),
-      attrNode
+  JSXElement_open_close(tag, typeArgs, attrNode, children, _) {
+    let attrs = ts.factory.createJsxAttributes(attrNode.tsa());
+
+    let open = ts.factory.createJsxOpeningElement(
+      tag.ts(),
+      typeArgs.tsa(),
+      attrs
     );
 
-    let open = ts.setTextRange(
-      ts.factory.createJsxOpeningElement(tag.ts(), typeArgs.tsa(), attrs),
-      { pos: openLeft.source.startIdx, end: openRight.source.endIdx }
-    );
+    let close = ts.factory.createJsxClosingElement(tag.ts());
 
-    let close = ts.setTextRange(ts.factory.createJsxClosingElement(tag.ts()), {
-      pos: closeLeft.source.startIdx,
-      end: closeRight.source.endIdx,
-    });
-
-    return setTextRange(
-      ts.factory.createJsxElement(open, children.tsa(), close),
-      this
-    );
+    return ts.factory.createJsxElement(open, children.tsa(), close);
   },
   JSXElement_self_closing(_0, tag, typeArgs, attrNode, _1, _2) {
-    let attrs = setTextRange(
-      ts.factory.createJsxAttributes(attrNode.tsa()),
-      attrNode
-    );
+    let attrs = ts.factory.createJsxAttributes(attrNode.tsa());
 
-    return setTextRange(
-      ts.factory.createJsxSelfClosingElement(tag.ts(), typeArgs.tsa(), attrs),
-      this
+    return ts.factory.createJsxSelfClosingElement(
+      tag.ts(),
+      typeArgs.tsa(),
+      attrs
     );
   },
   jsxTagName(node) {
     return node.ts();
   },
   jsxTagName_property_access(tag, _, key) {
-    return setTextRange(
-      ts.factory.createPropertyAccessExpression(
-        tag.ts(),
-        key.ts<ts.Identifier>()
-      ),
-      this
+    return ts.factory.createPropertyAccessExpression(
+      tag.ts(),
+      key.ts<ts.Identifier>()
     );
   },
   jsxTagName_standard(node) {
@@ -2094,7 +1699,7 @@ semantics.addOperation<ts.Node>("ts", {
   },
   jsx_string(bits) {
     let source = bits.sourceString.trim().replace(/\s+/g, " ");
-    return setTextRange(ts.factory.createJsxText(source), this);
+    return ts.factory.createJsxText(source);
   },
   ListOf(_) {
     throw new Error("`ListOf` nodes should never directly be evaluated.");
@@ -2106,10 +1711,7 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   LiteralExp_array(_0, entries, _1, _2) {
-    return setTextRange(
-      ts.factory.createArrayLiteralExpression(entries.tsa()),
-      this
-    );
+    return ts.factory.createArrayLiteralExpression(entries.tsa());
   },
   LiteralExp_do(_, block) {
     return ts.factory.createCallExpression(
@@ -2127,16 +1729,10 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   LiteralExp_object(_0, entries, _1, _2) {
-    return setTextRange(
-      ts.factory.createObjectLiteralExpression(entries.tsa()),
-      this
-    );
+    return ts.factory.createObjectLiteralExpression(entries.tsa());
   },
   LiteralExp_parenthesized(_0, expr, _1) {
-    return setTextRange(
-      ts.factory.createParenthesizedExpression(expr.ts()),
-      this
-    );
+    return ts.factory.createParenthesizedExpression(expr.ts());
   },
   LiteralExp_with(_0, _1, expr, block) {
     return ts.factory.createCallExpression(
@@ -2175,78 +1771,60 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralType_construct(_0, _1, func) {
     let fn = func.ts<ts.FunctionTypeNode>();
 
-    return setTextRange(
-      ts.factory.createConstructorTypeNode(
-        fn.modifiers,
-        fn.typeParameters,
-        fn.parameters,
-        fn.type
-      ),
-      this
+    return ts.factory.createConstructorTypeNode(
+      fn.modifiers,
+      fn.typeParameters,
+      fn.parameters,
+      fn.type
     );
   },
   LiteralType_infer(_0, _1, ident, _2, _3, constraint) {
-    return setTextRange(
-      ts.factory.createInferTypeNode(
-        ts.setTextRange(
-          ts.factory.createTypeParameterDeclaration(
-            ident.ts<ts.Identifier>(),
-            constraint.child(0)?.ts<ts.TypeNode>()
-          ),
-          { pos: ident.source.startIdx, end: this.source.endIdx }
-        )
-      ),
-      this
+    return ts.factory.createInferTypeNode(
+      ts.factory.createTypeParameterDeclaration(
+        ident.ts<ts.Identifier>(),
+        constraint.child(0)?.ts<ts.TypeNode>()
+      )
     );
   },
   LiteralType_parenthesized(_0, expr, _1) {
-    return setTextRange(ts.factory.createParenthesizedType(expr.ts()), this);
+    return ts.factory.createParenthesizedType(expr.ts());
   },
   LiteralExp_self(_) {
-    return setTextRange(ts.factory.createIdentifier("$self"), this);
+    return ts.factory.createIdentifier("$self");
   },
   LiteralExp_static_self(_) {
-    return setTextRange(ts.factory.createIdentifier("$static"), this);
+    return ts.factory.createIdentifier("$static");
   },
   LiteralExp_topic_token(_) {
-    return setTextRange(ts.factory.createIdentifier("$"), this);
+    return ts.factory.createIdentifier("$");
   },
   LiteralType_type_args(expr, args) {
-    return setTextRange(
-      ts.factory.createTypeReferenceNode(expr.ts<ts.EntityName>(), args.tsa()),
-      this
+    return ts.factory.createTypeReferenceNode(
+      expr.ts<ts.EntityName>(),
+      args.tsa()
     );
   },
   LiteralType_typeof(_0, _1, expr) {
-    return setTextRange(ts.factory.createTypeQueryNode(expr.ts()), this);
+    return ts.factory.createTypeQueryNode(expr.ts());
   },
   LogicalAndExp(node) {
     return node.ts();
   },
   LogicalAndExp_logical_and(left, _0, _1, _2, right) {
-    return setTextRange(
-      ts.factory.createLogicalAnd(left.ts(), right.ts()),
-      this
-    );
+    return ts.factory.createLogicalAnd(left.ts(), right.ts());
   },
   LogicalOrExp(node) {
     return node.ts();
   },
   LogicalOrExp_logical_nullish_coalescing(left, _, right) {
-    return setTextRange(
-      ts.factory.createBinaryExpression(
-        left.ts(),
-        ts.SyntaxKind.QuestionQuestionToken,
-        right.ts()
-      ),
-      this
+    return ts.factory.createBinaryExpression(
+      left.ts(),
+      ts.SyntaxKind.QuestionQuestionToken,
+      right.ts()
     );
   },
   LogicalOrExp_logical_or(left, _0, _1, _2, right) {
-    return setTextRange(
-      ts.factory.createLogicalOr(left.ts(), right.ts()),
-      this
-    );
+    return ts.factory.createLogicalOr(left.ts(), right.ts());
   },
   letter(_) {
     throw new Error("`letter` nodes should never directly be evaluated.");
@@ -2307,22 +1885,13 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
-    return setTextRange(
-      ts.factory.createAsExpression(expr.ts(), type.ts()),
-      this
-    );
+    return ts.factory.createAsExpression(expr.ts(), type.ts());
   },
   MemberAccessExpNonCall_class_creation_implied(_0, _1, target, _2, args) {
-    return setTextRange(
-      ts.factory.createNewExpression(target.ts(), undefined, args.tsa()),
-      this
-    );
+    return ts.factory.createNewExpression(target.ts(), undefined, args.tsa());
   },
   MemberAccessExpNonCall_class_creation_no_args(_0, _1, target) {
-    return setTextRange(
-      ts.factory.createNewExpression(target.ts(), undefined, []),
-      this
-    );
+    return ts.factory.createNewExpression(target.ts(), undefined, []);
   },
   MemberAccessExpNonCall_class_creation_symbolic(
     _0,
@@ -2333,56 +1902,42 @@ semantics.addOperation<ts.Node>("ts", {
     args,
     _3
   ) {
-    return setTextRange(
-      ts.factory.createNewExpression(target.ts(), typeArgs.tsa(), args.tsa()),
-      this
+    return ts.factory.createNewExpression(
+      target.ts(),
+      typeArgs.tsa(),
+      args.tsa()
     );
   },
   MemberAccessExpNonCall_computed_member_access(target, qMark, _0, index, _1) {
-    return setTextRange(
-      ts.factory.createElementAccessChain(
-        target.ts(),
-        qMark.tsn({
-          "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-        }),
-        index.ts<ts.Expression>()
-      ),
-      this
+    return ts.factory.createElementAccessChain(
+      target.ts(),
+      qMark.tsn({
+        "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+      }),
+      index.ts<ts.Expression>()
     );
   },
   MemberAccessExpNonCall_member_access(target, _, key) {
-    return setTextRange(
-      ts.factory.createPropertyAccessExpression(
-        target.ts(),
-        key.ts<ts.MemberName>()
-      ),
-      this
+    return ts.factory.createPropertyAccessExpression(
+      target.ts(),
+      key.ts<ts.MemberName>()
     );
   },
   MemberAccessExpNonCall_non_null_assertion(target, _) {
-    return setTextRange(ts.factory.createNonNullExpression(target.ts()), this);
+    return ts.factory.createNonNullExpression(target.ts());
   },
-  MemberAccessExpNonCall_optional_chaining_member_access(target, qDot, key) {
-    return setTextRange(
-      ts.factory.createPropertyAccessChain(
-        target.ts(),
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-          qDot
-        ),
-        key.ts<ts.MemberName>()
-      ),
-      this
+  MemberAccessExpNonCall_optional_chaining_member_access(target, key) {
+    return ts.factory.createPropertyAccessChain(
+      target.ts(),
+      ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+      key.ts<ts.MemberName>()
     );
   },
   MemberAccessExpNonCall_tagged_template_literal(tag, template) {
-    return setTextRange(
-      ts.factory.createTaggedTemplateExpression(
-        tag.ts(),
-        undefined,
-        template.ts()
-      ),
-      this
+    return ts.factory.createTaggedTemplateExpression(
+      tag.ts(),
+      undefined,
+      template.ts()
     );
   },
   MemberAccessExp_dispatch_event(
@@ -2397,41 +1952,33 @@ semantics.addOperation<ts.Node>("ts", {
   ) {
     scriptHasEvents = true;
 
-    return setTextRange(
-      ts.factory.createCallChain(
-        ts.factory.createPropertyAccessChain(
-          expr.ts(),
-          qMark.tsn({
-            "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-          }),
-          "emit"
-        ),
+    return ts.factory.createCallChain(
+      ts.factory.createPropertyAccessChain(
+        expr.ts(),
         qMark.tsn({
           "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
         }),
-        typeArgs.child(0)?.tsa(),
-        [
-          setTextRange(
-            ts.factory.createStringLiteral(eventName.sourceString),
-            eventName
-          ),
-          ...(args.child(0)?.tsa<ts.Expression>() || []),
-        ]
+        "emit"
       ),
-      this
+      qMark.tsn({
+        "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+      }),
+      typeArgs.child(0)?.tsa(),
+      [
+        ts.factory.createStringLiteral(eventName.sourceString),
+        ...(args.child(0)?.tsa<ts.Expression>() || []),
+      ]
     );
   },
   MemberAccessExp_function_call(target, typeArgs, _0, args, _1) {
-    return setTextRange(
-      ts.factory.createCallExpression(target.ts(), typeArgs.tsa(), args.tsa()),
-      this
+    return ts.factory.createCallExpression(
+      target.ts(),
+      typeArgs.tsa(),
+      args.tsa()
     );
   },
   MemberAccessExp_implied_call(target, _0, args) {
-    return setTextRange(
-      ts.factory.createCallExpression(target.ts(), undefined, args.tsa()),
-      this
-    );
+    return ts.factory.createCallExpression(target.ts(), undefined, args.tsa());
   },
   MemberAccessExp_listen_event(
     expr,
@@ -2445,86 +1992,67 @@ semantics.addOperation<ts.Node>("ts", {
   ) {
     scriptHasEvents = true;
 
-    return setTextRange(
-      ts.factory.createCallChain(
-        ts.factory.createPropertyAccessChain(
-          expr.ts(),
-          qMark.tsn({
-            "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-          }),
-          "on"
-        ),
+    return ts.factory.createCallChain(
+      ts.factory.createPropertyAccessChain(
+        expr.ts(),
         qMark.tsn({
           "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
         }),
-        typeArgs.child(0)?.tsa(),
-        [
-          setTextRange(
-            ts.factory.createStringLiteral(eventName.sourceString),
-            eventName
-          ),
-          ...(args.child(0)?.tsa<ts.Expression>() || []),
-        ]
+        "on"
       ),
-      this
+      qMark.tsn({
+        "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+      }),
+      typeArgs.child(0)?.tsa(),
+      [
+        ts.factory.createStringLiteral(eventName.sourceString),
+        ...(args.child(0)?.tsa<ts.Expression>() || []),
+      ]
     );
   },
   MemberAccessExp_optional_chaining_function_call(
     target,
-    qDot,
     typeArgs,
     _0,
     args,
     _1
   ) {
-    return setTextRange(
-      ts.factory.createCallChain(
-        target.ts(),
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-          qDot
-        ),
-        typeArgs.tsa(),
-        args.tsa()
-      ),
-      this
+    return ts.factory.createCallChain(
+      target.ts(),
+      ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+      typeArgs.tsa(),
+      args.tsa()
     );
   },
   MemberAccessType(node) {
     return node.ts();
   },
   MemberAccessType_array(element, _0, _1) {
-    return setTextRange(ts.factory.createArrayTypeNode(element.ts()), this);
+    return ts.factory.createArrayTypeNode(element.ts());
   },
   MemberAccessType_keyof(_, expr) {
-    return setTextRange(
-      ts.factory.createTypeOperatorNode(ts.SyntaxKind.KeyOfKeyword, expr.ts()),
-      this
+    return ts.factory.createTypeOperatorNode(
+      ts.SyntaxKind.KeyOfKeyword,
+      expr.ts()
     );
   },
   MemberAccessType_member_access(target, _0, key, _1) {
-    return setTextRange(
-      ts.factory.createIndexedAccessTypeNode(target.ts(), key.ts()),
-      this
-    );
+    return ts.factory.createIndexedAccessTypeNode(target.ts(), key.ts());
   },
   MemberAccessType_named_tuple(_0, elements, _1) {
-    return setTextRange(ts.factory.createTupleTypeNode(elements.tsa()), this);
+    return ts.factory.createTupleTypeNode(elements.tsa());
   },
   MemberAccessType_object(_0, members, _1) {
-    return setTextRange(ts.factory.createTypeLiteralNode(members.tsa()), this);
+    return ts.factory.createTypeLiteralNode(members.tsa());
   },
   MemberAccessType_readonly(_, expr) {
-    return setTextRange(
-      ts.factory.createTypeOperatorNode(
-        ts.SyntaxKind.ReadonlyKeyword,
-        expr.ts()
-      ),
-      this
+    return ts.factory.createTypeOperatorNode(
+      ts.SyntaxKind.ReadonlyKeyword,
+      expr.ts()
     );
   },
   MemberAccessType_tuple(_0, elements, _1) {
-    return setTextRange(ts.factory.createTupleTypeNode(elements.tsa()), this);
+    return ts.factory.createTupleTypeNode(elements.tsa());
   },
   Method(
     privacy,
@@ -2543,30 +2071,26 @@ semantics.addOperation<ts.Node>("ts", {
     body
   ) {
     let block = body.ts<ts.Block>();
-    let range = { pos: block.pos, end: block.pos };
 
-    let $void = ts.setTextRange(ts.factory.createVoidZero(), range);
-    let $this = ts.setTextRange(ts.factory.createIdentifier("this"), range);
-    let $static = ts.setTextRange(
-      ts.factory.createPropertyAccessExpression($this, "constructor"),
-      range
+    let $void = ts.factory.createVoidZero();
+    let $this = ts.factory.createIdentifier("this");
+    let $static = ts.factory.createPropertyAccessExpression(
+      $this,
+      "constructor"
     );
 
     if (prefix.sourceString === "@") {
-      block = ts.setTextRange(
-        ts.factory.createBlock(
-          [
-            makeAssignment("$self", $this),
-            makeAssignment("$static", $static),
-            ...block.statements,
-          ],
-          true
-        ),
-        block
+      block = ts.factory.createBlock(
+        [
+          makeAssignment("$self", $this),
+          makeAssignment("$static", $static),
+          ...block.statements,
+        ],
+        true
       );
     } else if (prefix.sourceString === "@@") {
-      block = ts.setTextRange(
-        ts.factory.createBlock(
+      block =
+        (ts.factory.createBlock(
           [
             makeAssignment("$self", $void),
             makeAssignment("$static", $this),
@@ -2574,33 +2098,29 @@ semantics.addOperation<ts.Node>("ts", {
           ],
           true
         ),
-        block
-      );
+        block);
     }
 
-    return setTextRange(
-      ts.factory.createMethodDeclaration(
-        undefined,
-        privacy.sourceString ? [privacy.ts()] : [],
-        undefined,
-        name.ts<ts.PropertyName>(),
-        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-        generics.child(0)?.tsa(),
-        params.child(0)?.tsa(),
-        returnType.child(0)?.ts<ts.TypeNode>(),
-        block
-      ),
-      this
+    return ts.factory.createMethodDeclaration(
+      undefined,
+      privacy.sourceString ? [privacy.ts()] : [],
+      undefined,
+      name.ts<ts.PropertyName>(),
+      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+      generics.child(0)?.tsa(),
+      params.child(0)?.tsa(),
+      returnType.child(0)?.ts<ts.TypeNode>(),
+      block
     );
   },
   MethodName(node) {
     return node.ts();
   },
   MethodName_computed_key(_0, expr, _1) {
-    return setTextRange(ts.factory.createComputedPropertyName(expr.ts()), this);
+    return ts.factory.createComputedPropertyName(expr.ts());
   },
   MethodName_computed_string_key(node) {
-    return setTextRange(ts.factory.createComputedPropertyName(node.ts()), this);
+    return ts.factory.createComputedPropertyName(node.ts());
   },
   MethodName_identifier(ident) {
     return ident.ts();
@@ -2615,56 +2135,41 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   MulExp_division(left, _, right) {
-    return setTextRange(ts.factory.createDivide(left.ts(), right.ts()), this);
+    return ts.factory.createDivide(left.ts(), right.ts());
   },
   MulExp_modulus(left, _, right) {
-    return setTextRange(ts.factory.createModulo(left.ts(), right.ts()), this);
+    return ts.factory.createModulo(left.ts(), right.ts());
   },
   MulExp_multiplication(left, _, right) {
-    return setTextRange(ts.factory.createMultiply(left.ts(), right.ts()), this);
+    return ts.factory.createMultiply(left.ts(), right.ts());
   },
   NamedTupleElement(node) {
     return node.ts();
   },
   NamedTupleElement_name_value(name, qMark, _, value) {
-    return setTextRange(
-      ts.factory.createNamedTupleMember(
-        undefined,
-        name.ts(),
-        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-        value.ts()
-      ),
-      this
+    return ts.factory.createNamedTupleMember(
+      undefined,
+      name.ts(),
+      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+      value.ts()
     );
   },
-  NamedTupleElement_spread_operator(dotDotDot, name, _, value) {
-    return setTextRange(
-      ts.factory.createNamedTupleMember(
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-          dotDotDot
-        ),
-        name.ts(),
-        undefined,
-        value.ts()
-      ),
-      this
+  NamedTupleElement_spread_operator(name, _, value) {
+    return ts.factory.createNamedTupleMember(
+      ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+      name.ts(),
+      undefined,
+      value.ts()
     );
   },
   NamespaceDeclaration(_export, _0, _1, _2, ident, block) {
-    return setTextRange(
-      ts.factory.createModuleDeclaration(
-        undefined,
-        _export.sourceString
-          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
-          : undefined,
-        ident.ts(),
-        setTextRange(
-          ts.factory.createModuleBlock(block.ts<ts.Block>().statements),
-          block
-        )
-      ),
-      this
+    return ts.factory.createModuleDeclaration(
+      undefined,
+      _export.sourceString
+        ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+        : undefined,
+      ident.ts(),
+      ts.factory.createModuleBlock(block.ts<ts.Block>().statements)
     );
   },
   NCMemberAccessExp(node) {
@@ -2684,39 +2189,33 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   NotExp_await(_0, _1, expr) {
-    return setTextRange(ts.factory.createAwaitExpression(expr.ts()), this);
+    return ts.factory.createAwaitExpression(expr.ts());
   },
   NotExp_logical_not_symbolic(_, expr) {
-    return setTextRange(ts.factory.createLogicalNot(expr.ts()), this);
+    return ts.factory.createLogicalNot(expr.ts());
   },
   NotExp_logical_not_worded(_0, _1, expr) {
-    return setTextRange(ts.factory.createLogicalNot(expr.ts()), this);
+    return ts.factory.createLogicalNot(expr.ts());
   },
   NotExp_prefix_decrement(_0, ident) {
-    return setTextRange(ts.factory.createPrefixDecrement(ident.ts()), this);
+    return ts.factory.createPrefixDecrement(ident.ts());
   },
   NotExp_prefix_increment(_0, ident) {
-    return setTextRange(ts.factory.createPrefixIncrement(ident.ts()), this);
+    return ts.factory.createPrefixIncrement(ident.ts());
   },
   NotExp_typeof(_0, _1, _2, expr) {
-    return setTextRange(ts.factory.createTypeOfExpression(expr.ts()), this);
+    return ts.factory.createTypeOfExpression(expr.ts());
   },
   NotExp_unary_minus(_, expr) {
-    return setTextRange(
-      ts.factory.createPrefixUnaryExpression(
-        ts.SyntaxKind.MinusToken,
-        expr.ts()
-      ),
-      this
+    return ts.factory.createPrefixUnaryExpression(
+      ts.SyntaxKind.MinusToken,
+      expr.ts()
     );
   },
   NotExp_unary_plus(_, expr) {
-    return setTextRange(
-      ts.factory.createPrefixUnaryExpression(
-        ts.SyntaxKind.PlusToken,
-        expr.ts()
-      ),
-      this
+    return ts.factory.createPrefixUnaryExpression(
+      ts.SyntaxKind.PlusToken,
+      expr.ts()
     );
   },
   nonemptyListOf(_0, _1, _2) {
@@ -2725,24 +2224,18 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   number(_0, _1, _2) {
-    return setTextRange(
-      ts.factory.createNumericLiteral(this.sourceString),
-      this
-    );
+    return ts.factory.createNumericLiteral(this.sourceString);
   },
   null(_) {
-    return setTextRange(ts.factory.createNull(), _);
+    return ts.factory.createNull();
   },
   ObjectEntry(node) {
     return node.ts();
   },
   ObjectEntry_key_value(key, _, value) {
-    return setTextRange(
-      ts.factory.createPropertyAssignment(
-        key.ts<ts.PropertyName>(),
-        value.ts()
-      ),
-      this
+    return ts.factory.createPropertyAssignment(
+      key.ts<ts.PropertyName>(),
+      value.ts()
     );
   },
   ObjectEntry_object_method(node) {
@@ -2752,13 +2245,12 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   ObjectEntry_restructure(ident) {
-    return setTextRange(
-      ts.factory.createShorthandPropertyAssignment(ident.ts<ts.Identifier>()),
-      this
+    return ts.factory.createShorthandPropertyAssignment(
+      ident.ts<ts.Identifier>()
     );
   },
   ObjectEntry_spread_operator(_, expr) {
-    return setTextRange(ts.factory.createSpreadAssignment(expr.ts()), this);
+    return ts.factory.createSpreadAssignment(expr.ts());
   },
   Parameter(node) {
     return node.ts();
@@ -2779,75 +2271,58 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   Parameter_assignable(assignable) {
-    return setTextRange(
-      ts.factory.createParameterDeclaration(
-        undefined,
-        undefined,
-        undefined,
-        assignable.ts<ts.BindingName>()
-      ),
-      this
+    return ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      undefined,
+      assignable.ts<ts.BindingName>()
     );
   },
   Parameter_initializer(assignable, _0, type, _1, expr) {
-    return setTextRange(
-      ts.factory.createParameterDeclaration(
-        undefined,
-        undefined,
-        undefined,
-        assignable.ts<ts.BindingName>(),
-        undefined,
-        type.child(0)?.ts<ts.TypeNode>(),
-        expr.ts<ts.Expression>()
-      ),
-      this
+    return ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      undefined,
+      assignable.ts<ts.BindingName>(),
+      undefined,
+      type.child(0)?.ts<ts.TypeNode>(),
+      expr.ts<ts.Expression>()
     );
   },
   Parameter_type(assignable, qMark, _, type) {
-    return setTextRange(
-      ts.factory.createParameterDeclaration(
-        undefined,
-        undefined,
-        undefined,
-        assignable.ts<ts.BindingName>(),
-        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-        type.ts<ts.TypeNode>()
-      ),
-      this
+    return ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      undefined,
+      assignable.ts<ts.BindingName>(),
+      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+      type.ts<ts.TypeNode>()
     );
   },
   PipeExp(node) {
     return node.ts();
   },
   PipeExp_pipe(targets, _, final) {
-    let $ = ts.setTextRange(ts.factory.createIdentifier("$"), {
-      pos: this.source.startIdx,
-      end: this.source.startIdx,
-    });
+    let $ = ts.factory.createIdentifier("$");
 
-    return setTextRange(
-      ts.factory.createCommaListExpression([
-        ...targets
-          .tsa<ts.Expression>()
-          .map((expr) =>
-            ts.setTextRange(ts.factory.createAssignment($, expr), expr)
-          ),
-        final.ts(),
-      ]),
-      this
-    );
+    return ts.factory.createCommaListExpression([
+      ...targets
+        .tsa<ts.Expression>()
+        .map((expr) => ts.factory.createAssignment($, expr)),
+      final.ts(),
+    ]);
   },
   PostfixExp(node) {
     return node.ts();
   },
   PostfixExp_decrement(ident, _) {
-    return setTextRange(ts.factory.createPostfixDecrement(ident.ts()), this);
+    return ts.factory.createPostfixDecrement(ident.ts());
   },
   PostfixExp_increment(ident, _) {
-    return setTextRange(ts.factory.createPostfixIncrement(ident.ts()), this);
+    return ts.factory.createPostfixIncrement(ident.ts());
   },
   PrimitiveType(node) {
-    return setTextRange(ts.factory.createIdentifier(node.sourceString), this);
+    return ts.factory.createIdentifier(node.sourceString);
   },
   PrivacyLevel(node) {
     return node.ts();
@@ -2857,43 +2332,28 @@ semantics.addOperation<ts.Node>("ts", {
       "`PrivacyLevel_none` nodes should never directly be evaluated."
     );
   },
-  PrivacyLevel_private(keyword, _) {
-    return setTextRange(
-      ts.factory.createToken(ts.SyntaxKind.PrivateKeyword),
-      keyword
-    );
+  PrivacyLevel_private(_0, _1) {
+    return ts.factory.createToken(ts.SyntaxKind.PrivateKeyword);
   },
-  PrivacyLevel_protected(keyword, _) {
-    return setTextRange(
-      ts.factory.createToken(ts.SyntaxKind.ProtectedKeyword),
-      keyword
-    );
+  PrivacyLevel_protected(_0, _1) {
+    return ts.factory.createToken(ts.SyntaxKind.ProtectedKeyword);
   },
-  PrivacyLevel_public(keyword, _) {
-    return setTextRange(
-      ts.factory.createToken(ts.SyntaxKind.PublicKeyword),
-      keyword
-    );
+  PrivacyLevel_public(_0, _1) {
+    return ts.factory.createToken(ts.SyntaxKind.PublicKeyword);
   },
   Property(node) {
     return node.ts();
   },
-  Property_computed(atSymbol, _0, expr, _1) {
-    return setTextRange(
-      ts.factory.createElementAccessExpression(
-        setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
-        expr.ts<ts.Expression>()
-      ),
-      this
+  Property_computed(_0, expr, _1) {
+    return ts.factory.createElementAccessExpression(
+      ts.factory.createIdentifier("$self"),
+      expr.ts<ts.Expression>()
     );
   },
-  Property_identifier(atSymbol, prop) {
-    return setTextRange(
-      ts.factory.createPropertyAccessExpression(
-        setTextRange(ts.factory.createIdentifier("$self"), atSymbol),
-        prop.ts<ts.Identifier>()
-      ),
-      this
+  Property_identifier(prop) {
+    return ts.factory.createPropertyAccessExpression(
+      ts.factory.createIdentifier("$self"),
+      prop.ts<ts.Identifier>()
     );
   },
   postWord(_) {
@@ -2904,64 +2364,43 @@ semantics.addOperation<ts.Node>("ts", {
 
     let type = base.ts<ts.EntityName>();
     for (let qualifier of qualifiers.tsa<ts.Identifier>()) {
-      type = ts.setTextRange(ts.factory.createQualifiedName(type, qualifier), {
-        pos: type.pos,
-        end: qualifier.end,
-      });
+      type = ts.factory.createQualifiedName(type, qualifier);
     }
 
-    return setTextRange(type, this);
+    return type;
   },
   Rescopable(node) {
     return node.ts();
   },
   Rescopable_identifier(ident) {
-    return setTextRange(
-      ts.factory.createVariableDeclaration(ident.ts<ts.Identifier>()),
-      this
-    );
+    return ts.factory.createVariableDeclaration(ident.ts<ts.Identifier>());
   },
   Rescopable_with_type(ident, _, type) {
-    return setTextRange(
-      ts.factory.createVariableDeclaration(
-        ident.ts<ts.Identifier>(),
-        undefined,
-        type.ts<ts.TypeNode>()
-      ),
-      this
+    return ts.factory.createVariableDeclaration(
+      ident.ts<ts.Identifier>(),
+      undefined,
+      type.ts<ts.TypeNode>()
     );
   },
   RestParameter(node) {
     return node.ts();
   },
-  RestParameter_with_type(dotDotDot, assignable, _, type) {
-    return setTextRange(
-      ts.factory.createParameterDeclaration(
-        undefined,
-        undefined,
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-          dotDotDot
-        ),
-        assignable.ts<ts.BindingName>(),
-        undefined,
-        type.ts<ts.TypeNode>()
-      ),
-      this
+  RestParameter_with_type(assignable, _, type) {
+    return ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+      assignable.ts<ts.BindingName>(),
+      undefined,
+      type.ts<ts.TypeNode>()
     );
   },
-  RestParameter_without_type(dotDotDot, assignable) {
-    return setTextRange(
-      ts.factory.createParameterDeclaration(
-        undefined,
-        undefined,
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-          dotDotDot
-        ),
-        assignable.ts<ts.BindingName>()
-      ),
-      this
+  RestParameter_without_type(assignable) {
+    return ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+      assignable.ts<ts.BindingName>()
     );
   },
   reserved(_) {
@@ -2989,57 +2428,38 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   SingleStatementBlock_single_statement(_0, _1, statement) {
-    return setTextRange(ts.factory.createBlock([statement.ts()], true), this);
+    return ts.factory.createBlock([statement.ts()], true);
   },
   Statement(node) {
     return node.ts();
   },
-  Statement_await_new_thread(
-    awaitKeyword,
-    _0,
-    assignable,
-    _1,
-    expression,
-    blockNode
-  ) {
-    let $ = setTextRange(
-      ts.factory.createAwaitExpression(
-        setTextRange(ts.factory.createIdentifier("$awaited"), awaitKeyword)
-      ),
-      awaitKeyword
+  Statement_await_new_thread(_0, assignable, _1, expression, blockNode) {
+    let $ = ts.factory.createAwaitExpression(
+      ts.factory.createIdentifier("$awaited")
     );
 
     let first = assignable.sourceString
       ? ts.factory.createVariableStatement(
           undefined,
-          setTextRange(
-            ts.factory.createVariableDeclarationList(
-              [
-                setTextRange(
-                  ts.factory.createVariableDeclaration(
-                    assignable.child(0)?.ts<ts.BindingName>(),
-                    undefined,
-                    undefined,
-                    $
-                  ),
-                  this
-                ),
-              ],
-              ts.NodeFlags.Let
-            ),
-            this
+          ts.factory.createVariableDeclarationList(
+            [
+              ts.factory.createVariableDeclaration(
+                assignable.child(0)?.ts<ts.BindingName>(),
+                undefined,
+                undefined,
+                $
+              ),
+            ],
+            ts.NodeFlags.Let
           )
         )
       : ts.factory.createExpressionStatement($);
 
-    first = setTextRange(first, this);
+    first = first;
 
-    let block = setTextRange(
-      ts.factory.createBlock(
-        [first, ...blockNode.ts<ts.Block>().statements],
-        true
-      ),
-      blockNode
+    let block = ts.factory.createBlock(
+      [first, ...blockNode.ts<ts.Block>().statements],
+      true
     );
 
     let fn = ts.factory.createFunctionExpression(
@@ -3048,88 +2468,64 @@ semantics.addOperation<ts.Node>("ts", {
       undefined,
       undefined,
       [
-        setTextRange(
-          ts.factory.createParameterDeclaration(
-            undefined,
-            undefined,
-            undefined,
-            "$awaited"
-          ),
-          awaitKeyword
+        ts.factory.createParameterDeclaration(
+          undefined,
+          undefined,
+          undefined,
+          "$awaited"
         ),
       ],
       undefined,
       block
     );
 
-    return setTextRange(
-      ts.factory.createExpressionStatement(
-        setTextRange(
-          ts.factory.createCallExpression(fn, undefined, [expression.ts()]),
-          this
-        )
-      ),
-      this
+    return ts.factory.createExpressionStatement(
+      ts.factory.createCallExpression(fn, undefined, [expression.ts()])
     );
   },
   Statement_empty_export(_0, _1) {
-    return setTextRange(
-      ts.factory.createExportDeclaration(
-        undefined,
-        undefined,
-        false,
-        setTextRange(ts.factory.createNamedExports([]), this)
-      ),
-      this
+    return ts.factory.createExportDeclaration(
+      undefined,
+      undefined,
+      false,
+      ts.factory.createNamedExports([])
     );
   },
   Statement_empty_import(_0, _1, filename, _2) {
-    return setTextRange(
-      ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        undefined,
-        filename.ts()
-      ),
-      this
+    return ts.factory.createImportDeclaration(
+      undefined,
+      undefined,
+      undefined,
+      filename.ts()
     );
   },
   Statement_export(_0, _1, type, _2, exports, _3, _4) {
-    return setTextRange(
-      ts.factory.createExportDeclaration(
-        undefined,
-        undefined,
-        !!type.sourceString,
-        setTextRange(ts.factory.createNamedExports(exports.tsa()), exports)
-      ),
-      this
+    return ts.factory.createExportDeclaration(
+      undefined,
+      undefined,
+      !!type.sourceString,
+      ts.factory.createNamedExports(exports.tsa())
     );
   },
   Statement_export_all_from(_0, _1, _2, _3, filename, _4) {
-    return setTextRange(
-      ts.factory.createExportDeclaration(
-        undefined,
-        undefined,
-        false,
-        undefined,
-        filename.ts<ts.StringLiteral>()
-      ),
-      this
+    return ts.factory.createExportDeclaration(
+      undefined,
+      undefined,
+      false,
+      undefined,
+      filename.ts<ts.StringLiteral>()
     );
   },
   Statement_export_default(_0, _1, _2, _3, expression, _4) {
-    return setTextRange(ts.factory.createExportDefault(expression.ts()), this);
+    return ts.factory.createExportDefault(expression.ts());
   },
   Statement_export_from(_0, _1, type, _2, exports, _3, _4, _5, filename, _6) {
-    return setTextRange(
-      ts.factory.createExportDeclaration(
-        undefined,
-        undefined,
-        !!type.sourceString,
-        setTextRange(ts.factory.createNamedExports(exports.tsa()), exports),
-        filename.ts<ts.Expression>()
-      ),
-      this
+    return ts.factory.createExportDeclaration(
+      undefined,
+      undefined,
+      !!type.sourceString,
+      ts.factory.createNamedExports(exports.tsa()),
+      filename.ts<ts.Expression>()
     );
   },
   Statement_export_variable(expr, _) {
@@ -3139,179 +2535,111 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   Statement_for(_0, _1, _await, _2, assignable, _3, _4, expression, block) {
-    let declaration = setTextRange(
-      ts.factory.createVariableDeclaration(
-        assignable.child(0)?.ts<ts.BindingName>() ||
-          ts.factory.createIdentifier("$loop")
-      ),
-      assignable
+    let declaration = ts.factory.createVariableDeclaration(
+      assignable.child(0)?.ts<ts.BindingName>() ||
+        ts.factory.createIdentifier("$loop")
     );
 
-    let list = setTextRange(
-      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
-      assignable
+    let list = ts.factory.createVariableDeclarationList(
+      [declaration],
+      ts.NodeFlags.Let
     );
 
-    return setTextRange(
-      ts.factory.createForOfStatement(
-        _await
-          .child(0)
-          .tsn({ await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword) }),
-        list,
-        expression.ts(),
-        block.ts()
-      ),
-      this
+    return ts.factory.createForOfStatement(
+      _await
+        .child(0)
+        .tsn({ await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword) }),
+      list,
+      expression.ts(),
+      block.ts()
     );
   },
   Statement_import(_0, _1, type, _2, imports, _3, _4, _5, filename, _6) {
-    return setTextRange(
-      ts.factory.createImportDeclaration(
+    return ts.factory.createImportDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createImportClause(
+        !!type.sourceString,
         undefined,
-        undefined,
-        setTextRange(
-          ts.factory.createImportClause(
-            !!type.sourceString,
-            undefined,
-            setTextRange(ts.factory.createNamedImports(imports.tsa()), imports)
-          ),
-          imports
-        ),
-        filename.ts()
+        ts.factory.createNamedImports(imports.tsa())
       ),
-      this
+      filename.ts()
     );
   },
-  Statement_import_all(_0, star, _2, _3, ident, _4, _5, filename, _6) {
-    return setTextRange(
-      ts.factory.createImportDeclaration(
+  Statement_import_all(_0, _2, _3, ident, _4, _5, filename, _6) {
+    return ts.factory.createImportDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createImportClause(
+        false,
         undefined,
-        undefined,
-        ts.setTextRange(
-          ts.factory.createImportClause(
-            false,
-            undefined,
-            ts.setTextRange(ts.factory.createNamespaceImport(ident.ts()), {
-              pos: star.source.startIdx,
-              end: ident.source.endIdx,
-            })
-          ),
-          {
-            pos: star.source.startIdx,
-            end: ident.source.endIdx,
-          }
-        ),
-        filename.ts<ts.StringLiteral>()
+        ts.factory.createNamespaceImport(ident.ts())
       ),
-      this
+      filename.ts<ts.StringLiteral>()
     );
   },
   Statement_import_default(_0, _1, type, _2, ident, _3, _4, _5, filename, _6) {
-    return setTextRange(
-      ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        setTextRange(
-          ts.factory.createImportClause(
-            !!type.sourceString,
-            ident.ts<ts.Identifier>(),
-            undefined
-          ),
-          ident
-        ),
-        filename.ts()
+    return ts.factory.createImportDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createImportClause(
+        !!type.sourceString,
+        ident.ts<ts.Identifier>(),
+        undefined
       ),
-      this
+      filename.ts()
     );
   },
   Statement_repeat(_0, _1, count, block) {
-    let pos: ts.TextRange = {
-      pos: this.source.startIdx,
-      end: this.source.startIdx,
-    };
-
-    return setTextRange(
-      ts.factory.createForOfStatement(
-        undefined,
-        ts.setTextRange(
-          ts.factory.createVariableDeclarationList(
-            [
-              ts.setTextRange(
-                ts.factory.createVariableDeclaration(
-                  ts.setTextRange(ts.factory.createIdentifier("$loop"), pos)
-                ),
-                pos
-              ),
-            ],
-            ts.NodeFlags.Let
+    return ts.factory.createForOfStatement(
+      undefined,
+      ts.factory.createVariableDeclarationList(
+        [
+          ts.factory.createVariableDeclaration(
+            ts.factory.createIdentifier("$loop")
           ),
-          pos
-        ),
-        ts.setTextRange(
-          ts.factory.createCallExpression(
-            ts.setTextRange(
-              ts.factory.createPropertyAccessExpression(
-                ts.setTextRange(
-                  ts.factory.createArrayLiteralExpression([]),
-                  pos
-                ),
-                "constructor"
-              ),
-              pos
-            ),
-            undefined,
-            [count.ts()]
-          ),
-          pos
-        ),
-        block.ts()
+        ],
+        ts.NodeFlags.Let
       ),
-      this
+      ts.factory.createCallExpression(
+        ts.factory.createPropertyAccessExpression(
+          ts.factory.createArrayLiteralExpression([]),
+          "constructor"
+        ),
+        undefined,
+        [count.ts()]
+      ),
+      block.ts()
     );
   },
   Statement_rescope(_0, _1, declarations, _2) {
-    let list = setTextRange(
-      ts.factory.createVariableDeclarationList(
-        declarations.tsa(),
-        ts.NodeFlags.Let
-      ),
-      this
+    let list = ts.factory.createVariableDeclarationList(
+      declarations.tsa(),
+      ts.NodeFlags.Let
     );
 
-    return setTextRange(
-      ts.factory.createVariableStatement(undefined, list),
-      this
-    );
+    return ts.factory.createVariableStatement(undefined, list);
   },
   Statement_rescope_assign(_0, _1, assignment, _2) {
-    let list = setTextRange(
-      ts.factory.createVariableDeclarationList(
-        [assignment.ts()],
-        ts.NodeFlags.Let
-      ),
-      this
+    let list = ts.factory.createVariableDeclarationList(
+      [assignment.ts()],
+      ts.NodeFlags.Let
     );
 
-    return setTextRange(
-      ts.factory.createVariableStatement(undefined, list),
-      this
-    );
+    return ts.factory.createVariableStatement(undefined, list);
   },
   Statement_typed_assignment(node) {
     return node.ts();
   },
   Statement_when_callback(expressionNode, qMark, _0, _1, _2, params, block) {
-    let fn = setTextRange(
-      ts.factory.createFunctionExpression(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        params.child(0)?.tsa(),
-        undefined,
-        block.ts()
-      ),
-      block
+    let fn = ts.factory.createFunctionExpression(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      params.child(0)?.tsa(),
+      undefined,
+      block.ts()
     );
 
     let expression = expressionNode.ts<ts.Expression | ts.CallExpression>();
@@ -3323,23 +2651,21 @@ semantics.addOperation<ts.Node>("ts", {
     if (expression.kind === ts.SyntaxKind.CallExpression) {
       let expr = expression as ts.CallExpression;
 
-      expression = ts.setTextRange(
-        ts.factory.createCallChain(
+      expression =
+        (ts.factory.createCallChain(
           expr.expression,
           expr.questionDotToken || mark,
           expr.typeArguments,
           expr.arguments.concat(fn)
         ),
-        expr
-      );
+        expr);
     } else {
-      expression = ts.setTextRange(
-        ts.factory.createCallChain(expression, mark, undefined, [fn]),
-        expression
-      );
+      expression =
+        (ts.factory.createCallChain(expression, mark, undefined, [fn]),
+        expression);
     }
 
-    return setTextRange(ts.factory.createExpressionStatement(expression), this);
+    return ts.factory.createExpressionStatement(expression);
   },
   Statement_while(whileUntil, _, expression, block) {
     let cond = expression.ts<ts.Expression>();
@@ -3347,60 +2673,39 @@ semantics.addOperation<ts.Node>("ts", {
     if (whileUntil.sourceString == "until")
       cond = ts.factory.createLogicalNot(cond);
 
-    return setTextRange(
-      ts.factory.createWhileStatement(cond, block.ts()),
-      this
-    );
+    return ts.factory.createWhileStatement(cond, block.ts());
   },
   StatementBlock(statements) {
-    return setTextRange(
-      ts.factory.createSourceFile(
-        statements.tsa(),
-        ts.setTextRange(ts.factory.createToken(ts.SyntaxKind.EndOfFileToken), {
-          pos: this.source.endIdx,
-          end: this.source.endIdx,
-        }),
-        0
-      ),
-      this
+    return ts.factory.createSourceFile(
+      statements.tsa(),
+      ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+      0
     );
   },
   StaticProperty(node) {
     return node.ts();
   },
-  StaticProperty_computed(atSymbol, _0, expr, _1) {
-    return setTextRange(
-      ts.factory.createElementAccessExpression(
-        setTextRange(ts.factory.createIdentifier("$static"), atSymbol),
-        expr.ts<ts.Expression>()
-      ),
-      this
+  StaticProperty_computed(_0, expr, _1) {
+    return ts.factory.createElementAccessExpression(
+      ts.factory.createIdentifier("$static"),
+      expr.ts<ts.Expression>()
     );
   },
-  StaticProperty_identifier(atSymbol, prop) {
-    return setTextRange(
-      ts.factory.createPropertyAccessExpression(
-        setTextRange(ts.factory.createIdentifier("$static"), atSymbol),
-        prop.ts<ts.Identifier>()
-      ),
-      this
+  StaticProperty_identifier(prop) {
+    return ts.factory.createPropertyAccessExpression(
+      ts.factory.createIdentifier("$static"),
+      prop.ts<ts.Identifier>()
     );
   },
-  SwitchStatement(_0, _1, target, open, cases, defaultNode, close) {
+  SwitchStatement(_0, _1, target, cases, defaultNode) {
     let blocks: readonly ts.CaseBlock[] = cases.tsa();
     if (defaultNode.sourceString) {
       blocks = blocks.concat(defaultNode.child(0).ts<ts.CaseBlock>());
     }
 
-    let block = ts.setTextRange(
-      ts.factory.createCaseBlock(blocks.flatMap((e) => e.clauses)),
-      { pos: open.source.endIdx, end: close.source.startIdx }
-    );
+    let block = ts.factory.createCaseBlock(blocks.flatMap((e) => e.clauses));
 
-    return setTextRange(
-      ts.factory.createSwitchStatement(target.ts(), block),
-      this
-    );
+    return ts.factory.createSwitchStatement(target.ts(), block);
   },
   sign(_) {
     throw new Error("`sign` nodes should never directly be evaluated.");
@@ -3409,10 +2714,7 @@ semantics.addOperation<ts.Node>("ts", {
     throw new Error("`space` nodes should never directly be evaluated.");
   },
   statementTerminator(_) {
-    return setTextRange(
-      ts.factory.createToken(ts.SyntaxKind.SemicolonToken),
-      this
-    );
+    return ts.factory.createToken(ts.SyntaxKind.SemicolonToken);
   },
   statementTerminator_semicolon(_0, _1) {
     throw new Error(
@@ -3438,15 +2740,12 @@ semantics.addOperation<ts.Node>("ts", {
         0: "\0",
       }[char[1]];
 
-      return setTextRange(ts.factory.createStringLiteral(res || char[1]), this);
+      return ts.factory.createStringLiteral(res || char[1]);
     }
 
     if (char.length === 4 && char[0] === "\\" && char[1] === "x") {
-      return setTextRange(
-        ts.factory.createStringLiteral(
-          String.fromCodePoint(parseInt(char.slice(2), 16))
-        ),
-        this
+      return ts.factory.createStringLiteral(
+        String.fromCodePoint(parseInt(char.slice(2), 16))
       );
     }
 
@@ -3456,24 +2755,18 @@ semantics.addOperation<ts.Node>("ts", {
       char[1] === "u" &&
       char[2] != "{"
     ) {
-      return setTextRange(
-        ts.factory.createStringLiteral(
-          String.fromCodePoint(parseInt(char.slice(2), 16))
-        ),
-        this
+      return ts.factory.createStringLiteral(
+        String.fromCodePoint(parseInt(char.slice(2), 16))
       );
     }
 
     if (char[0] === "\\" && char[1] === "u") {
-      return setTextRange(
-        ts.factory.createStringLiteral(
-          String.fromCodePoint(parseInt(char.slice(3, -1), 16))
-        ),
-        this
+      return ts.factory.createStringLiteral(
+        String.fromCodePoint(parseInt(char.slice(3, -1), 16))
       );
     }
 
-    return setTextRange(ts.factory.createStringLiteral(char), this);
+    return ts.factory.createStringLiteral(char);
   },
   string_bit_character(_) {
     throw new Error(
@@ -3507,12 +2800,9 @@ semantics.addOperation<ts.Node>("ts", {
   },
   string_full(open, content, _) {
     let bits = content.tsa<ts.StringLiteral>();
-    return setTextRange(
-      ts.factory.createStringLiteral(
-        bits.map((e) => e.text).join(""),
-        open.sourceString === "'"
-      ),
-      this
+    return ts.factory.createStringLiteral(
+      bits.map((e) => e.text).join(""),
+      open.sourceString === "'"
     );
   },
   string_interpolatable(_0, headNode, _1, spansNode, _2) {
@@ -3520,20 +2810,17 @@ semantics.addOperation<ts.Node>("ts", {
     let spans = spansNode.tsa<ts.TemplateSpan>();
 
     if (spans.length === 0) {
-      return setTextRange(
-        ts.factory.createNoSubstitutionTemplateLiteral(head.text, head.rawText),
-        this
+      return ts.factory.createNoSubstitutionTemplateLiteral(
+        head.text,
+        head.rawText
       );
     }
 
-    return setTextRange(ts.factory.createTemplateExpression(head, spans), this);
+    return ts.factory.createTemplateExpression(head, spans);
   },
   string_interpolatable_head(content) {
     let bits = content.tsa<ts.StringLiteral>();
-    return setTextRange(
-      ts.factory.createTemplateHead(bits.map((e) => e.text).join("")),
-      this
-    );
+    return ts.factory.createTemplateHead(bits.map((e) => e.text).join(""));
   },
   string_interpolatable_span(_0, expression, _1, content, isTail) {
     let bits = content
@@ -3545,12 +2832,7 @@ semantics.addOperation<ts.Node>("ts", {
       ? ts.factory.createTemplateTail(bits, content.sourceString)
       : ts.factory.createTemplateMiddle(bits, content.sourceString);
 
-    text = setTextRange(text, content);
-
-    return setTextRange(
-      ts.factory.createTemplateSpan(expression.ts(), text),
-      this
-    );
+    return ts.factory.createTemplateSpan(expression.ts(), text);
   },
   string_non_interpolatable(node) {
     return node.ts();
@@ -3575,45 +2857,33 @@ semantics.addOperation<ts.Node>("ts", {
     let cond = condition.ts<ts.Expression>();
 
     if (ifUnless.sourceString === "unless")
-      cond = ts.setTextRange(ts.factory.createLogicalNot(cond), cond);
+      cond = (ts.factory.createLogicalNot(cond), cond);
 
-    return setTextRange(
-      ts.factory.createConditionalExpression(
-        cond,
-        undefined,
-        ifTrue.ts(),
-        undefined,
-        ifFalse.ts()
-      ),
-      this
+    return ts.factory.createConditionalExpression(
+      cond,
+      undefined,
+      ifTrue.ts(),
+      undefined,
+      ifFalse.ts()
     );
   },
-  TernaryExp_symbolic(condition, questionToken, ifTrue, colonToken, ifFalse) {
-    return setTextRange(
-      ts.factory.createConditionalExpression(
-        condition.ts(),
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-          questionToken
-        ),
-        ifTrue.ts(),
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.ColonToken),
-          colonToken
-        ),
-        ifFalse.ts()
-      ),
-      this
+  TernaryExp_symbolic(condition, ifTrue, ifFalse) {
+    return ts.factory.createConditionalExpression(
+      condition.ts(),
+      ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+      ifTrue.ts(),
+      ts.factory.createToken(ts.SyntaxKind.ColonToken),
+      ifFalse.ts()
     );
   },
   TopLevelExp(node) {
     return node.ts();
   },
   TopLevelExp_break(_) {
-    return setTextRange(ts.factory.createBreakStatement(), this);
+    return ts.factory.createBreakStatement();
   },
   TopLevelExp_continue(_) {
-    return setTextRange(ts.factory.createContinueStatement(), this);
+    return ts.factory.createContinueStatement();
   },
   TopLevelExp_expression(node) {
     let expr = node.ts<ts.Expression>();
@@ -3622,25 +2892,16 @@ semantics.addOperation<ts.Node>("ts", {
       expr.kind === ts.SyntaxKind.ClassExpression ||
       expr.kind === ts.SyntaxKind.FunctionExpression
     ) {
-      expr = ts.setTextRange(
-        ts.factory.createParenthesizedExpression(expr),
-        expr
-      );
+      expr = (ts.factory.createParenthesizedExpression(expr), expr);
     }
 
-    return setTextRange(ts.factory.createExpressionStatement(expr), this);
+    return ts.factory.createExpressionStatement(expr);
   },
   TopLevelExp_return(_, expr) {
-    return setTextRange(
-      ts.factory.createReturnStatement(expr.child(0)?.ts<ts.Expression>()),
-      this
-    );
+    return ts.factory.createReturnStatement(expr.child(0)?.ts<ts.Expression>());
   },
   TopLevelExp_throw(_, expr) {
-    return setTextRange(
-      ts.factory.createThrowStatement(expr.ts<ts.Expression>()),
-      this
-    );
+    return ts.factory.createThrowStatement(expr.ts<ts.Expression>());
   },
   TopLevelIfExp(node) {
     return node.ts();
@@ -3649,9 +2910,9 @@ semantics.addOperation<ts.Node>("ts", {
     let cond = condition.ts<ts.Expression>();
 
     if (ifUnless.sourceString === "unless")
-      cond = ts.setTextRange(ts.factory.createLogicalNot(cond), cond);
+      cond = (ts.factory.createLogicalNot(cond), cond);
 
-    return setTextRange(ts.factory.createIfStatement(cond, expr.ts()), this);
+    return ts.factory.createIfStatement(cond, expr.ts());
   },
   TopLevelForExp(node) {
     return node.ts();
@@ -3713,52 +2974,36 @@ semantics.addOperation<ts.Node>("ts", {
     let finallyBlock = _finally.child(0)?.ts<ts.Block>();
 
     if (!_catch.sourceString && !_finally.sourceString) {
-      catchBlock = ts.setTextRange(
-        ts.factory.createCatchClause(
-          undefined,
-          ts.setTextRange(ts.factory.createBlock([]), {
-            pos: this.source.endIdx,
-            end: this.source.endIdx,
-          })
-        ),
-        {
-          pos: this.source.endIdx,
-          end: this.source.endIdx,
-        }
+      catchBlock = ts.factory.createCatchClause(
+        undefined,
+        ts.factory.createBlock([])
       );
     }
 
-    return setTextRange(
-      ts.factory.createTryStatement(block.ts(), catchBlock, finallyBlock),
-      this
-    );
+    return ts.factory.createTryStatement(block.ts(), catchBlock, finallyBlock);
   },
   TupleElement(node) {
     return node.ts();
   },
   TupleElement_spread_operator(_, type) {
-    return setTextRange(ts.factory.createSpreadElement(type.ts()), this);
+    return ts.factory.createSpreadElement(type.ts());
   },
   TupleElement_value(type, qMark) {
-    if (qMark.sourceString)
-      return setTextRange(ts.factory.createOptionalTypeNode(type.ts()), this);
+    if (qMark.sourceString) return ts.factory.createOptionalTypeNode(type.ts());
     return type.ts();
   },
   Type(node) {
     return node.ts();
   },
   TypeDeclaration(_export, _0, _1, _2, ident, generics, _3, value, _4) {
-    return setTextRange(
-      ts.factory.createTypeAliasDeclaration(
-        undefined,
-        _export.sourceString
-          ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
-          : undefined,
-        ident.ts<ts.Identifier>(),
-        generics.tsa(),
-        value.ts()
-      ),
-      this
+    return ts.factory.createTypeAliasDeclaration(
+      undefined,
+      _export.sourceString
+        ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
+        : undefined,
+      ident.ts<ts.Identifier>(),
+      generics.tsa(),
+      value.ts()
     );
   },
   TypeObjectEntry(node) {
@@ -3767,44 +3012,36 @@ semantics.addOperation<ts.Node>("ts", {
   TypeObjectEntry_call_signature(signature) {
     let fn = signature.ts<ts.FunctionTypeNode>();
 
-    return setTextRange(
-      ts.factory.createCallSignature(fn.typeParameters, fn.parameters, fn.type),
-      this
+    return ts.factory.createCallSignature(
+      fn.typeParameters,
+      fn.parameters,
+      fn.type
     );
   },
   TypeObjectEntry_construct_signature(_0, _1, signature) {
     let fn = signature.ts<ts.FunctionTypeNode>();
 
-    return setTextRange(
-      ts.factory.createConstructSignature(
-        fn.typeParameters,
-        fn.parameters,
-        fn.type
-      ),
-      this
+    return ts.factory.createConstructSignature(
+      fn.typeParameters,
+      fn.parameters,
+      fn.type
     );
   },
   TypeObjectEntry_key_value(readonly, _0, key, qMark, _1, value) {
-    return setTextRange(
-      ts.factory.createPropertySignature(
-        readonly.sourceString
-          ? [ts.factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)]
-          : undefined,
-        key.ts<ts.PropertyName>(),
-        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-        value.ts<ts.TypeNode>()
-      ),
-      this
+    return ts.factory.createPropertySignature(
+      readonly.sourceString
+        ? [ts.factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)]
+        : undefined,
+      key.ts<ts.PropertyName>(),
+      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+      value.ts<ts.TypeNode>()
     );
   },
   TypeObjectKey(node) {
     return node.ts();
   },
   TypeObjectKey_computed_accessor(_0, accessor, _1) {
-    return setTextRange(
-      ts.factory.createComputedPropertyName(accessor.ts()),
-      this
-    );
+    return ts.factory.createComputedPropertyName(accessor.ts());
   },
   TypeObjectKey_identifier(node) {
     return node.ts();
@@ -3816,16 +3053,13 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   TypeParameter(ident, qMark, _, type) {
-    return setTextRange(
-      ts.factory.createParameterDeclaration(
-        undefined,
-        undefined,
-        undefined,
-        ident.ts<ts.BindingName>(),
-        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-        type.ts<ts.TypeNode>()
-      ),
-      this
+    return ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      undefined,
+      ident.ts<ts.BindingName>(),
+      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+      type.ts<ts.TypeNode>()
     );
   },
   TypeParameterList(_) {
@@ -3843,42 +3077,30 @@ semantics.addOperation<ts.Node>("ts", {
       "`TypeParameterList_rest_params` nodes should never directly be evaluated."
     );
   },
-  TypeRestParameter(dotDotDot, ident, _, type) {
-    return setTextRange(
-      ts.factory.createParameterDeclaration(
-        undefined,
-        undefined,
-        setTextRange(
-          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-          dotDotDot
-        ),
-        ident.ts<ts.BindingName>(),
-        undefined,
-        type.ts<ts.TypeNode>()
-      ),
-      this
+  TypeRestParameter(ident, _, type) {
+    return ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+      ident.ts<ts.BindingName>(),
+      undefined,
+      type.ts<ts.TypeNode>()
     );
   },
   TypedVariableAssignment(assignable, _0, type, _1, expr) {
-    let declaration = setTextRange(
-      ts.factory.createVariableDeclaration(
-        assignable.ts<ts.BindingName>(),
-        undefined,
-        type.child(0)?.ts<ts.TypeNode>(),
-        expr.ts<ts.Expression>()
-      ),
-      this
+    let declaration = ts.factory.createVariableDeclaration(
+      assignable.ts<ts.BindingName>(),
+      undefined,
+      type.child(0)?.ts<ts.TypeNode>(),
+      expr.ts<ts.Expression>()
     );
 
-    let list = setTextRange(
-      ts.factory.createVariableDeclarationList([declaration], ts.NodeFlags.Let),
-      this
+    let list = ts.factory.createVariableDeclarationList(
+      [declaration],
+      ts.NodeFlags.Let
     );
 
-    return setTextRange(
-      ts.factory.createVariableStatement(undefined, list),
-      this
-    );
+    return ts.factory.createVariableStatement(undefined, list);
   },
   terminator(_0, _1) {
     throw new Error("`terminator` nodes should never directly be evaluated.");
@@ -3905,62 +3127,44 @@ semantics.addOperation<ts.Node>("ts", {
     let iter = node.asIteration();
     if (iter.children.length === 1) return iter.child(0).ts();
 
-    return setTextRange(ts.factory.createUnionTypeNode(node.tsa()), this);
+    return ts.factory.createUnionTypeNode(node.tsa());
   },
   UnprefixedSingleStatementBlock(node) {
     return node.ts();
   },
   UnprefixedSingleStatementBlock_single_statement(statement) {
-    return setTextRange(ts.factory.createBlock([statement.ts()], true), this);
+    return ts.factory.createBlock([statement.ts()], true);
   },
   undefined(_) {
-    return setTextRange(ts.factory.createVoidZero(), this);
+    return ts.factory.createVoidZero();
   },
   unitNumber(number, identifier) {
     let num = number.ts<ts.NumericLiteral>();
-    let str = setTextRange(
-      ts.factory.createStringLiteral(number.sourceString),
-      number
-    );
+    let str = ts.factory.createStringLiteral(number.sourceString);
     let ident = identifier.ts<ts.Identifier>();
 
-    let numEl = setTextRange(
-      ts.factory.createPropertyAssignment("number", num),
-      number
-    );
-    let strEl = setTextRange(
-      ts.factory.createPropertyAssignment("string", str),
-      number
-    );
-    let obj = setTextRange(
-      ts.factory.createObjectLiteralExpression([numEl, strEl], false),
-      number
-    );
+    let numEl = ts.factory.createPropertyAssignment("number", num);
+    let strEl = ts.factory.createPropertyAssignment("string", str);
+    let obj = ts.factory.createObjectLiteralExpression([numEl, strEl], false);
 
-    return setTextRange(
-      ts.factory.createCallExpression(ident, undefined, [obj]),
-      this
-    );
+    return ts.factory.createCallExpression(ident, undefined, [obj]);
   },
   VariableAssignment(assignable, _0, type, _1, expr) {
-    return setTextRange(
-      ts.factory.createVariableDeclaration(
-        assignable.ts<ts.BindingName>(),
-        undefined,
-        type.child(0)?.ts<ts.TypeNode>(),
-        expr.ts<ts.Expression>()
-      ),
-      this
+    return ts.factory.createVariableDeclaration(
+      assignable.ts<ts.BindingName>(),
+      undefined,
+      type.child(0)?.ts<ts.TypeNode>(),
+      expr.ts<ts.Expression>()
     );
   },
   WrappedStatementBlock(_0, statements, _1) {
-    return setTextRange(ts.factory.createBlock(statements.tsa(), true), this);
+    return ts.factory.createBlock(statements.tsa(), true);
   },
   whitespace(_) {
     throw new Error("`whitespace` nodes should never directly be evaluated.");
   },
   word(_0, _1, _2) {
-    return setTextRange(ts.factory.createIdentifier(this.sourceString), this);
+    return ts.factory.createIdentifier(this.sourceString);
   },
 });
 
