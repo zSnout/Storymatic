@@ -25,25 +25,37 @@ export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   };
 }
 
-export function addArrows(text: string) {
-  return text
+function gcd(a: number, b: number): number {
+  return !b ? a : gcd(b, a % b);
+}
+
+function addArrows(text: string) {
+  let lines = text
     .split("\n")
     .map((line): [indent: number, text: string] => [
       line.length - line.trimStart().length,
       line,
-    ])
-    .reduce(
-      ([prevIndent, text], [indent, line]) => {
-        if (indent < prevIndent) {
-          text = `${text}\n${"⇦".repeat(prevIndent - indent)}${line}`;
-        } else if (indent > prevIndent) {
-          text = `${text}\n${"⇨".repeat(indent - prevIndent)}${line}`;
-        } else text = `${text}\n${line}`;
+    ]);
 
-        return [indent, text];
-      },
-      [0, ""]
-    );
+  let indents = [...new Set(lines.map((e) => e[0]))];
+  let multiple = indents.length ? indents.reduce(gcd) : 1;
+
+  return lines.reduce(
+    ([prevIndent, text], [indent, line]) => {
+      if (indent < prevIndent) {
+        text = `${text}\n${"⇦".repeat(
+          (prevIndent - indent) / multiple
+        )}${line}`;
+      } else if (indent > prevIndent) {
+        text = `${text}\n${"⇨".repeat(
+          (indent - prevIndent) / multiple
+        )}${line}`;
+      } else text = `${text}\n${line}`;
+
+      return [indent, text];
+    },
+    [0, ""]
+  );
 }
 
 export function compile(text: string) {
@@ -2742,6 +2754,7 @@ semantics.addOperation<ts.Node>("ts", {
     let char = node.sourceString;
     if (char === "\n") char = "\\n";
     if (char === "\r") char = "\\r";
+    if (char === "⇦" || char === "⇨") char = "";
 
     if (char.length === 2 && char[0] === "\\") {
       let res = {
