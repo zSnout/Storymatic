@@ -146,7 +146,7 @@ Storymatic {
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
     | indent NonemptyListOf<ObjectEntry, #expressionTerminator> dedent -- object_implied
-    | NonemptyListOf<ObjectEntry, ","> -- object_inline
+    | NonemptyListOf<ObjectEntry_key_value, ","> -- object_inline
     | "@" ~(id_continue | "[" | "#" | ".") -- self
     | "@@" ~(id_continue | "[" | "#" | ".") -- static_self
     | "%" -- topic_token
@@ -209,10 +209,12 @@ Storymatic {
 
   ObjectEntry
     = identifier ~":" -- restructure
-    | MethodName ":" Expression -- key_value
     | "..." Expression -- spread_operator
     | Method<""> -- object_method
     | Method<"@"> -- object_method_with_self
+    | ObjectEntry_key_value
+
+  ObjectEntry_key_value = MethodName ":" Expression
 
   MemberAccessExp
     = MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call

@@ -125,11 +125,11 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MethodName_computed_key?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   MethodName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ObjectEntry_restructure?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ObjectEntry_key_value?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   ObjectEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   ObjectEntry_object_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ObjectEntry_object_method_with_self?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  ObjectEntry_key_value?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   MemberAccessExp_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExp_optional_chaining_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: TerminalNode) => T;
   MemberAccessExp_listen_event?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode) => T;
