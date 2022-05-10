@@ -1,7 +1,11 @@
 Storymatic {
   Script = StatementBlock
 
-  WrappedStatementBlock = "{" Statement* "}" | indent Statement* dedent
+  WrappedStatementBlock
+    = "{" Statement* "}" -- wrapped
+    | "{" indent Statement* dedent "}" -- wrapped_and_indented
+    | indent Statement* dedent -- indented
+
   StatementBlock = Statement*
 
   SingleStatementBlock<prefix>
@@ -145,8 +149,7 @@ Storymatic {
     = "(" Expression ")" -- parenthesized
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
-    | indent NonemptyListOf<ObjectEntry, #expressionTerminator> dedent -- object_implied
-    | NonemptyListOf<ObjectEntry_key_value, ","> -- object_inline
+    | NonemptyListOf<ObjectEntry_key_value, #expressionTerminator> -- object_implied
     | "@" ~(id_continue | "[" | "#" | ".") -- self
     | "@@" ~(id_continue | "[" | "#" | ".") -- static_self
     | "%" -- topic_token
@@ -260,8 +263,8 @@ Storymatic {
     | RestParameter -- rest_params
 
   PostfixExp
-    = (Accessor | identifier) "++" -- increment
-    | (Accessor | identifier) "--" -- decrement
+    = (Accessor | identifier) #(~space) "++" -- increment
+    | (Accessor | identifier) #(~space) "--" -- decrement
     | MemberAccessExp
 
   NotExp
@@ -269,10 +272,10 @@ Storymatic {
     | "not" #space NotExp -- logical_not_worded
     | "type" "of" #space NotExp -- typeof
     | "await" #space NotExp -- await
-    | "++" (Accessor | identifier) -- prefix_increment
-    | "--" (Accessor | identifier) -- prefix_decrement
-    | "+" ~digit NotExp -- unary_plus
-    | "-" ~digit NotExp -- unary_minus
+    | "++" #(~(space)) (Accessor | identifier) -- prefix_increment
+    | "--" #(~(space)) (Accessor | identifier) -- prefix_decrement
+    | "+" #(~(space | digit)) NotExp -- unary_plus
+    | "-" #(~(space | digit)) NotExp -- unary_minus
     | PostfixExp
 
   ExpExp

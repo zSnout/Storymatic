@@ -1754,10 +1754,7 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralExp_object(_0, entries, _1, _2) {
     return ts.factory.createObjectLiteralExpression(entries.tsa());
   },
-  LiteralExp_object_implied(_0, entries, _1) {
-    return ts.factory.createObjectLiteralExpression(entries.tsa());
-  },
-  LiteralExp_object_inline(entries) {
+  LiteralExp_object_implied(entries) {
     return ts.factory.createObjectLiteralExpression(entries.tsa());
   },
   LiteralExp_parenthesized(_0, expr, _1) {
@@ -3186,7 +3183,16 @@ semantics.addOperation<ts.Node>("ts", {
       expr.ts<ts.Expression>()
     );
   },
-  WrappedStatementBlock(_0, statements, _1) {
+  WrappedStatementBlock(node) {
+    return node.ts();
+  },
+  WrappedStatementBlock_indented(_0, statements, _1) {
+    return ts.factory.createBlock(statements.tsa(), true);
+  },
+  WrappedStatementBlock_wrapped(_0, statements, _1) {
+    return ts.factory.createBlock(statements.tsa(), true);
+  },
+  WrappedStatementBlock_wrapped_and_indented(_0, _1, statements, _2, _3) {
     return ts.factory.createBlock(statements.tsa(), true);
   },
   whitespace(_) {

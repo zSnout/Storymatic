@@ -13,7 +13,10 @@ import {
 
 export interface StorymaticActionDict<T> extends ActionDict<T> {
   Script?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WrappedStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode, arg1: IterationNode, arg2: NonterminalNode | TerminalNode) => T;
+  WrappedStatementBlock_wrapped?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
+  WrappedStatementBlock_wrapped_and_indented?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
+  WrappedStatementBlock_indented?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
+  WrappedStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   StatementBlock?: (this: NonterminalNode, arg0: IterationNode) => T;
   SingleStatementBlock_single_statement?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   SingleStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -97,8 +100,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LiteralExp_parenthesized?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   LiteralExp_array?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
   LiteralExp_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
-  LiteralExp_object_implied?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
-  LiteralExp_object_inline?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  LiteralExp_object_implied?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   LiteralExp_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp_static_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp_topic_token?: (this: NonterminalNode, arg0: TerminalNode) => T;
