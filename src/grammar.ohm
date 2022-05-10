@@ -145,6 +145,8 @@ Storymatic {
     = "(" Expression ")" -- parenthesized
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
+    | indent NonemptyListOf<ObjectEntry, #expressionTerminator> dedent -- object_implied
+    | NonemptyListOf<ObjectEntry, ","> -- object_inline
     | "@" ~(id_continue | "[" | "#" | ".") -- self
     | "@@" ~(id_continue | "[" | "#" | ".") -- static_self
     | "%" -- topic_token
@@ -229,7 +231,7 @@ Storymatic {
     | Child "!" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
     | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "[" | "(" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- class_creation_implied
+    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "[" | "(" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- class_creation
     | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
@@ -511,9 +513,9 @@ Storymatic {
   MemberAccessType
     = MemberAccessType "[" Type "]" -- member_access
     | MemberAccessType "[" "]" -- array
-    | "[" ListOf<NamedTupleElement, #expressionTerminator> "]" -- named_tuple
-    | "[" ListOf<TupleElement, #expressionTerminator> "]" -- tuple
-    | "{" ListOf<TypeObjectEntry, #typeTerminator> "}" -- object
+    | "[" ListOf<NamedTupleElement, #expressionTerminator> ","? "]" -- named_tuple
+    | "[" ListOf<TupleElement, #expressionTerminator> ","? "]" -- tuple
+    | "{" ListOf<TypeObjectEntry, #typeTerminator> ("," | ";")? "}" -- object
     | "readonly" ~(#id_continue) MemberAccessType -- readonly
     | "keyof" ~(#id_continue) MemberAccessType -- keyof
     | LiteralType
