@@ -221,7 +221,7 @@ Storymatic {
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" word (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" word (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
-    | MemberAccessExp #(whitespace ~("\n" | "\r" | "[" | "(" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
@@ -233,7 +233,7 @@ Storymatic {
     | Child "!" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
     | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "[" | "(" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- class_creation_implied
+    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- class_creation_implied
     | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
