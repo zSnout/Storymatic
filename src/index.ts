@@ -2662,7 +2662,6 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   Statement_when_callback(expressionNode, qMark, _0, _1, _2, params, block) {
-    console.log(23);
     let fn = ts.factory.createFunctionExpression(
       undefined,
       undefined,
