@@ -1362,7 +1362,7 @@ semantics.addOperation<ts.Node>("ts", {
         "log"
       ),
       undefined,
-      [expr.ts()]
+      expr.tsa()
     );
   },
   WhileExp(node) {

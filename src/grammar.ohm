@@ -344,7 +344,7 @@ Storymatic {
 
   ForExp
     = AssignmentExp "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? ForExp ("when" #postWord Expression)? -- for
-    | "print" #whitespace #(~("\n" | "\r")) AssignmentExp -- print
+    | "print" #whitespace #(~("\n" | "\r")) NonemptyListOf<AssignmentExp, ","> -- print
     | AssignmentExp
 
   WhileExp
