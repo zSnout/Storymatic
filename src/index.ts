@@ -2662,6 +2662,7 @@ semantics.addOperation<ts.Node>("ts", {
     return node.ts();
   },
   Statement_when_callback(expressionNode, qMark, _0, _1, _2, params, block) {
+    console.log(23);
     let fn = ts.factory.createFunctionExpression(
       undefined,
       undefined,
@@ -2681,18 +2682,16 @@ semantics.addOperation<ts.Node>("ts", {
     if (expression.kind === ts.SyntaxKind.CallExpression) {
       let expr = expression as ts.CallExpression;
 
-      expression =
-        (ts.factory.createCallChain(
-          expr.expression,
-          expr.questionDotToken || mark,
-          expr.typeArguments,
-          expr.arguments.concat(fn)
-        ),
-        expr);
+      expression = ts.factory.createCallChain(
+        expr.expression,
+        expr.questionDotToken || mark,
+        expr.typeArguments,
+        expr.arguments.concat(fn)
+      );
     } else {
-      expression =
-        (ts.factory.createCallChain(expression, mark, undefined, [fn]),
-        expression);
+      expression = ts.factory.createCallChain(expression, mark, undefined, [
+        fn,
+      ]);
     }
 
     return ts.factory.createExpressionStatement(expression);
