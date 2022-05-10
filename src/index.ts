@@ -1754,6 +1754,12 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralExp_object(_0, entries, _1, _2) {
     return ts.factory.createObjectLiteralExpression(entries.tsa());
   },
+  LiteralExp_object_implied(_0, entries, _1) {
+    return ts.factory.createObjectLiteralExpression(entries.tsa());
+  },
+  LiteralExp_object_inline(entries) {
+    return ts.factory.createObjectLiteralExpression(entries.tsa());
+  },
   LiteralExp_parenthesized(_0, expr, _1) {
     return ts.factory.createParenthesizedExpression(expr.ts());
   },
@@ -2063,10 +2069,10 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessType_member_access(target, _0, key, _1) {
     return ts.factory.createIndexedAccessTypeNode(target.ts(), key.ts());
   },
-  MemberAccessType_named_tuple(_0, elements, _1) {
+  MemberAccessType_named_tuple(_0, elements, _1, _2) {
     return ts.factory.createTupleTypeNode(elements.tsa());
   },
-  MemberAccessType_object(_0, members, _1) {
+  MemberAccessType_object(_0, members, _1, _2) {
     return ts.factory.createTypeLiteralNode(members.tsa());
   },
   MemberAccessType_readonly(_, expr) {
@@ -2075,7 +2081,7 @@ semantics.addOperation<ts.Node>("ts", {
       expr.ts()
     );
   },
-  MemberAccessType_tuple(_0, elements, _1) {
+  MemberAccessType_tuple(_0, elements, _1, _2) {
     return ts.factory.createTupleTypeNode(elements.tsa());
   },
   Method(
