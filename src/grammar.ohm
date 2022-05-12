@@ -115,7 +115,7 @@ Storymatic {
     | (~("\r" | "\n") space)* ("\r" | "\n")+
 
   lineContinuer
-    = "+" | "-" | "*" | ("/" ~("/" | "*")) | "^" | "%" | "==" | "!=" | "[" | "(" | "." | "?." | "?" | ":" | "<" | ">" | "&&" | "||" | "??" | reserved_operators
+    = "+" | "-" | "*" | ("/" ~("/" | "*")) | "^" | "%" | "=" | "!=" | "[" | "(" | "." | "?." | "?" | ":" | "<" | ">" | "&" | "|" | reserved_operators
 
   TopLevelIfExp
     = TopLevelWhileExp ("if" | "unless") #postWord Expression -- if
@@ -140,7 +140,9 @@ Storymatic {
     = IfExp
 
   LiteralExp
-    = "(" Expression ")" -- parenthesized
+    = Function
+    | JSXElement
+    |  "(" Expression ")" -- parenthesized
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
     | NonemptyListOf<ObjectEntry_key_value, #expressionTerminator> -- object_implied
@@ -150,8 +152,6 @@ Storymatic {
     | "with" #space Expression SingleStatementBlock<"do"> -- with
     | "do" WrappedStatementBlock -- do
     | InlineClassDeclaration
-    | Function
-    | JSXElement
     | decimalNumber
     | unitNumber
     | hexNumber
@@ -215,7 +215,7 @@ Storymatic {
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" word (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" word (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
-    | MemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | "->" | "=>" | "<" | line_comment)) ImpliedCallArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
@@ -227,7 +227,7 @@ Storymatic {
     | Child "!" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
     | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- class_creation_implied
+    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | "->" | "=>" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- class_creation_implied
     | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
@@ -281,7 +281,7 @@ Storymatic {
 
   AddExp
     = AddExp "+" MulExp -- addition
-    | AddExp "-" MulExp -- subtraction
+    | AddExp "-" #(~">") MulExp -- subtraction
     | MulExp
 
   BitwiseExp
@@ -290,27 +290,21 @@ Storymatic {
     | BitwiseExp ">>>" AddExp -- unsigned_right_shift
     | AddExp
 
-  CompareExp
-    = CompareExp "<" BitwiseExp -- less_than
-    | CompareExp "<=" BitwiseExp -- less_than_equal
-    | CompareExp ">" BitwiseExp -- greater_than
-    | CompareExp ">=" BitwiseExp -- greater_than_equal
-    | CompareExp #space ("is" #space)? "in" #space BitwiseExp -- within
-    | CompareExp #space "isnt" #space "in" #space BitwiseExp -- not_within
-    | CompareExp #space "is" #space ("a" ~(#"n") | "an") #space BitwiseExp -- instanceof
-    | CompareExp #space "isnt" #space ("a" ~(#"n") | "an") #space BitwiseExp -- not_instanceof
-    | BitwiseExp
+  CompareExp = BitwiseExp (comparisonOperator BitwiseExp)*
 
-  EqualityExp
-    = EqualityExp ("==" | #equalityExpWords<"is">) CompareExp -- equal_to
-    | EqualityExp ("!=" | #equalityExpWords<"isnt">) CompareExp -- not_equal_to
-    | CompareExp
-
-  equalityExpWords<keyword> = #(space+ keyword ~(space+ ("a" ~"n" | "an" | "in")) space+)
+  comparisonOperator
+    = ("==" | "is" ~("a" "n"? ~id_continue)) -- equal_to
+    | ("!=" | "isnt" ~("a" "n"? ~id_continue)) -- not_equal_to
+    | "<" -- less_than
+    | ">" -- greater_than
+    | "<=" -- less_than_equal
+    | ">=" -- greater_than_equal
+    | "in" postWord -- in
+    | "instanceof" -- instanceof
 
   LogicalAndExp
-    = LogicalAndExp #(spaces "&&" spaces | space+ "and" space+) EqualityExp -- logical_and
-    | EqualityExp
+    = LogicalAndExp #(spaces "&&" spaces | space+ "and" space+) CompareExp -- logical_and
+    | CompareExp
 
   LogicalOrExp
     = LogicalOrExp #(spaces "||" spaces | space+ "or" space+) LogicalAndExp -- logical_or
