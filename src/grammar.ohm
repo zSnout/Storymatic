@@ -43,7 +43,6 @@ Storymatic {
     | Expression "?"? (#space "of" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
     | IfStatement
     | TryStatement
-    | BlockFunction
     | ClassDeclaration
     | TypeDeclaration
     | InterfaceDeclaration
@@ -79,12 +78,10 @@ Storymatic {
       "{" ClassElement* "}"
 
   ClassElement
-    = Method<"@"> -- method
-    | Method<"@@"> -- static_method
-    | PrivacyLevel ("readonly" #space)?
-      "@" MethodName ("!" | "?")? (":" Type)? ("=" Expression)? #statementTerminator -- property
-    | PrivacyLevel ("readonly" #space)?
-      "@@" MethodName "?"? (":" Type)? ("=" Expression)? #statementTerminator -- static_property
+    = Method<""> -- method
+    | Method<"@"> -- static_method
+    | ClassProperty<""> #statementTerminator -- property
+    | ClassProperty<"@"> #statementTerminator -- static_property
     | IndexSignatureType<"@"> #statementTerminator -- index_signature
     | IndexSignatureType<"@@"> #statementTerminator -- static_index_signature
 
@@ -153,7 +150,7 @@ Storymatic {
     | "with" #space Expression SingleStatementBlock<"do"> -- with
     | "do" WrappedStatementBlock -- do
     | InlineClassDeclaration
-    | InlineFunction
+    | Function
     | JSXElement
     | decimalNumber
     | unitNumber
@@ -178,17 +175,14 @@ Storymatic {
     = Expression
     | "..." Expression -- spread_operator
 
-  InlineFunction
-    = "fn" (#space identifier)? GenericTypeParameterList?
-      (#space "of" #space ParameterList)? ("=>" FunctionReturnType)? FunctionBody
-
-  BlockFunction
-    = ("export" #space)? "fn" #space identifier GenericTypeParameterList?
-      (#space "of" #space ParameterList)? ("=>" FunctionReturnType)? FunctionBody
+  Function
+    = (GenericTypeParameterList? "(" ParameterList? ")" (":" FunctionReturnType)?)? ("->" | "=>") FunctionBody
 
   Method<prefix>
-    = PrivacyLevel "fn" #space prefix MethodName "?"? GenericTypeParameterList?
-      (#space "of" #space ParameterList)? ("=>" FunctionReturnType)? FunctionBody
+    = PrivacyLevel prefix MethodName Function
+
+  ClassProperty<prefix>
+    = PrivacyLevel ("readonly" #space)? prefix MethodName ("?" | "!")? (":" Type)? ("=" Expression)?
 
   PrivacyLevel
     = "public" #space -- public
@@ -197,7 +191,7 @@ Storymatic {
     | -- none
 
   FunctionBody
-    = "return" #space Expression -- expression
+    = Expression -- expression
     | WrappedStatementBlock
 
   MethodName
@@ -506,12 +500,12 @@ Storymatic {
     | string_type
     | decimalNumber
     | bigint
-    | InlineFunctionType
+    | FunctionType
     | QualifiedName ~"<"
     | QualifiedName NonemptyGenericTypeArgumentList -- type_args
     | "typeof" #space QualifiedName -- typeof
     | "infer" #space identifier (":" #space Type)? -- infer
-    | "new" #space InlineFunctionType -- construct
+    | "new" #space FunctionType -- construct
     | "(" Type ")" -- parenthesized
 
   MemberAccessType
@@ -540,18 +534,11 @@ Storymatic {
 
   TypeObjectEntry
     = ("readonly" #space)? TypeObjectKey "?"? ":" Type -- key_value
-    | "new" #space InlineFunctionType -- construct_signature
-    | InlineFunctionType -- call_signature
+    | "new" #space FunctionType -- construct_signature
+    | FunctionType -- call_signature
     | IndexSignatureType<"">
-    | BlockFunctionType
 
-  InlineFunctionType
-    = "fn" GenericTypeParameterList?
-      (#space "of" #space TypeParameterList)? "=>" FunctionReturnType
-
-  BlockFunctionType
-    = "fn" #space TypeObjectKey "?"? GenericTypeParameterList?
-      (#space "of" #space TypeParameterList)? "=>" FunctionReturnType
+  FunctionType = (GenericTypeParameterList? "(" ParameterList? ")")? "->" FunctionBody
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
   UnionType = NonemptyListOf<IntersectionType, "|">
