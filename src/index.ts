@@ -25,10 +25,6 @@ export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   };
 }
 
-function gcd(a: number, b: number): number {
-  return !b ? a : gcd(b, a % b);
-}
-
 export function compile(text: string) {
   let match = story.match(text);
   if (match.failed()) throw new SyntaxError(match.message);
@@ -3166,16 +3162,7 @@ semantics.addOperation<ts.Node>("ts", {
       )
     );
   },
-  WrappedStatementBlock(node) {
-    return node.ts();
-  },
-  WrappedStatementBlock_indented(_0, statements, _1) {
-    return ts.factory.createBlock(statements.tsa(), true);
-  },
-  WrappedStatementBlock_wrapped(_0, statements, _1) {
-    return ts.factory.createBlock(statements.tsa(), true);
-  },
-  WrappedStatementBlock_wrapped_and_indented(_0, _1, statements, _2, _3) {
+  WrappedStatementBlock(_0, statements, _1) {
     return ts.factory.createBlock(statements.tsa(), true);
   },
   whitespace(_) {
