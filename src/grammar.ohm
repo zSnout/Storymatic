@@ -1,10 +1,7 @@
 Storymatic {
   Script = StatementBlock
 
-  WrappedStatementBlock
-    = "{" Statement* "}" -- wrapped
-    | "{" indent Statement* dedent "}" -- wrapped_and_indented
-    | indent Statement* dedent -- indented
+  WrappedStatementBlock = "{" Statement* "}"
 
   StatementBlock = Statement*
 
@@ -460,8 +457,6 @@ Storymatic {
   space += block_comment | line_comment
   block_comment = "/*" (~"*/" any)* "*/"
   line_comment = "//" (~("\r" | "\n") any)* &("\r" | "\n" | end)
-  indent = "⇨"
-  dedent = "⇦"
 
   JSXElement
     = "<" #jsxTagName GenericTypeArgumentList JSXAttribute* ">" JSXChild* "</" #jsxTagName ">" -- open_close
