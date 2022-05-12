@@ -13,10 +13,7 @@ import {
 
 export interface StorymaticActionDict<T> extends ActionDict<T> {
   Script?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WrappedStatementBlock_wrapped?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
-  WrappedStatementBlock_wrapped_and_indented?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
-  WrappedStatementBlock_indented?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
-  WrappedStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  WrappedStatementBlock?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
   StatementBlock?: (this: NonterminalNode, arg0: IterationNode) => T;
   SingleStatementBlock_single_statement?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   SingleStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -289,8 +286,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   space?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   block_comment?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
   line_comment?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode | TerminalNode) => T;
-  indent?: (this: NonterminalNode, arg0: TerminalNode) => T;
-  dedent?: (this: NonterminalNode, arg0: TerminalNode) => T;
   JSXElement_open_close?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: TerminalNode) => T;
   JSXElement_self_closing?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: TerminalNode) => T;
   JSXElement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
