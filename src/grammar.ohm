@@ -183,15 +183,15 @@ Storymatic {
 
   InlineFunction
     = "fn" (#space identifier)? GenericTypeParameterList?
-      (#space "of" #space ParameterList)? ("=>" Type)? FunctionBody
+      (#space "of" #space ParameterList)? ("=>" FunctionReturnType)? FunctionBody
 
   BlockFunction
     = ("export" #space)? "fn" #space identifier GenericTypeParameterList?
-      (#space "of" #space ParameterList)? ("=>" Type)? FunctionBody
+      (#space "of" #space ParameterList)? ("=>" FunctionReturnType)? FunctionBody
 
   Method<prefix>
     = PrivacyLevel "fn" #space prefix MethodName "?"? GenericTypeParameterList?
-      (#space "of" #space ParameterList)? ("=>" Type)? FunctionBody
+      (#space "of" #space ParameterList)? ("=>" FunctionReturnType)? FunctionBody
 
   PrivacyLevel
     = "public" #space -- public
@@ -488,6 +488,10 @@ Storymatic {
     | word -- standard
 
   Type = ConditionalType
+  
+  FunctionReturnType
+    = ("asserts" #space)? identifier "is" #postWord Type -- predicate
+    | Type
 
   PrimitiveType
     = "string" | "number" | "boolean" | "true" | "false" | "bigint" | "symbol"
@@ -548,11 +552,11 @@ Storymatic {
 
   InlineFunctionType
     = "fn" GenericTypeParameterList?
-      (#space "of" #space TypeParameterList)? "=>" Type
+      (#space "of" #space TypeParameterList)? "=>" FunctionReturnType
 
   BlockFunctionType
     = "fn" #space TypeObjectKey "?"? GenericTypeParameterList?
-      (#space "of" #space TypeParameterList)? "=>" Type
+      (#space "of" #space TypeParameterList)? "=>" FunctionReturnType
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
   UnionType = NonemptyListOf<IntersectionType, "|">

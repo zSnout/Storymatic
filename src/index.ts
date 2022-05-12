@@ -1365,29 +1365,6 @@ semantics.addOperation<ts.Node>("ts", {
       expr.tsa()
     );
   },
-  WhileExp(node) {
-    return node.ts();
-  },
-  WhileExp_while(expr, whileUntil, _0, condition, _1, _2, guard) {
-    let statement: ts.Statement = ts.factory.createExpressionStatement(
-      expr.ts()
-    );
-
-    if (guard.sourceString)
-      statement = ts.factory.createIfStatement(guard.child(0).ts(), statement);
-
-    let cond = condition.ts<ts.Expression>();
-
-    if (whileUntil.sourceString == "until")
-      cond = ts.factory.createLogicalNot(cond);
-
-    return createIIFE(
-      ts.factory.createBlock(
-        [ts.factory.createWhileStatement(cond, statement)],
-        true
-      )
-    );
-  },
   FunctionBody(node) {
     return node.ts();
   },
@@ -1395,6 +1372,18 @@ semantics.addOperation<ts.Node>("ts", {
     return ts.factory.createBlock(
       [ts.factory.createReturnStatement(expression.ts<ts.Expression>())],
       true
+    );
+  },
+  FunctionReturnType(node) {
+    return node.ts();
+  },
+  FunctionReturnType_predicate(asserts, _1, param, _2, _3, type) {
+    return ts.factory.createTypePredicateNode(
+      asserts.child(0)?.tsn({
+        asserts: ts.factory.createToken(ts.SyntaxKind.AssertsKeyword),
+      }),
+      param.ts<ts.Identifier>(),
+      type.ts<ts.TypeNode>()
     );
   },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
@@ -3181,6 +3170,29 @@ semantics.addOperation<ts.Node>("ts", {
       undefined,
       type.child(0)?.ts<ts.TypeNode>(),
       expr.ts<ts.Expression>()
+    );
+  },
+  WhileExp(node) {
+    return node.ts();
+  },
+  WhileExp_while(expr, whileUntil, _0, condition, _1, _2, guard) {
+    let statement: ts.Statement = ts.factory.createExpressionStatement(
+      expr.ts()
+    );
+
+    if (guard.sourceString)
+      statement = ts.factory.createIfStatement(guard.child(0).ts(), statement);
+
+    let cond = condition.ts<ts.Expression>();
+
+    if (whileUntil.sourceString == "until")
+      cond = ts.factory.createLogicalNot(cond);
+
+    return createIIFE(
+      ts.factory.createBlock(
+        [ts.factory.createWhileStatement(cond, statement)],
+        true
+      )
     );
   },
   WrappedStatementBlock(node) {
