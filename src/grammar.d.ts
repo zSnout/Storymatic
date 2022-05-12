@@ -108,7 +108,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   ArrayEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   ArrayEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Function?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode) => T;
-  Method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: Node, arg2: NonterminalNode, arg3: NonterminalNode) => T;
+  Method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: Node, arg2: NonterminalNode, arg3: IterationNode, arg4: NonterminalNode) => T;
   ClassProperty?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: Node, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode) => T;
   PrivacyLevel_public?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   PrivacyLevel_protected?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;

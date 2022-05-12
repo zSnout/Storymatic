@@ -179,7 +179,7 @@ Storymatic {
     = (GenericTypeParameterList? "(" ParameterList? ")" (":" FunctionReturnType)?)? ("->" | "=>") FunctionBody
 
   Method<prefix>
-    = PrivacyLevel prefix MethodName Function
+    = PrivacyLevel prefix MethodName "?"? Function
 
   ClassProperty<prefix>
     = PrivacyLevel ("readonly" #space)? prefix MethodName ("?" | "!")? (":" Type)? ("=" Expression)?
