@@ -536,6 +536,7 @@ Storymatic {
     = ("readonly" #space)? TypeObjectKey "?"? ":" Type -- key_value
     | "new" #space FunctionType -- construct_signature
     | FunctionType -- call_signature
+    | TypeObjectKey "?"? FunctionType -- method
     | IndexSignatureType<"">
 
   FunctionType = (GenericTypeParameterList? "(" ParameterList? ")")? "->" FunctionBody
