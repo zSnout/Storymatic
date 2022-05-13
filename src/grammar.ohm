@@ -533,7 +533,7 @@ Storymatic {
     | TypeObjectKey "?"? FunctionType -- method
     | IndexSignatureType<"">
 
-  FunctionType = (GenericTypeParameterList? "(" ParameterList? ")")? "->" FunctionBody
+  FunctionType = (GenericTypeParameterList? "(" ParameterList? ")")? "->" Type
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
   UnionType = NonemptyListOf<IntersectionType, "|">
