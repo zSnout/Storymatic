@@ -338,15 +338,34 @@ function transformer(context: ts.TransformationContext) {
         }
 
         if (fn.kind === ts.SyntaxKind.ArrowFunction) {
-          return ts.factory.updateArrowFunction(
-            fn,
-            modifiers,
-            fn.typeParameters,
-            fn.parameters,
-            fn.type,
-            fn.equalsGreaterThanToken,
-            fn.body
-          );
+          if (asterisk) {
+            return ts.factory.createCallExpression(
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createFunctionExpression(
+                  modifiers,
+                  asterisk,
+                  fn.name,
+                  fn.typeParameters,
+                  fn.parameters,
+                  fn.type,
+                  fn.body as ts.Block
+                ),
+                "bind"
+              ),
+              undefined,
+              [ts.factory.createThis()]
+            );
+          } else {
+            return ts.factory.updateArrowFunction(
+              fn,
+              modifiers,
+              fn.typeParameters,
+              fn.parameters,
+              fn.type,
+              fn.equalsGreaterThanToken,
+              fn.body
+            );
+          }
         }
       }
 
@@ -861,56 +880,6 @@ semantics.addOperation<ts.Node>("ts", {
   BitwiseExp_unsigned_right_shift(left, _, right) {
     return ts.factory.createUnsignedRightShift(left.ts(), right.ts());
   },
-  BlockFunction(
-    _export,
-    _0,
-    _1,
-    _2,
-    ident,
-    generics,
-    _3,
-    _4,
-    _5,
-    params,
-    _6,
-    returnType,
-    body
-  ) {
-    return ts.factory.createFunctionDeclaration(
-      undefined,
-      _export.sourceString
-        ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
-        : [],
-      undefined,
-      ident.ts<ts.Identifier>(),
-      generics.child(0)?.tsa(),
-      params.child(0)?.tsa(),
-      returnType.child(0)?.ts<ts.TypeNode>(),
-      body.ts<ts.Block>()
-    );
-  },
-  BlockFunctionType(
-    _0,
-    _1,
-    name,
-    qMark,
-    generics,
-    _2,
-    _3,
-    _4,
-    params,
-    _5,
-    returnType
-  ) {
-    return ts.factory.createMethodSignature(
-      undefined,
-      name.ts<ts.PropertyName>(),
-      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-      generics.child(0)?.tsa(),
-      params.child(0)?.tsa(),
-      returnType.ts<ts.TypeNode>()
-    );
-  },
   bigint(_0, _1, _2) {
     return ts.factory.createBigIntLiteral(this.sourceString);
   },
@@ -1018,68 +987,20 @@ semantics.addOperation<ts.Node>("ts", {
   ClassElement_method(method) {
     return method.ts();
   },
-  ClassElement_property(
-    privacy,
-    readonly,
-    _0,
-    _1,
-    name,
-    modifier,
-    _2,
-    type,
-    _3,
-    initializer,
-    _4
-  ) {
-    let modifiers: ts.Modifier[] = [];
-    if (privacy.sourceString) modifiers.push(privacy.ts());
-    if (readonly.sourceString)
-      modifiers.push(ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword));
-
-    let exclOrQues = modifier.child(0)?.tsn({
-      "!": ts.factory.createToken(ts.SyntaxKind.ExclamationToken),
-      "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-    });
-
-    return ts.factory.createPropertyDeclaration(
-      undefined,
-      modifiers,
-      name.ts<ts.PropertyName>(),
-      exclOrQues,
-      type.child(0)?.ts<ts.TypeNode>(),
-      initializer.child(0)?.ts<ts.Expression>()
-    );
+  ClassElement_property(property, _) {
+    return property.ts();
   },
-  ClassElement_static_property(
-    privacy,
-    readonly,
-    _0,
-    _1,
-    name,
-    modifier,
-    _2,
-    type,
-    _3,
-    initializer,
-    _4
-  ) {
-    let modifiers: ts.Modifier[] = [];
-    if (privacy.sourceString) modifiers.push(privacy.ts());
-    modifiers.push(ts.factory.createToken(ts.SyntaxKind.StaticKeyword));
-    if (readonly.sourceString)
-      modifiers.push(ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword));
-
-    let ques = modifier.child(0)?.tsn({
-      "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-    });
+  ClassElement_static_property(property, _) {
+    let prop = property.ts<ts.PropertyDeclaration>();
+    let keyword = ts.factory.createToken(ts.SyntaxKind.StaticKeyword);
 
     return ts.factory.createPropertyDeclaration(
-      undefined,
-      modifiers,
-      name.ts<ts.PropertyName>(),
-      ques,
-      type.child(0)?.ts<ts.TypeNode>(),
-      initializer.child(0)?.ts<ts.Expression>()
+      prop.decorators,
+      prop.modifiers?.concat(keyword) || [keyword],
+      prop.name,
+      prop.questionToken || prop.exclamationToken,
+      prop.type,
+      prop.initializer
     );
   },
   ClassElement_static_index_signature(signature, _) {
@@ -1088,52 +1009,79 @@ semantics.addOperation<ts.Node>("ts", {
   ClassElement_static_method(method) {
     return method.ts();
   },
-  CompareExp(node) {
-    return node.ts();
-  },
-  CompareExp_greater_than(left, _, right) {
-    return ts.factory.createGreaterThan(left.ts(), right.ts());
-  },
-  CompareExp_greater_than_equal(left, _, right) {
-    return ts.factory.createGreaterThanEquals(left.ts(), right.ts());
-  },
-  CompareExp_instanceof(left, _0, _1, _2, _3, _4, right) {
-    return ts.factory.createBinaryExpression(
-      left.ts(),
-      ts.SyntaxKind.InstanceOfKeyword,
-      right.ts()
+  ClassProperty(
+    privacy,
+    readonly,
+    _0,
+    _1,
+    name,
+    mark,
+    _2,
+    type,
+    _3,
+    initializer
+  ) {
+    let modifiers = privacy.sourceString ? [privacy.ts<ts.Modifier>()] : [];
+
+    if (readonly.sourceString) {
+      modifiers.push(ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword));
+    }
+
+    return ts.factory.createPropertyDeclaration(
+      undefined,
+      modifiers,
+      name.ts<ts.PropertyName>(),
+      mark.child(0)?.tsn({
+        "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+        "!": ts.factory.createToken(ts.SyntaxKind.ExclamationToken),
+      }),
+      type.child(0)?.ts<ts.TypeNode>(),
+      initializer.child(0)?.ts<ts.Expression>()
     );
   },
-  CompareExp_less_than(left, _, right) {
-    return ts.factory.createLessThan(left.ts(), right.ts());
-  },
-  CompareExp_less_than_equal(left, _, right) {
-    return ts.factory.createLessThanEquals(left.ts(), right.ts());
-  },
-  CompareExp_not_instanceof(left, _0, _1, _2, _3, _4, right) {
-    return ts.factory.createLogicalNot(
-      ts.factory.createBinaryExpression(
-        left.ts(),
-        ts.SyntaxKind.InstanceOfKeyword,
-        right.ts()
-      )
-    );
-  },
-  CompareExp_not_within(left, _0, _1, _2, _3, _4, right) {
-    return ts.factory.createLogicalNot(
-      ts.factory.createBinaryExpression(
-        left.ts(),
-        ts.SyntaxKind.InKeyword,
-        right.ts()
-      )
-    );
-  },
-  CompareExp_within(left, _0, _1, _2, _3, _4, right) {
-    return ts.factory.createBinaryExpression(
-      left.ts(),
-      ts.SyntaxKind.InKeyword,
-      right.ts()
-    );
+  CompareExp(primary, ops, exps) {
+    if (!ops.numChildren) {
+      return primary.ts();
+    }
+
+    if (ops.numChildren === 1) {
+      return ts.factory.createBinaryExpression(
+        primary.ts(),
+        ops.child(0).ts<ts.BinaryOperatorToken>(),
+        exps.child(0).ts()
+      );
+    }
+
+    let $ref = () => ts.factory.createIdentifier("$ref");
+    let expr: ts.Expression | undefined;
+    let ref: ts.Expression | undefined;
+
+    for (let i = 0; i < ops.numChildren; i++) {
+      let exp = exps.child(i).ts<ts.Expression>();
+      let rhs = (ts.isLiteralExpression(exp) || ts.isIdentifier(exp)) && exp;
+      if (i === ops.numChildren - 1) rhs = exp as any;
+
+      if (expr) {
+        expr = ts.factory.createLogicalAnd(
+          expr,
+          ts.factory.createBinaryExpression(
+            ref!,
+            ops.child(i).ts<ts.BinaryOperatorToken>(),
+            rhs || ts.factory.createAssignment($ref(), exps.child(i).ts())
+          )
+        );
+      } else {
+        expr = ts.factory.createBinaryExpression(
+          primary.ts(),
+          ops.child(i).ts<ts.BinaryOperatorToken>(),
+          rhs || ts.factory.createAssignment($ref(), exps.child(i).ts())
+        );
+      }
+
+      ref = rhs || $ref();
+    }
+
+    return expr!;
   },
   ConditionalType(node) {
     return node.ts();
@@ -1164,6 +1112,33 @@ semantics.addOperation<ts.Node>("ts", {
   },
   colonTerminator_colon(_0, _1) {
     throw "`colonTerminator_colon` nodes should never directly be evaluated.";
+  },
+  comparisonOperator(node) {
+    return node.ts();
+  },
+  comparisonOperator_equal_to(_) {
+    return ts.factory.createToken(ts.SyntaxKind.EqualsEqualsEqualsToken);
+  },
+  comparisonOperator_greater_than(_) {
+    return ts.factory.createToken(ts.SyntaxKind.GreaterThanToken);
+  },
+  comparisonOperator_greater_than_equal(_) {
+    return ts.factory.createToken(ts.SyntaxKind.GreaterThanEqualsToken);
+  },
+  comparisonOperator_in(_0, _1) {
+    return ts.factory.createToken(ts.SyntaxKind.InKeyword);
+  },
+  comparisonOperator_instanceof(_) {
+    return ts.factory.createToken(ts.SyntaxKind.InstanceOfKeyword);
+  },
+  comparisonOperator_less_than(_) {
+    return ts.factory.createToken(ts.SyntaxKind.LessThanToken);
+  },
+  comparisonOperator_less_than_equal(_) {
+    return ts.factory.createToken(ts.SyntaxKind.LessThanEqualsToken);
+  },
+  comparisonOperator_not_equal_to(_) {
+    return ts.factory.createToken(ts.SyntaxKind.ExclamationEqualsEqualsToken);
   },
   DefaultStatement(_0, _1, block) {
     let _default = ts.factory.createDefaultClause([block.ts()]);
@@ -1200,15 +1175,6 @@ semantics.addOperation<ts.Node>("ts", {
       ident.ts<ts.Identifier>(),
       members.tsa()
     );
-  },
-  EqualityExp(node) {
-    return node.ts();
-  },
-  EqualityExp_equal_to(left, _, right) {
-    return ts.factory.createStrictEquality(left.ts(), right.ts());
-  },
-  EqualityExp_not_equal_to(left, _, right) {
-    return ts.factory.createStrictInequality(left.ts(), right.ts());
   },
   Expression(node) {
     return node.ts();
@@ -1255,11 +1221,6 @@ semantics.addOperation<ts.Node>("ts", {
   },
   emptyListOf() {
     throw new Error("`emptyListOf` nodes should never directly be evaluated.");
-  },
-  equalityExpWords(_0, _1, _2) {
-    throw new Error(
-      "`equalityExpWords` nodes should never directly be evaluated."
-    );
   },
   expressionTerminator(_) {
     throw new Error(
@@ -1332,10 +1293,41 @@ semantics.addOperation<ts.Node>("ts", {
       expr.tsa()
     );
   },
+  Function(generics, _0, params, _1, _2, type, arrow, body) {
+    console.log([
+      params.child(0)?.sourceString,
+      generics.child(0)?.child(0)?.sourceString,
+      type.child(0)?.child(0)?.sourceString,
+      arrow.sourceString,
+    ]);
+
+    if (arrow.sourceString == "=>") {
+      return ts.factory.createArrowFunction(
+        undefined,
+        generics.child(0)?.child(0)?.tsa(),
+        params.child(0)?.child(0)?.tsa(),
+        type.child(0)?.child(0)?.ts<ts.TypeNode>(),
+        undefined,
+        body.ts()
+      );
+    } else {
+      return ts.factory.createFunctionExpression(
+        undefined,
+        undefined,
+        undefined,
+        generics.child(0)?.child(0)?.tsa(),
+        params.child(0)?.child(0)?.tsa(),
+        type.child(0)?.child(0)?.ts<ts.TypeNode>(),
+        body.ts()
+      );
+    }
+
+    throw "unimplemented";
+  },
   FunctionBody(node) {
     return node.ts();
   },
-  FunctionBody_expression(_0, _1, expression) {
+  FunctionBody_expression(expression) {
     return ts.factory.createBlock(
       [ts.factory.createReturnStatement(expression.ts<ts.Expression>())],
       true
@@ -1351,6 +1343,13 @@ semantics.addOperation<ts.Node>("ts", {
       }),
       param.ts<ts.Identifier>(),
       type.ts<ts.TypeNode>()
+    );
+  },
+  FunctionType(generics, _0, params, _1, _2, type) {
+    return ts.factory.createFunctionTypeNode(
+      generics.child(0)?.child(0)?.tsa(),
+      params.child(0)?.child(0)?.tsa(),
+      type.ts()
     );
   },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
@@ -1510,36 +1509,6 @@ semantics.addOperation<ts.Node>("ts", {
       generics.tsa(),
       heritage,
       elements.tsa()
-    );
-  },
-  InlineFunction(
-    _0,
-    _1,
-    name,
-    generics,
-    _2,
-    _3,
-    _4,
-    params,
-    _5,
-    returnType,
-    body
-  ) {
-    return ts.factory.createFunctionExpression(
-      undefined,
-      undefined,
-      name.child(0)?.ts<ts.Identifier>(),
-      generics.child(0)?.tsa(),
-      params.child(0)?.tsa(),
-      returnType.child(0)?.ts<ts.TypeNode>(),
-      body.ts<ts.Block>()
-    );
-  },
-  InlineFunctionType(_0, generics, _1, _2, _3, params, _4, returnType) {
-    return ts.factory.createFunctionTypeNode(
-      generics.child(0)?.tsa(),
-      params.child(0)?.tsa(),
-      returnType.child(0)?.ts<ts.TypeNode>()
     );
   },
   InterfaceDeclaration(
@@ -1714,7 +1683,7 @@ semantics.addOperation<ts.Node>("ts", {
     return ts.factory.createObjectLiteralExpression(entries.tsa());
   },
   LiteralExp_parenthesized(_0, expr, _1) {
-    return ts.factory.createParenthesizedExpression(expr.ts());
+    return expr.ts();
   },
   LiteralExp_with(_0, _1, expr, block) {
     return ts.factory.createCallExpression(
@@ -2037,52 +2006,8 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessType_tuple(_0, elements, _1, _2) {
     return ts.factory.createTupleTypeNode(elements.tsa());
   },
-  Method(
-    privacy,
-    _0,
-    _1,
-    prefix,
-    name,
-    qMark,
-    generics,
-    _3,
-    _4,
-    _5,
-    params,
-    _6,
-    returnType,
-    body
-  ) {
-    let block = body.ts<ts.Block>();
-
-    let $void = ts.factory.createVoidZero();
-    let $this = ts.factory.createIdentifier("this");
-    let $static = ts.factory.createPropertyAccessExpression(
-      $this,
-      "constructor"
-    );
-
-    if (prefix.sourceString === "@") {
-      block = ts.factory.createBlock(
-        [
-          makeAssignment("$self", $this),
-          makeAssignment("$static", $static),
-          ...block.statements,
-        ],
-        true
-      );
-    } else if (prefix.sourceString === "@@") {
-      block =
-        (ts.factory.createBlock(
-          [
-            makeAssignment("$self", $void),
-            makeAssignment("$static", $this),
-            ...block.statements,
-          ],
-          true
-        ),
-        block);
-    }
+  Method(privacy, _, name, qMark, body) {
+    let fn = body.ts<ts.FunctionExpression | ts.ArrowFunction>();
 
     return ts.factory.createMethodDeclaration(
       undefined,
@@ -2090,10 +2015,10 @@ semantics.addOperation<ts.Node>("ts", {
       undefined,
       name.ts<ts.PropertyName>(),
       qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-      generics.child(0)?.tsa(),
-      params.child(0)?.tsa(),
-      returnType.child(0)?.ts<ts.TypeNode>(),
-      block
+      fn.typeParameters,
+      fn.parameters,
+      fn.type,
+      fn.body as ts.Block | undefined
     );
   },
   MethodName(node) {
