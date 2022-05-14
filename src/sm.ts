@@ -2,7 +2,6 @@ import { readFileSync } from "fs";
 import { mkdir, readFile, watch, writeFile } from "fs/promises";
 import { Recoverable, start } from "repl";
 import * as ts from "typescript";
-import { isNativeError } from "util/types";
 import { runInContext, runInNewContext } from "vm";
 import * as yargs from "yargs";
 import { ast, compile, transpile } from "./index.js";
@@ -263,25 +262,27 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
     prompt: "> ",
     eval(cmd, context, _1, cb) {
       let output: any;
-      let node: ts.Node;
 
       try {
-        node = compile(cmd);
-        if (mode !== "ast")
+        if (mode !== "ast") {
+          let node = compile(cmd);
           output = transpile(node, args).replace('"use strict";\n', "");
+        } else {
+          output = ast(cmd);
+        }
       } catch (e) {
         if (args.debug) console.log(e);
-        cb(new Recoverable(new SyntaxError()), null);
-        return;
+        if (e instanceof SyntaxError) cb(new Recoverable(e), null);
+        throw e;
       }
 
       try {
         if (mode === "repl") output = runInContext(output, context);
-        if (mode === "ast") output = ast(cmd);
       } catch (e) {
-        if (isNativeError(e)) e.stack = "";
+        if (e instanceof Error) e.stack = "";
         throw e;
       }
+
       cb(null, output);
     },
     writer: mode === "noeval" || mode == "ast" ? (x) => "" + x : undefined,
