@@ -80,7 +80,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   colonTerminator_colon?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode) => T;
   colonTerminator?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   terminator?: (this: NonterminalNode, arg0: IterationNode | NonterminalNode, arg1: Node) => T;
-  lineContinuer?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   TopLevelIfExp_if?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   TopLevelIfExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TopLevelWhileExp_while?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode) => T;
@@ -99,7 +98,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LiteralExp_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
   LiteralExp_object_implied?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   LiteralExp_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
-  LiteralExp_static_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp_topic_token?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp_with?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   LiteralExp_do?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
@@ -123,10 +121,9 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MethodName_numerical_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MethodName_computed_key?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   MethodName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ObjectEntry_restructure?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  ObjectEntry_object_method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   ObjectEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
-  ObjectEntry_object_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ObjectEntry_object_method_with_self?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  ObjectEntry_restructure?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ObjectEntry_key_value?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   MemberAccessExp_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
@@ -233,9 +230,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Assignable_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode) => T;
   Assignable?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Accessor?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
-  AccessorBase?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  AccessorIdentifierBase?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  AccessorPropertyBase?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AccessorAddon_member_access?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   AccessorAddon_computed_member_access?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   AccessorAddon?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -277,9 +271,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Property_identifier?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   Property_computed?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
   Property?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  StaticProperty_identifier?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
-  StaticProperty_computed?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
-  StaticProperty?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   space?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   block_comment?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
   line_comment?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode | TerminalNode) => T;

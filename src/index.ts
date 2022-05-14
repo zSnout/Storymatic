@@ -25,8 +25,79 @@ export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   };
 }
 
+export function addBrackets(text: string) {
+  type Indented = { indentLevel: number; content: string };
+
+  type Tree = {
+    indentLevel: number;
+    content: (string | Tree)[];
+    parent?: Tree;
+  };
+
+  text = text.replace(/[⇦⇨]+/g, "");
+  let sections: Indented[] = text.split(/[\r\n]+/g).map((e) => ({
+    indentLevel: e.match(/^\s+/)?.[0].length || 0,
+    content: e,
+  }));
+
+  let top: Tree = { indentLevel: 0, content: [] };
+
+  sections.reduce<Tree>(function reduce(prev, next): Tree {
+    if (next.indentLevel === prev.indentLevel) {
+      prev.content.push(next.content);
+      return prev;
+    } else if (next.indentLevel > prev.indentLevel) {
+      let item: Tree = {
+        indentLevel: next.indentLevel,
+        content: [next.content],
+        parent: prev,
+      };
+
+      prev.content.push(item);
+      return item;
+    } else if (prev.parent) {
+      return reduce(prev.parent, next);
+    } else throw new Error("Unexpected indentation error");
+  }, top);
+
+  let result = (function traverse(node): string {
+    delete node.parent;
+
+    let output = "";
+    let prev: string | Tree | undefined;
+
+    for (let child of node.content) {
+      if (typeof prev === "string" && typeof child === "object") {
+        let lastChar = prev.trimEnd()[prev.length - 1] || "";
+        let prevChar = prev.trimEnd()[prev.length - 2] || "";
+
+        if (
+          !"+-*/%^&|?:[={(><.".includes(lastChar) ||
+          (lastChar === "/" && "*/".includes(prevChar)) ||
+          (lastChar === ">" && "-=".includes(prevChar))
+        ) {
+          child = `⇨${traverse(child)}⇦`;
+        }
+      }
+
+      if (typeof child === "object") {
+        child = traverse(child);
+      }
+
+      if (!output) output = child;
+      else output += `\n${child}`;
+
+      prev = child;
+    }
+
+    return output;
+  })(top);
+
+  return result;
+}
+
 export function compile(text: string) {
-  let match = story.match(text);
+  let match = story.match(addBrackets(text));
   if (match.failed()) throw new SyntaxError(match.message);
 
   scriptHasEvents = false;
@@ -392,7 +463,7 @@ function transformer(context: ts.TransformationContext) {
             (node) => visit(node, fnScope, blockScope, result, exclude),
             context
           ),
-          autoReturn == "return"
+          autoReturn === "return"
             ? ts.factory.createReturnStatement(
                 ts.factory.createIdentifier(result)
               )
@@ -456,7 +527,7 @@ function transformer(context: ts.TransformationContext) {
       if (node.kind === ts.SyntaxKind.BinaryExpression) {
         let bin = node as ts.BinaryExpression;
 
-        if (ts.SyntaxKind.EqualsToken == bin.operatorToken.kind) {
+        if (ts.SyntaxKind.EqualsToken === bin.operatorToken.kind) {
           visitAssignment(bin.left, fnScope, blockScope);
 
           return ts.visitEachChild(
@@ -497,7 +568,7 @@ function transformer(context: ts.TransformationContext) {
         }
       }
 
-      if (ts.isExpressionStatement(node) && autoReturn == "return") {
+      if (ts.isExpressionStatement(node) && autoReturn === "return") {
         node = ts.factory.createReturnStatement(node.expression);
       }
 
@@ -646,15 +717,6 @@ semantics.addOperation<ts.Node>("ts", {
   AccessorAddon_member_access(_, prop) {
     return prop.ts();
   },
-  AccessorBase(node) {
-    return node.ts();
-  },
-  AccessorIdentifierBase(node) {
-    return node.ts();
-  },
-  AccessorPropertyBase(node) {
-    return node.ts();
-  },
   AddExp(node) {
     return node.ts();
   },
@@ -773,7 +835,7 @@ semantics.addOperation<ts.Node>("ts", {
     let endExpr = end.child(0)?.ts<ts.Expression>();
     let targetExpr = target.ts<ts.Expression>();
 
-    if (endExpr && dotdot.sourceString == "..") {
+    if (endExpr && dotdot.sourceString === "..") {
       if (ts.isNumericLiteral(endExpr)) {
         endExpr = ts.factory.createNumericLiteral(1 + +endExpr.text);
       } else {
@@ -1294,14 +1356,7 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   Function(generics, _0, params, _1, _2, type, arrow, body) {
-    console.log([
-      params.child(0)?.sourceString,
-      generics.child(0)?.child(0)?.sourceString,
-      type.child(0)?.child(0)?.sourceString,
-      arrow.sourceString,
-    ]);
-
-    if (arrow.sourceString == "=>") {
+    if (arrow.sourceString === "=>") {
       return ts.factory.createArrowFunction(
         undefined,
         generics.child(0)?.child(0)?.tsa(),
@@ -1447,7 +1502,7 @@ semantics.addOperation<ts.Node>("ts", {
   },
   IndexSignatureType(readonly, prefix, _0, ident, _1, key, _2, _3, value) {
     let modifiers: ts.Modifier[] = [];
-    if (prefix.sourceString === "@@")
+    if (prefix.sourceString === "@")
       modifiers.push(ts.factory.createToken(ts.SyntaxKind.StaticKeyword));
     if (readonly.sourceString)
       modifiers.push(ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword));
@@ -1687,30 +1742,24 @@ semantics.addOperation<ts.Node>("ts", {
   },
   LiteralExp_with(_0, _1, expr, block) {
     return ts.factory.createCallExpression(
-      ts.factory.createFunctionExpression(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        [
-          ts.factory.createParameterDeclaration(
-            undefined,
-            undefined,
-            undefined,
-            "$self"
-          ),
-        ],
-        undefined,
-        ts.factory.createBlock(
-          block
-            .ts<ts.Block>()
-            .statements.concat(
-              ts.factory.createExpressionStatement(
-                ts.factory.createIdentifier("$self")
-              )
-            ),
-          true
-        )
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createFunctionExpression(
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          ts.factory.createBlock(
+            block
+              .ts<ts.Block>()
+              .statements.concat(
+                ts.factory.createExpressionStatement(ts.factory.createThis())
+              ),
+            true
+          )
+        ),
+        "call"
       ),
       undefined,
       [expr.ts()]
@@ -1741,10 +1790,7 @@ semantics.addOperation<ts.Node>("ts", {
     return ts.factory.createParenthesizedType(expr.ts());
   },
   LiteralExp_self(_) {
-    return ts.factory.createIdentifier("$self");
-  },
-  LiteralExp_static_self(_) {
-    return ts.factory.createIdentifier("$static");
+    return ts.factory.createIdentifier("this");
   },
   LiteralExp_topic_token(_) {
     return ts.factory.createIdentifier("$");
@@ -1780,11 +1826,6 @@ semantics.addOperation<ts.Node>("ts", {
   letter(_) {
     throw new Error("`letter` nodes should never directly be evaluated.");
   },
-  lineContinuer(_) {
-    throw new Error(
-      "`lineContinuer` nodes should never directly be evaluated."
-    );
-  },
   line_comment(_0, _1, _2) {
     throw new Error("`line_comment` nodes should never directly be evaluated.");
   },
@@ -1808,7 +1849,7 @@ semantics.addOperation<ts.Node>("ts", {
   ) {
     let endExpr = end.child(0)?.ts<ts.Expression>();
 
-    if (endExpr && dotdot.sourceString == "..") {
+    if (endExpr && dotdot.sourceString === "..") {
       if (ts.isNumericLiteral(endExpr)) {
         endExpr = ts.factory.createNumericLiteral(1 + +endExpr.text);
       } else {
@@ -2009,7 +2050,7 @@ semantics.addOperation<ts.Node>("ts", {
   Method(privacy, _, name, qMark, body) {
     let fn = body.ts<ts.FunctionExpression | ts.ArrowFunction>();
 
-    return ts.factory.createMethodDeclaration(
+    let decl = ts.factory.createMethodDeclaration(
       undefined,
       privacy.sourceString ? [privacy.ts()] : [],
       undefined,
@@ -2018,8 +2059,13 @@ semantics.addOperation<ts.Node>("ts", {
       fn.typeParameters,
       fn.parameters,
       fn.type,
-      fn.body as ts.Block | undefined
+      fn.body as ts.Block
     );
+
+    if (fn.kind === ts.SyntaxKind.ArrowFunction)
+      (decl as any).__storymaticIsBoundMethod = true;
+
+    return decl;
   },
   MethodName(node) {
     return node.ts();
@@ -2146,11 +2192,27 @@ semantics.addOperation<ts.Node>("ts", {
       value.ts()
     );
   },
-  ObjectEntry_object_method(node) {
-    return node.ts();
-  },
-  ObjectEntry_object_method_with_self(node) {
-    return node.ts();
+  ObjectEntry_object_method(name, expr) {
+    let fn = expr.ts<ts.FunctionExpression | ts.ArrowFunction>();
+
+    if (fn.kind === ts.SyntaxKind.ArrowFunction) {
+      return ts.factory.createPropertyAssignment(
+        name.ts<ts.PropertyName>(),
+        fn
+      );
+    }
+
+    return ts.factory.createMethodDeclaration(
+      undefined,
+      undefined,
+      undefined,
+      name.ts<ts.PropertyName>(),
+      undefined,
+      fn.typeParameters,
+      fn.parameters,
+      fn.type,
+      fn.body
+    );
   },
   ObjectEntry_restructure(ident) {
     return ts.factory.createShorthandPropertyAssignment(
@@ -2254,13 +2316,13 @@ semantics.addOperation<ts.Node>("ts", {
   },
   Property_computed(_0, _1, expr, _2) {
     return ts.factory.createElementAccessExpression(
-      ts.factory.createIdentifier("$self"),
+      ts.factory.createIdentifier("this"),
       expr.ts<ts.Expression>()
     );
   },
   Property_identifier(_, prop) {
     return ts.factory.createPropertyAccessExpression(
-      ts.factory.createIdentifier("$self"),
+      ts.factory.createIdentifier("this"),
       prop.ts<ts.Identifier>()
     );
   },
@@ -2576,7 +2638,7 @@ semantics.addOperation<ts.Node>("ts", {
   Statement_while(whileUntil, _, expression, block) {
     let cond = expression.ts<ts.Expression>();
 
-    if (whileUntil.sourceString == "until")
+    if (whileUntil.sourceString === "until")
       cond = ts.factory.createLogicalNot(cond);
 
     return ts.factory.createWhileStatement(cond, block.ts());
@@ -2586,21 +2648,6 @@ semantics.addOperation<ts.Node>("ts", {
       statements.tsa(),
       ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
       0
-    );
-  },
-  StaticProperty(node) {
-    return node.ts();
-  },
-  StaticProperty_computed(_0, _1, expr, _2) {
-    return ts.factory.createElementAccessExpression(
-      ts.factory.createIdentifier("$static"),
-      expr.ts<ts.Expression>()
-    );
-  },
-  StaticProperty_identifier(_, prop) {
-    return ts.factory.createPropertyAccessExpression(
-      ts.factory.createIdentifier("$static"),
-      prop.ts<ts.Identifier>()
     );
   },
   SwitchStatement(_0, _1, target, _2, cases, defaultNode, _3) {
@@ -2871,7 +2918,7 @@ semantics.addOperation<ts.Node>("ts", {
 
     let cond = condition.ts<ts.Expression>();
 
-    if (whileUntil.sourceString == "until")
+    if (whileUntil.sourceString === "until")
       cond = ts.factory.createLogicalNot(cond);
 
     return ts.factory.createWhileStatement(cond, statement);
@@ -3091,7 +3138,7 @@ semantics.addOperation<ts.Node>("ts", {
 
     let cond = condition.ts<ts.Expression>();
 
-    if (whileUntil.sourceString == "until")
+    if (whileUntil.sourceString === "until")
       cond = ts.factory.createLogicalNot(cond);
 
     return createIIFE(

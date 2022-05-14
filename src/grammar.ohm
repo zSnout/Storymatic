@@ -1,7 +1,7 @@
 Storymatic {
   Script = StatementBlock
 
-  WrappedStatementBlock = "{" Statement* "}"
+  WrappedStatementBlock = "{" Statement* "}" | "⇨" Statement* "⇦"
 
   StatementBlock = Statement*
 
@@ -82,8 +82,8 @@ Storymatic {
     | Method<"@"> -- static_method
     | ClassProperty<""> #statementTerminator -- property
     | ClassProperty<"@"> #statementTerminator -- static_property
-    | IndexSignatureType<"@"> #statementTerminator -- index_signature
-    | IndexSignatureType<"@@"> #statementTerminator -- static_index_signature
+    | IndexSignatureType<""> #statementTerminator -- index_signature
+    | IndexSignatureType<"@"> #statementTerminator -- static_index_signature
 
   importLocation
     = (~(space | "{" | "\\" | "\"" | "\'" | statementTerminator) any)+ &statementTerminator -- filename
@@ -111,11 +111,9 @@ Storymatic {
 
   terminator
     = spaces &"}"
+    | spaces &"⇦"
     | spaces end
     | (~("\r" | "\n") space)* ("\r" | "\n")+
-
-  lineContinuer
-    = "+" | "-" | "*" | ("/" ~("/" | "*")) | "^" | "%" | "=" | "!=" | "[" | "(" | "." | "?." | "?" | ":" | "<" | ">" | "&" | "|" | reserved_operators
 
   TopLevelIfExp
     = TopLevelWhileExp ("if" | "unless") #postWord Expression -- if
@@ -147,7 +145,6 @@ Storymatic {
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
     | NonemptyListOf<ObjectEntry_key_value, #expressionTerminator> -- object_implied
     | "@" ~(id_continue | "[" | "#" | ".") -- self
-    | "@@" ~(id_continue | "[" | "#" | ".") -- static_self
     | "%" -- topic_token
     | "with" #space Expression SingleStatementBlock<"do"> -- with
     | "do" WrappedStatementBlock -- do
@@ -157,7 +154,6 @@ Storymatic {
     | hexNumber
     | bigint
     | identifier
-    | StaticProperty
     | Property
     | undefined
     | boolean
@@ -202,11 +198,10 @@ Storymatic {
     | "[" Expression "]" -- computed_key
 
   ObjectEntry
-    = identifier ~":" -- restructure
-    | "..." Expression -- spread_operator
-    | Method<""> -- object_method
-    | Method<"@"> -- object_method_with_self
+    = MethodName Function -- object_method
     | ObjectEntry_key_value
+    | "..." Expression -- spread_operator
+    | identifier -- restructure
 
   ObjectEntry_key_value = MethodName ":" Expression
 
@@ -215,7 +210,7 @@ Storymatic {
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp "?"? ":" word (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
     | MemberAccessExp "?"? "::" word (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
-    | MemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | "->" | "=>" | "<" | line_comment)) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | "<" | line_comment)) ImpliedCallArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
@@ -227,7 +222,7 @@ Storymatic {
     | Child "!" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
     | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | "->" | "=>" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- class_creation_implied
+    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | line_comment | applySyntactic<NonemptyGenericTypeArgumentList>)) ImpliedCallArgumentList -- class_creation_implied
     | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
@@ -280,9 +275,9 @@ Storymatic {
     | ExpExp
 
   AddExp
-    = AddExp "+" MulExp -- addition
-    | AddExp "-" #(~">") MulExp -- subtraction
-    | MulExp
+    = MulExp
+    | AddExp "+" MulExp -- addition
+    | AddExp "-" MulExp -- subtraction
 
   BitwiseExp
     = BitwiseExp "<<" AddExp -- left_shift
@@ -365,12 +360,8 @@ Storymatic {
       (#expressionTerminator "..." Assignable)? ","? "}" -- object
 
   Accessor
-    = AccessorIdentifierBase AccessorAddon+
-    | AccessorPropertyBase AccessorAddon*
-
-  AccessorBase = AccessorIdentifierBase | AccessorPropertyBase
-  AccessorIdentifierBase = identifier
-  AccessorPropertyBase = Property | StaticProperty
+    = (identifier | Property) AccessorAddon+
+    | Property AccessorAddon*
 
   AccessorAddon
     = "." word -- member_access
@@ -435,12 +426,8 @@ Storymatic {
   identifier = ~reserved word
 
   Property
-    = "@" word -- identifier
-    | "@" "[" Expression "]" -- computed
-
-  StaticProperty
-    = "@@" word -- identifier
-    | "@@" "[" Expression "]" -- computed
+    = "@" #word -- identifier
+    | "@" #"[" Expression "]" -- computed
 
   space += block_comment | line_comment
   block_comment = "/*" (~"*/" any)* "*/"
