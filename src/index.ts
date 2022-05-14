@@ -1719,7 +1719,7 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralType(node) {
     return node.ts();
   },
-  LiteralType_construct(_0, _1, func) {
+  LiteralType_construct(_, func) {
     let fn = func.ts<ts.FunctionTypeNode>();
 
     return ts.factory.createConstructorTypeNode(
@@ -2925,7 +2925,7 @@ semantics.addOperation<ts.Node>("ts", {
       fn.type
     );
   },
-  TypeObjectEntry_construct_signature(_0, _1, signature) {
+  TypeObjectEntry_construct_signature(_, signature) {
     let fn = signature.ts<ts.FunctionTypeNode>();
 
     return ts.factory.createConstructSignature(
@@ -2942,6 +2942,20 @@ semantics.addOperation<ts.Node>("ts", {
       key.ts<ts.PropertyName>(),
       qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
       value.ts<ts.TypeNode>()
+    );
+  },
+  TypeObjectEntry_method(name, qMark, call) {
+    let fn = call.ts<ts.FunctionTypeNode>();
+
+    return ts.factory.createMethodSignature(
+      undefined,
+      name.ts<ts.PropertyName>(),
+      qMark
+        .child(0)
+        ?.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+      fn.typeParameters,
+      fn.parameters,
+      fn.type
     );
   },
   TypeObjectKey(node) {

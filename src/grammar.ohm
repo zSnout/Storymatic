@@ -499,7 +499,7 @@ Storymatic {
     | QualifiedName NonemptyGenericTypeArgumentList -- type_args
     | "typeof" #space QualifiedName -- typeof
     | "infer" #space identifier (":" #space Type)? -- infer
-    | "new" #space FunctionType -- construct
+    | "new" FunctionType -- construct
     | "(" Type ")" -- parenthesized
 
   MemberAccessType
@@ -528,9 +528,9 @@ Storymatic {
 
   TypeObjectEntry
     = ("readonly" #space)? TypeObjectKey "?"? ":" Type -- key_value
-    | "new" #space FunctionType -- construct_signature
+    | "new" FunctionType -- construct_signature
     | FunctionType -- call_signature
-    | TypeObjectKey "?"? FunctionType -- method
+    | ~("new" ~"?") TypeObjectKey "?"? FunctionType -- method
     | IndexSignatureType<"">
 
   FunctionType = (GenericTypeParameterList? "(" ParameterList? ")")? "->" Type

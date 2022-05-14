@@ -309,7 +309,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LiteralType_type_args?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   LiteralType_typeof?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   LiteralType_infer?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode) => T;
-  LiteralType_construct?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  LiteralType_construct?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   LiteralType_parenthesized?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   LiteralType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MemberAccessType_member_access?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
@@ -332,7 +332,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TypeObjectKey_computed_accessor?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   TypeObjectKey?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectEntry_key_value?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
-  TypeObjectEntry_construct_signature?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  TypeObjectEntry_construct_signature?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   TypeObjectEntry_call_signature?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectEntry_method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   TypeObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
