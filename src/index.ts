@@ -1716,20 +1716,8 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralExp_array(_0, entries, _1, _2) {
     return ts.factory.createArrayLiteralExpression(entries.tsa());
   },
-  LiteralExp_do(_, block) {
-    return ts.factory.createCallExpression(
-      ts.factory.createFunctionExpression(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        block.ts()
-      ),
-      undefined,
-      undefined
-    );
+  LiteralExp_do(_, expr) {
+    return ts.factory.createCallExpression(expr.ts(), undefined, undefined);
   },
   LiteralExp_object(_0, entries, _1, _2) {
     return ts.factory.createObjectLiteralExpression(entries.tsa());

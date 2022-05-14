@@ -147,7 +147,7 @@ Storymatic {
     | "@" ~(id_continue | "[" | "#" | ".") -- self
     | "%" -- topic_token
     | "with" #space Expression SingleStatementBlock<"do"> -- with
-    | "do" WrappedStatementBlock -- do
+    | "do" Expression -- do
     | InlineClassDeclaration
     | decimalNumber
     | unitNumber
