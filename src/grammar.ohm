@@ -275,9 +275,9 @@ Storymatic {
     | ExpExp
 
   AddExp
-    = MulExp
-    | AddExp "+" MulExp -- addition
+    = AddExp "+" MulExp -- addition
     | AddExp "-" MulExp -- subtraction
+    | MulExp
 
   BitwiseExp
     = BitwiseExp "<<" AddExp -- left_shift
