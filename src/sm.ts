@@ -237,7 +237,7 @@ if (args.build) {
     if (args.output) {
       if (args.print) console.log(transpile(compiled, args));
     } else if (args.ast) {
-      if (args.print) console.log(ast);
+      if (args.print) console.log(tree);
     } else {
       let result = execute(compiled);
       if (args.print) console.log(result);
@@ -284,7 +284,7 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
       }
       cb(null, output);
     },
-    writer: mode === "noeval" ? (x) => "" + x : undefined,
+    writer: mode === "noeval" || mode == "ast" ? (x) => "" + x : undefined,
   });
 
   repl.defineCommand("clear", () => {
