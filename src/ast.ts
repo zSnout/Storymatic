@@ -1,5 +1,5 @@
 import * as grammar from "./grammar.js";
-import { semantics } from "./semantics";
+import { semantics, story } from "./semantics.js";
 
 function indent(text: string, first = false): string {
   let split = text.split("\n");
@@ -14,13 +14,41 @@ function indent(text: string, first = false): string {
     : split[0];
 }
 
-semantics.addOperation("ast", {
+semantics.addOperation<string>("ast", {
   Accessor(base, addons) {
-    return indent(`Accessor
-  Base
-    ${indent(base.ast())}
-  Addons
-    ${indent(addons.ast())}`);
+    return `Accessor
+  ${indent(base.ast())}
+  ${indent(addons.ast())}`;
+  },
+  CompareExp(primary, ops, exps) {
+    if (ops.numChildren === 0) {
+      return primary.ast();
+    }
+
+    if (ops.numChildren === 1) {
+      return `Comparison ${ops.child(0).sourceString}
+  ${indent(primary.ast())}
+  ${indent(exps.child(0).ast())}`;
+    }
+
+    return (
+      `ChainedComparison\n  ${indent(primary.ast())}` +
+      ops.children.map(
+        (op, i) => `\n  ${op.sourceString}\n  ${indent(exps.child(i).ast())}`
+      )
+    );
+  },
+  identifier(node) {
+    return `Identifier ${node.sourceString}`;
+  },
+  Script(statements) {
+    return `Script\n  ${indent(statements.ast())}`;
+  },
+  Statement(node) {
+    return `Statement\n  ${indent(node.ast())}`;
+  },
+  Statement_expression(expr, _) {
+    return expr.ast();
   },
 
   _iter(...children) {
