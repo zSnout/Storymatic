@@ -3,7 +3,7 @@ import * as ts from "typescript";
 import * as grammar from "./grammar.js";
 
 let story = grammar as any as grammar.StorymaticGrammar;
-let semantics = story.createSemantics();
+export const semantics = story.createSemantics();
 
 export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   if (flags.typescript)
@@ -25,7 +25,7 @@ export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   };
 }
 
-export function addBrackets(text: string) {
+function addBrackets(text: string) {
   type Indented = { indentLevel: number; content: string };
 
   type Tree = {
