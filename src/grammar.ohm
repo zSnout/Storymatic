@@ -1,9 +1,7 @@
 Storymatic {
-  Script = StatementBlock
+  Script = Statement*
 
   WrappedStatementBlock = "{" Statement* "}" | "⇨" Statement* "⇦"
-
-  StatementBlock = Statement*
 
   SingleStatementBlock<prefix>
     = WrappedStatementBlock

@@ -12,9 +12,8 @@ import {
 } from 'ohm-js';
 
 export interface StorymaticActionDict<T> extends ActionDict<T> {
-  Script?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  Script?: (this: NonterminalNode, arg0: IterationNode) => T;
   WrappedStatementBlock?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
-  StatementBlock?: (this: NonterminalNode, arg0: IterationNode) => T;
   SingleStatementBlock_single_statement?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   SingleStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnprefixedSingleStatementBlock_single_statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;

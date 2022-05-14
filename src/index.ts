@@ -2385,8 +2385,14 @@ semantics.addOperation<ts.Node>("ts", {
   reserved_primitive(_) {
     throw "`reserved_primitive` nodes should never directly be evaluated.";
   },
-  Script(node) {
-    return traverseScript(node.ts());
+  Script(statements) {
+    return traverseScript(
+      ts.factory.createSourceFile(
+        statements.tsa(),
+        ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+        0
+      )
+    );
   },
   SingleStatementBlock(node) {
     return node.ts();
@@ -2636,13 +2642,6 @@ semantics.addOperation<ts.Node>("ts", {
       cond = ts.factory.createLogicalNot(cond);
 
     return ts.factory.createWhileStatement(cond, block.ts());
-  },
-  StatementBlock(statements) {
-    return ts.factory.createSourceFile(
-      statements.tsa(),
-      ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
-      0
-    );
   },
   SwitchStatement(_0, _1, target, _2, cases, defaultNode, _3) {
     let blocks: readonly ts.CaseBlock[] = cases.tsa();
