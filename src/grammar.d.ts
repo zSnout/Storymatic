@@ -272,7 +272,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Property?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   space?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   block_comment?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
-  line_comment?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode | TerminalNode) => T;
+  line_comment?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode) => T;
   JSXElement_open_close?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: TerminalNode) => T;
   JSXElement_self_closing?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: TerminalNode) => T;
   JSXElement?: (this: NonterminalNode, arg0: NonterminalNode) => T;

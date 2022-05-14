@@ -1820,7 +1820,7 @@ semantics.addOperation<ts.Node>("ts", {
   letter(_) {
     throw new Error("`letter` nodes should never directly be evaluated.");
   },
-  line_comment(_0, _1, _2) {
+  line_comment(_0, _1) {
     throw new Error("`line_comment` nodes should never directly be evaluated.");
   },
   listOf(_) {
@@ -2612,20 +2612,24 @@ semantics.addOperation<ts.Node>("ts", {
       block.ts()
     );
 
-    let expression = expressionNode.ts<ts.Expression | ts.CallExpression>();
+    let expression = expressionNode.ts<ts.Expression>();
 
     let mark = qMark
       .child(0)
       ?.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken) });
 
-    if (expression.kind === ts.SyntaxKind.CallExpression) {
-      let expr = expression as ts.CallExpression;
-
+    if (ts.isCallExpression(expression)) {
       expression = ts.factory.createCallChain(
-        expr.expression,
-        expr.questionDotToken || mark,
-        expr.typeArguments,
-        expr.arguments.concat(fn)
+        expression.expression,
+        expression.questionDotToken || mark,
+        expression.typeArguments,
+        expression.arguments.concat(fn)
+      );
+    } else if (ts.isNewExpression(expression)) {
+      expression = ts.factory.createNewExpression(
+        expression.expression,
+        expression.typeArguments,
+        expression.arguments?.concat(fn) || [fn]
       );
     } else {
       expression = ts.factory.createCallChain(expression, mark, undefined, [
