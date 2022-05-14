@@ -5,7 +5,7 @@ import * as ts from "typescript";
 import { isNativeError } from "util/types";
 import { runInContext, runInNewContext } from "vm";
 import * as yargs from "yargs";
-import { compile, transpile } from "./index.js";
+import { ast, compile, transpile } from "./index.js";
 import glob = require("fast-glob");
 
 let args = yargs
@@ -36,8 +36,8 @@ let args = yargs
         nodenext: ts.ModuleKind.NodeNext,
       };
 
-      if (typeof moduleType[name] == "number") return moduleType[name];
-      if (!name || name == "undefined") return undefined;
+      if (typeof moduleType[name] === "number") return moduleType[name];
+      if (!name || name === "undefined") return undefined;
 
       throw new Error(
         'Invalid value for --module. Choices: "commonjs", "amd", "umd", "system", "es2015", "es2020", "es2022", "esnext", "node12", "nodenext"'
@@ -67,8 +67,8 @@ let args = yargs
         json: ts.ScriptTarget.JSON,
       };
 
-      if (typeof moduleType[name] == "number") return moduleType[name];
-      if (!name || name == "undefined") return undefined;
+      if (typeof moduleType[name] === "number") return moduleType[name];
+      if (!name || name === "undefined") return undefined;
 
       throw new Error(
         'Invalid value for --target. Choices: "es3", "es5", "es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "es2021", "es2022", "esnext", "latest", or "json"'
@@ -215,11 +215,12 @@ if (args.build) {
 } else if (args.eval) {
   let code = args.eval;
   let compiled = compile(code);
+  let tree = ast(code);
 
   if (args.output) {
     if (args.print) console.log(transpile(compiled, args));
   } else if (args.ast) {
-    if (args.print) console.log(JSON.stringify(compiled, undefined, "  "));
+    if (args.print) console.log(tree);
   } else {
     let result = execute(compiled);
     if (args.print) console.log(result);
@@ -231,11 +232,12 @@ if (args.build) {
 
   if (code.length) {
     let compiled = compile(code);
+    let tree = ast(code);
 
     if (args.output) {
       if (args.print) console.log(transpile(compiled, args));
     } else if (args.ast) {
-      if (args.print) console.log(JSON.stringify(compiled, undefined, "  "));
+      if (args.print) console.log(ast);
     } else {
       let result = execute(compiled);
       if (args.print) console.log(result);
@@ -265,7 +267,7 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
 
       try {
         node = compile(cmd);
-        if (mode != "ast")
+        if (mode !== "ast")
           output = transpile(node, args).replace('"use strict";\n', "");
       } catch (e) {
         if (args.debug) console.log(e);
@@ -274,15 +276,15 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
       }
 
       try {
-        if (mode == "repl") output = runInContext(output, context);
-        if (mode == "ast") output = node;
+        if (mode === "repl") output = runInContext(output, context);
+        if (mode === "ast") output = ast(cmd);
       } catch (e) {
         if (isNativeError(e)) e.stack = "";
         throw e;
       }
       cb(null, output);
     },
-    writer: mode == "noeval" ? (x) => "" + x : undefined,
+    writer: mode === "noeval" ? (x) => "" + x : undefined,
   });
 
   repl.defineCommand("clear", () => {

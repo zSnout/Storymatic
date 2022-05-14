@@ -1,9 +1,8 @@
 import * as ohm from "ohm-js";
 import * as ts from "typescript";
 import * as grammar from "./grammar.js";
-
-let story = grammar as any as grammar.StorymaticGrammar;
-export const semantics = story.createSemantics();
+import { story, semantics } from "./semantics.js";
+import "./ast.js";
 
 export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   if (flags.typescript)
@@ -105,6 +104,13 @@ export function compile(text: string) {
   (file as any).__storymaticHasEvents = scriptHasEvents;
 
   return file;
+}
+
+export function ast(text: string) {
+  let match = story.match(addBrackets(text));
+  if (match.failed()) throw new SyntaxError(match.message);
+
+  return semantics(match).ast();
 }
 
 export function transpile(node: ts.Node, flags: Flags = {}) {
