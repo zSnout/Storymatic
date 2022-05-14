@@ -110,7 +110,7 @@ export function ast(text: string) {
   let match = story.match(addBrackets(text));
   if (match.failed()) throw new SyntaxError(match.message);
 
-  return semantics(match).ast();
+  return semantics(match).tree();
 }
 
 export function transpile(node: ts.Node, flags: Flags = {}) {
