@@ -466,6 +466,12 @@ ${optional(namespace("Default", _default))}`;
   GenericTypeParameterList(_0, params, _1) {
     return indent`TypeParameters\n  ${params}`;
   },
+  hexDigit(_) {
+    return "HexDigit";
+  },
+  hexNumber(_0, _1, _2, _3, _4) {
+    return `HexNumber ${this.sourceString}`;
+  },
   IfExp(node) {
     return node.tree();
   },
