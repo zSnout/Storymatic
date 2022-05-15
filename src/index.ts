@@ -1702,9 +1702,6 @@ semantics.addOperation<ts.Node>("ts", {
   ListOf(_) {
     throw new Error("`ListOf` nodes should never directly be evaluated.");
   },
-  ListOfTwo(_0, _1, _2) {
-    throw new Error("`ListOfTwo` nodes should never directly be evaluated.");
-  },
   LiteralExp(node) {
     return node.ts();
   },

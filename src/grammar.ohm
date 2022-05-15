@@ -173,12 +173,12 @@ Storymatic {
     = PrivacyLevel prefix MethodName "?"? Function
 
   ClassProperty<prefix>
-    = PrivacyLevel ("readonly" #space)? prefix MethodName ("?" | "!")? (":" Type)? ("=" Expression)?
+    = PrivacyLevel ("readonly" #postWord)? prefix MethodName ("?" | "!")? (":" Type)? ("=" Expression)?
 
   PrivacyLevel
-    = "public" #space -- public
-    | "protected" #space -- protected
-    | "private" #space -- private
+    = "public" #postWord -- public
+    | "protected" #postWord -- protected
+    | "private" #postWord -- private
     | -- none
 
   FunctionBody
@@ -548,6 +548,4 @@ Storymatic {
   GenericTypeArgumentList
     = NonemptyGenericTypeArgumentList -- with_args
     | -- empty
-
-  ListOfTwo<value, sep> = value sep NonemptyListOf<value, sep>
 }
