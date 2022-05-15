@@ -28,7 +28,7 @@ function optional(node: string | Node) {
     return "";
   }
 
-  return `\n${node}`;
+  return "\n" + node;
 }
 
 function indentText(text: string) {
@@ -40,11 +40,23 @@ function indentText(text: string) {
     : split[0];
 }
 
+function namespace(name: string, node: string | Node) {
+  if (typeof node === "object") {
+    node = node.tree();
+  }
+
+  if (!node) {
+    return "";
+  }
+
+  return indent`${name}\n  ${node}`;
+}
+
 semantics.addOperation<string>("tree", {
   Accessor(base, addons) {
-    return `Accessor
-  ${indentText(base.tree())}
-  ${indentText(addons.tree())}`;
+    return indent`Accessor
+  ${base}
+  ${addons}`;
   },
   AccessorAddon(node) {
     return node.tree();
@@ -71,7 +83,7 @@ semantics.addOperation<string>("tree", {
     return node.sourceString && indent`Arguments${optional(node)}`;
   },
   Argument_spread_operator(_, node) {
-    return `Spread\n  ${node}`;
+    return indent`Spread\n  ${node}`;
   },
   ArrayEntry(node) {
     return node.tree();
@@ -83,13 +95,38 @@ semantics.addOperation<string>("tree", {
     return indent`Assignment\n  ${assignable}\n  ${expr}`;
   },
   bigint(_0, _1, _2) {
-    return `BigInt ${this.sourceString}`;
+    return indent`BigInt ${this.sourceString}`;
   },
   block_comment(_0, _1, _2) {
     return "BlockComment";
   },
   boolean(value) {
     return value.sourceString === "true" ? "True" : "False";
+  },
+  ClassDeclaration(
+    _export,
+    _0,
+    _1,
+    _2,
+    ident,
+    generics,
+    _3,
+    _4,
+    _5,
+    extendable,
+    _6,
+    _7,
+    _8,
+    implemented,
+    _9,
+    members,
+    _10
+  ) {
+    return indent`${_export.sourceString && "Exported"}ClassDeclaration \
+${ident.tree().slice(11)}\
+${optional(generics)}\
+${optional(namespace("Extends", extendable))}\
+${optional(namespace("Implements", implemented))}`;
   },
   CompareExp(primary, ops, exps) {
     if (ops.numChildren === 0) {
@@ -140,8 +177,57 @@ semantics.addOperation<string>("tree", {
   decimalNumber(node) {
     return node.tree();
   },
+  EmptyListOf() {
+    return "";
+  },
+  Exportable(type, _0, name, _1, _2, _3, out) {
+    if (out.sourceString) {
+      return indent`Export${type.sourceString && "Type"}Specifier
+  Identifier ${name.sourceString}
+  Identifier ${out.child(0).sourceString}`;
+    } else {
+      return indent`Export${type.sourceString && "Type"}Specifier
+  Identifier ${name.sourceString}`;
+    }
+  },
+  EnumMember(node) {
+    return node.tree();
+  },
+  EnumMember_assigned(prop, _0, expr, _1) {
+    return indent`EnumMember\n  ${prop}\n  ${expr}`;
+  },
+  EnumMember_auto_assign(prop, _) {
+    return indent`EnumMember\n  ${prop}`;
+  },
+  EnumStatement(_export, _0, _1, _2, name, _3, members, _4) {
+    return indent`${_export.sourceString && "Exported"}\
+Enum ${name.tree().slice(11)}${optional(members)}`;
+  },
+  ExpExp(node) {
+    return node.tree();
+  },
+  ExpExp_exponentiate(left, _, right) {
+    return indent`Exponentiation\n  ${left}\n  ${right}`;
+  },
+  ExportedVariableAssignment(_0, _1, assignable, _2, type, _3, expr) {
+    return indent`ExportedVariable
+  ${assignable}${optional(type)}
+  ${expr}`;
+  },
+  Expression(node) {
+    return node.tree();
+  },
+  Extendable(ident, _0, props, generics, _1) {
+    let text = ident.tree();
+
+    for (let prop of props.children) {
+      text = indent`PropertyAccess\n  ${text}\n  Identifier ${prop.sourceString}`;
+    }
+
+    return indent`${text}\n${generics}`;
+  },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
-    return `Number ${this.sourceString}`;
+    return indent`Number ${this.sourceString}`;
   },
   GenericTypeArgumentList(node) {
     return node.tree();
@@ -152,11 +238,41 @@ semantics.addOperation<string>("tree", {
   GenericTypeArgumentList_with_args(node) {
     return node.tree();
   },
+  GenericTypeParameter(ident, _0, constraint, _1, _default) {
+    return indent`TypeParameter ${ident.tree().slice(11)}\
+${optional(namespace("Constraint", constraint))}\
+${optional(namespace("Default", _default))}`;
+  },
+  GenericTypeParameterList(_0, params, _1) {
+    return indent`TypeParameters\n  ${params}`;
+  },
+  IfExp(node) {
+    return node.tree();
+  },
+  Implementable(ident, _0, props, generics, _1) {
+    let text = ident.tree();
+
+    for (let prop of props.children) {
+      text = indent`PropertyAccess\n  ${text}\n  Identifier ${prop.sourceString}`;
+    }
+
+    if (!generics.sourceString) return text;
+    return indent`ExpressionWithTypeArguments\n  ${text}\n  ${generics}`;
+  },
   ImpliedCallArgumentList(node) {
     return indent`Arguments${optional(node)}`;
   },
   identifier(node) {
-    return `Identifier ${node.sourceString}`;
+    return indent`Identifier ${node.sourceString}`;
+  },
+  id_continue(_) {
+    return "IdContinue";
+  },
+  importLocation(node) {
+    return node.tree().slice(7);
+  },
+  importLocation_filename(bits, _) {
+    return indent`String "${bits.sourceString}"`;
   },
   ListOf(node) {
     return node.asIteration().tree();
@@ -230,14 +346,42 @@ ${optional(generics)}${optional(args)}`;
   Script(statements) {
     return indent`Script${optional(statements)}`;
   },
+  SingleStatementBlock(node) {
+    return node.tree();
+  },
+  SingleStatementBlock_single_statement(_0, _1, statement) {
+    return indent`StatementBlock\n  ${statement}`;
+  },
   Statement(node) {
+    return node.tree();
+  },
+  Statement_empty_export(_0, _1) {
+    return indent`Export`;
+  },
+  Statement_empty_import(_0, _1, loc, _2) {
+    return indent`Import ${loc}`;
+  },
+  Statement_export(_0, _1, type, _2, specifiers, _3, _4) {
+    return indent`Export${type.sourceString && "Type"}${optional(specifiers)}`;
+  },
+  Statement_export_all_from(_0, _1, _2, _3, loc, _4) {
+    return indent`ExportAllFrom ${loc}`;
+  },
+  Statement_export_default(_0, _1, _2, _3, expr, _4) {
+    return indent`ExportDefault\n  ${expr}`;
+  },
+  Statement_export_from(_0, _1, type, _2, specifiers, _3, _4, _5, loc, _6) {
+    return indent`Export${type.sourceString && "Type"}From ${loc}\
+${optional(specifiers)}`;
+  },
+  Statement_export_variable(node, _) {
     return node.tree();
   },
   Statement_expression(expr, _) {
     return indent`Expression\n  ${expr}`;
   },
   sign(sign) {
-    return `Sign ${sign.sourceString}`;
+    return indent`Sign ${sign.sourceString}`;
   },
   space(_) {
     return "Whitespace";
@@ -309,13 +453,13 @@ ${optional(generics)}${optional(args)}`;
     );
   },
   string(node) {
-    return indent`String${node}`;
+    return indent`String${optional(node)}`;
   },
   string_non_interpolatable(node) {
-    return indent`String${node}`;
+    return indent`String ${node}`;
   },
   string_type(node) {
-    return indent`TemplateLiteral${node}`;
+    return indent`TemplateLiteral${optional(node)}`;
   },
   UnionType(list) {
     let iter = list.asIteration();
@@ -331,6 +475,9 @@ ${optional(generics)}${optional(args)}`;
   },
   unitNumber(value, unit) {
     return indent`UnitNumber\n  ${value}\n  ${unit}`;
+  },
+  WrappedStatementBlock(_0, statements, _1) {
+    return indent`StatementBlock${optional(statements)}`;
   },
 
   _iter(...children) {
