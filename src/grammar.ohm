@@ -493,8 +493,8 @@ Storymatic {
     | LiteralType
 
   NamedTupleElement
-    = word "?"? ":" Type -- name_value
-    | "..." word ":" Type -- spread_operator
+    = identifier "?"? ":" Type -- name_value
+    | "..." identifier ":" Type -- spread_operator
 
   TupleElement
     = Type "?"? -- value
