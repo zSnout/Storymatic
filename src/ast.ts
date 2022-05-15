@@ -109,6 +109,22 @@ semantics.addOperation<string>("tree", {
   CaseStatement(clauses, block) {
     return indent`CaseBlock\n  ${namespace("Clauses", clauses)}\n  ${block}`;
   },
+  CaseTerminator(_) {
+    return "CaseTerminator";
+  },
+  CaseTerminator_final(_) {
+    return "CaseTerminator";
+  },
+  CaseTerminator_terminator(_) {
+    return "CaseTerminator";
+  },
+  CatchStatement(_0, _1, ident, block) {
+    if (ident.sourceString) {
+      return indent`CatchStatement ${ident.tree().slice(11)}${optional(block)}`;
+    } else {
+      return indent`CatchStatement${optional(block)}`;
+    }
+  },
   ClassDeclaration(
     _export,
     _0,
@@ -234,6 +250,9 @@ Enum ${name.tree().slice(11)}${optional(members)}`;
     }
 
     return indent`${text}\n${generics}`;
+  },
+  FinallyStatement(_0, _1, block) {
+    return indent`FinallyStatement${optional(block)}`;
   },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
     return indent`Number ${this.sourceString}`;
@@ -473,6 +492,10 @@ ${optional(specifiers)}`;
   },
   string_type(node) {
     return indent`TemplateLiteral${optional(node)}`;
+  },
+  TryStatement(_0, _1, block, _catch, _finally) {
+    return indent`TryStatement\n  ${block}\
+${optional(_catch)}${optional(_finally)}`;
   },
   UnionType(list) {
     let iter = list.asIteration();
