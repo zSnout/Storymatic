@@ -951,22 +951,25 @@ semantics.addOperation<ts.Node>("ts", {
     })!;
   },
   CaseClause(_0, _1, expr, _2) {
-    return ts.factory.createCaseClause(expr.ts(), []);
+    return expr
+      .asIteration()
+      .children.map((expr) =>
+        ts.factory.createCaseClause(expr.ts(), [])
+      ) as any;
   },
   CaseStatement(clauseNodes, blockNode) {
-    let clauses = [...clauseNodes.tsa<ts.CaseClause>()];
+    let clauses = clauseNodes.children
+      .map((node) => node.ts() as ts.CaseClause | ts.CaseClause[])
+      .flat();
+
     let finalClause = clauses.pop()!;
-
     let breakStatement = ts.factory.createBreakStatement();
-
     let block = blockNode.ts<ts.Block>();
     let statements = block.statements.concat(breakStatement);
 
-    let clause =
-      (ts.factory.createCaseClause(finalClause.expression, [
-        (ts.factory.createBlock(statements, true), block),
-      ]),
-      finalClause);
+    let clause = ts.factory.createCaseClause(finalClause.expression, [
+      ts.factory.createBlock(statements, true),
+    ]);
 
     return ts.factory.createCaseBlock(clauses.concat(clause));
   },

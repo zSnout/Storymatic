@@ -18,7 +18,7 @@ Storymatic {
   thenOrDo = "then" | "do"
 
   SwitchStatement = "switch" #space Expression "{" CaseStatement* DefaultStatement? "}"
-  CaseClause = "case" #space Expression CaseTerminator
+  CaseClause = "case" #space NonemptyListOf<Expression, ","> CaseTerminator
   CaseStatement = CaseClause+ UnprefixedSingleStatementBlock
   DefaultStatement = "default" #space UnprefixedSingleStatementBlock
 
