@@ -2649,10 +2649,19 @@ semantics.addOperation<ts.Node>("ts", {
     let cond = condition.ts<ts.Expression>();
 
     if (ifUnless.sourceString === "unless")
-      cond = (ts.factory.createLogicalNot(cond), cond);
+      cond = ts.factory.createLogicalNot(cond);
 
     return ts.factory.createConditionalExpression(
       cond,
+      undefined,
+      ifTrue.ts(),
+      undefined,
+      ifFalse.ts()
+    );
+  },
+  TernaryExp_symbolic(condition, _0, ifTrue, _1, ifFalse) {
+    return ts.factory.createConditionalExpression(
+      condition.ts(),
       undefined,
       ifTrue.ts(),
       undefined,

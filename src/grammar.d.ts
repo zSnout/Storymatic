@@ -193,6 +193,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LogicalOrExp_logical_nullish_coalescing?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   LogicalOrExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TernaryExp_if_then_else?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: NonterminalNode) => T;
+  TernaryExp_symbolic?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
   TernaryExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   postWord?: (this: NonterminalNode, arg0: IterationNode) => T;
   PipeExp_pipe?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode) => T;

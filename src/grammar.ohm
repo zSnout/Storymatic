@@ -300,7 +300,8 @@ Storymatic {
     | LogicalAndExp
 
   TernaryExp
-    = ("if" | "unless") #postWord LogicalOrExp "then" #postWord TernaryExp "else" #postWord TernaryExp -- if_then_else
+    = ("if" | "unless") #postWord TernaryExp "then" #postWord TernaryExp "else" #postWord TernaryExp -- if_then_else
+    | LogicalOrExp "?" TernaryExp ":" TernaryExp -- symbolic
     | LogicalOrExp
 
   postWord = space* ~id_continue | space+
