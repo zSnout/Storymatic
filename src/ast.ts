@@ -52,6 +52,27 @@ function namespace(name: string, node: string | Node) {
   return indent`${name}\n  ${node}`;
 }
 
+function modify(name: string, node: string | Node) {
+  if (typeof node === "object") {
+    node = node.tree();
+  }
+
+  if (!node) {
+    return "";
+  }
+
+  let lines = node.split("\n");
+
+  if (lines.length === 1) {
+    return `${lines[0]}\n  [${name}]`;
+  } else if (lines[1][2] === "[") {
+    return `${lines[0]}\n  [${name}, ${lines[1].slice(3)}\
+${optional(lines.slice(2).join("\n"))}`;
+  } else {
+    return `${lines[0]}\n  [${name}]${optional(lines.slice(1).join("\n"))}`;
+  }
+}
+
 semantics.addOperation<string>("tree", {
   Accessor(base, addons) {
     return indent`Accessor
@@ -280,11 +301,13 @@ ${optional(namespace("Implements", implemented))}`;
   },
   Exportable(type, _0, name, _1, _2, _3, out) {
     if (out.sourceString) {
-      return indent`Export${type.sourceString && "Type"}Specifier
+      return indent`ExportSpecifier\
+${optional(type.sourceString && "[TypeOnly]")}
   Identifier ${name.sourceString}
   Identifier ${out.child(0).sourceString}`;
     } else {
-      return indent`Export${type.sourceString && "Type"}Specifier
+      return indent`ExportSpecifier\
+${optional(type.sourceString && "[TypeOnly]")}
   Identifier ${name.sourceString}`;
     }
   },
@@ -292,14 +315,15 @@ ${optional(namespace("Implements", implemented))}`;
     return node.tree();
   },
   EnumMember_assigned(prop, _0, expr, _1) {
-    return indent`EnumMember\n  ${prop}\n  ${expr}`;
+    return indent`Assignment =\n  Identifier ${prop.sourceString}\n  ${expr}`;
   },
   EnumMember_auto_assign(prop, _) {
-    return indent`EnumMember\n  ${prop}`;
+    return indent`Identifier ${prop.sourceString}`;
   },
   EnumStatement(_export, _0, _1, _2, name, _3, members, _4) {
-    return indent`${_export.sourceString && "Exported"}\
-Enum ${name.tree().slice(11)}${optional(members)}`;
+    return indent`Enum ${name.tree().slice(11)}\
+${optional(_export.sourceString && "[Exported]")}\
+${optional(members)}`;
   },
   ExpExp(node) {
     return node.tree();
@@ -308,7 +332,8 @@ Enum ${name.tree().slice(11)}${optional(members)}`;
     return indent`Exponentiation\n  ${left}\n  ${right}`;
   },
   ExportedVariableAssignment(_0, _1, assignable, _2, type, _3, expr) {
-    return indent`ExportedVariable
+    return indent`Assignment =
+  [Exported]
   ${assignable}${optional(type)}
   ${expr}`;
   },
@@ -363,6 +388,12 @@ ${optional(namespace("Default", _default))}`;
   ImpliedCallArgumentList(node) {
     return indent`Arguments${optional(node)}`;
   },
+  IndexSignatureType(readonly, _0, _1, name, _2, key, _3, _4, type) {
+    return indent`IndexSignature ${name.tree().slice(11)}\
+${optional(readonly.sourceString && "[Readonly]")}
+  ${key}
+  ${type}`;
+  },
   identifier(node) {
     return indent`Identifier ${node.sourceString}`;
   },
@@ -395,7 +426,7 @@ ${optional(namespace("Default", _default))}`;
 ${dots.sourceString === "..." ? "Through" : "To"}\
 ${optional(end.tree())}`.trimStart();
 
-    return indent`ArraySlice${qMark.sourceString && "Chain"}
+    return indent`ArraySlice${optional(qMark.sourceString && "[Chain]")}
   ${target}
   ${namespace("Range", range)}`;
   },
@@ -421,7 +452,7 @@ ${optional(end.tree())}`.trimStart();
 ${optional(generics)}${optional(args)}`;
   },
   MemberAccessExpNonCall_computed_member_access(target, qMark, _0, prop, _1) {
-    return indent`MemberAccess${qMark.sourceString && "Chain"}
+    return indent`MemberAccess${optional(qMark.sourceString && "[Chain]")}
   ${target}
   ${prop}`;
   },
@@ -432,7 +463,7 @@ ${optional(generics)}${optional(args)}`;
     return indent`NonNullAssertion\n  ${target}`;
   },
   MemberAccessExpNonCall_optional_chaining_member_access(target, _, prop) {
-    return indent`PropertyAccessChain\n  ${target}\n  Identifier ${prop.sourceString}`;
+    return indent`PropertyAccess\n  [Chain]\n  ${target}\n  Identifier ${prop.sourceString}`;
   },
   MemberAccessExpNonCall_tagged_template_literal(fn, string) {
     return indent`TaggedTemplateLiteral\n  ${fn}\n  ${string}`;
@@ -452,7 +483,7 @@ ${optional(generics)}${optional(args)}`;
     args,
     _1
   ) {
-    return indent`FunctionCallChain\n  ${target}\
+    return indent`FunctionCall\n  [Chain]\n  ${target}\
 ${optional(generics)}${optional(args)}`;
   },
   MemberAccessType(node) {
@@ -490,6 +521,18 @@ ${optional(generics)}${optional(args)}`;
   },
   MethodName_string_key(node) {
     return node.tree();
+  },
+  MulExp(node) {
+    return node.tree();
+  },
+  MulExp_division(left, _, right) {
+    return indent`Division\n  ${left}\n  ${right}`;
+  },
+  MulExp_modulus(left, _, right) {
+    return indent`Modulus\n  ${left}\n  ${right}`;
+  },
+  MulExp_multiplication(left, _, right) {
+    return indent`Multiplication\n  ${left}\n  ${right}`;
   },
   NamedTupleElement(node) {
     return node.tree();
@@ -533,16 +576,19 @@ ${optional(generics)}${optional(args)}`;
     return indent`Import ${loc}`;
   },
   Statement_export(_0, _1, type, _2, specifiers, _3, _4) {
-    return indent`Export${type.sourceString && "Type"}${optional(specifiers)}`;
+    return indent`Export\
+${optional(type.sourceString && "[TypeOnly]")}\
+${optional(specifiers)}`;
   },
   Statement_export_all_from(_0, _1, _2, _3, loc, _4) {
-    return indent`ExportAllFrom ${loc}`;
+    return indent`ExportFrom ${loc}\n  [ExportAll]`;
   },
   Statement_export_default(_0, _1, _2, _3, expr, _4) {
     return indent`ExportDefault\n  ${expr}`;
   },
   Statement_export_from(_0, _1, type, _2, specifiers, _3, _4, _5, loc, _6) {
-    return indent`Export${type.sourceString && "Type"}From ${loc}\
+    return indent`ExportFrom ${loc}\
+${optional(type.sourceString && "[TypeOnly]")}\
 ${optional(specifiers)}`;
   },
   Statement_export_variable(node, _) {
@@ -620,7 +666,7 @@ ${optional(specifiers)}`;
   },
   string_interpolatable_span(_0, expr, _1, bits, _2) {
     return (
-      indent`${expr}` +
+      expr.tree() +
       optional(
         bits.sourceString &&
           indent`⇨${bits.children.map((x) => x.tree()).join("")}⇨`
@@ -651,7 +697,7 @@ ${optional(specifiers)}`;
     ifFalse
   ) {
     return indent`Conditional\
-${ifUnless.sourceString === "unless" ? "Unless" : ""}
+${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
   ${condition}\n  ${ifTrue}\n  ${ifFalse}`;
   },
   TernaryExp_symbolic(condition, _0, ifTrue, _1, ifFalse) {
