@@ -2329,56 +2329,6 @@ semantics.addOperation<ts.Node>("ts", {
   Statement(node) {
     return node.ts();
   },
-  Statement_await_new_thread(_0, _1, assignable, _2, expression, blockNode) {
-    let $ = ts.factory.createAwaitExpression(
-      ts.factory.createIdentifier("$awaited")
-    );
-
-    let first = assignable.sourceString
-      ? ts.factory.createVariableStatement(
-          undefined,
-          ts.factory.createVariableDeclarationList(
-            [
-              ts.factory.createVariableDeclaration(
-                assignable.child(0)?.ts<ts.BindingName>(),
-                undefined,
-                undefined,
-                $
-              ),
-            ],
-            ts.NodeFlags.Let
-          )
-        )
-      : ts.factory.createExpressionStatement($);
-
-    first = first;
-
-    let block = ts.factory.createBlock(
-      [first, ...blockNode.ts<ts.Block>().statements],
-      true
-    );
-
-    let fn = ts.factory.createFunctionExpression(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      [
-        ts.factory.createParameterDeclaration(
-          undefined,
-          undefined,
-          undefined,
-          "$awaited"
-        ),
-      ],
-      undefined,
-      block
-    );
-
-    return ts.factory.createExpressionStatement(
-      ts.factory.createCallExpression(fn, undefined, [expression.ts()])
-    );
-  },
   Statement_empty_export(_0, _1) {
     return ts.factory.createExportDeclaration(
       undefined,

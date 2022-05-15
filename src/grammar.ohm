@@ -37,8 +37,7 @@ Storymatic {
     | (word | string_non_interpolatable) "=" Expression #expressionTerminator -- assigned
 
   Statement
-    = "await" #space (Assignable "=")? Expression SingleStatementBlock<"do"> -- await_new_thread
-    | IfStatement
+    = IfStatement
     | TryStatement
     | ClassDeclaration
     | TypeDeclaration
