@@ -259,7 +259,7 @@ Storymatic {
     | PostfixExp
 
   ExpExp
-    = ExpExp "^" NotExp -- exponentiate
+    = NotExp "^" ExpExp -- exponentiate
     | NotExp
 
   MulExp
