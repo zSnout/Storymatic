@@ -331,7 +331,6 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
   colonTerminator_colon(_0, _1) {
     return "ColonTerminator";
   },
-  
   comparisonOperator(op) {
     return indent`Operator ${op}`;
   },
@@ -420,6 +419,9 @@ ${optional(members)}`;
   },
   FinallyStatement(_0, _1, block) {
     return indent`FinallyStatement${optional(block)}`;
+  },
+  ForExp(node) {
+    return node.tree();
   },
   Function(generics, _0, params, _1, _2, returnType, arrow, body) {
     return indent`Function\
@@ -749,31 +751,31 @@ ${optional(generics)}${optional(args)}`;
   Statement(node) {
     return node.tree();
   },
-  Statement_empty_export(_0, _1) {
-    return indent`Export`;
-  },
-  Statement_empty_import(_0, _1, loc, _2) {
-    return indent`Import ${loc}`;
-  },
-  Statement_export(_0, _1, type, _2, specifiers, _3, _4) {
-    return indent`Export\
-${optional(type.sourceString && "[TypeOnly]")}\
-${optional(specifiers)}`;
-  },
-  Statement_export_all_from(_0, _1, _2, _3, loc, _4) {
-    return indent`ExportFrom ${loc}\n  [ExportAll]`;
-  },
-  Statement_export_default(_0, _1, _2, _3, expr, _4) {
-    return indent`ExportDefault\n  ${expr}`;
-  },
-  Statement_export_from(_0, _1, type, _2, specifiers, _3, _4, _5, loc, _6) {
-    return indent`ExportFrom ${loc}\
-${optional(type.sourceString && "[TypeOnly]")}\
-${optional(specifiers)}`;
-  },
-  Statement_export_variable(node, _) {
-    return node.tree();
-  },
+  //   Statement_empty_export(_0, _1) {
+  //     return indent`Export`;
+  //   },
+  //   Statement_empty_import(_0, _1, loc, _2) {
+  //     return indent`Import ${loc}`;
+  //   },
+  //   Statement_export(_0, _1, type, _2, specifiers, _3, _4) {
+  //     return indent`Export\
+  // ${optional(type.sourceString && "[TypeOnly]")}\
+  // ${optional(specifiers)}`;
+  //   },
+  //   Statement_export_all_from(_0, _1, _2, _3, loc, _4) {
+  //     return indent`ExportFrom ${loc}\n  [ExportAll]`;
+  //   },
+  //   Statement_export_default(_0, _1, _2, _3, expr, _4) {
+  //     return indent`ExportDefault\n  ${expr}`;
+  //   },
+  //   Statement_export_from(_0, _1, type, _2, specifiers, _3, _4, _5, loc, _6) {
+  //     return indent`ExportFrom ${loc}\
+  // ${optional(type.sourceString && "[TypeOnly]")}\
+  // ${optional(specifiers)}`;
+  //   },
+  //   Statement_export_variable(node, _) {
+  //     return node.tree();
+  //   },
   Statement_expression(expr, _) {
     return expr.tree();
   },

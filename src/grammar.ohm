@@ -1,5 +1,5 @@
 Storymatic {
-  Script = Statement*
+  Script = TopLevelStatement*
 
   WrappedStatementBlock = "{" Statement* "}" | "⇨" Statement* "⇦"
 
@@ -34,6 +34,19 @@ Storymatic {
     = (word | string_non_interpolatable) #expressionTerminator -- auto_assign
     | (word | string_non_interpolatable) "=" Expression #expressionTerminator -- assigned
 
+  TopLevelStatement
+    = Statement
+    | "import" #postWord importLocation #statementTerminator -- empty_import
+    | "import" (#space "type")? "{" NonemptyListOf<Importable, ","> "}" "from" #postWord importLocation #statementTerminator -- import
+    | "import" "*" "as" #postWord identifier "from" #postWord importLocation #statementTerminator -- import_all
+    | "import" (#space "type")? #postWord identifier #postWord "from" #postWord importLocation #statementTerminator -- import_default
+    | "export" #statementTerminator -- empty_export
+    | "export" (#space "type")? "{" NonemptyListOf<Exportable, ","> "}" "from" #postWord importLocation #statementTerminator -- export_from
+    | "export" "*" "from" #postWord importLocation #statementTerminator -- export_all_from
+    | "export" (#space "type")? "{" NonemptyListOf<Exportable, ","> "}" #statementTerminator -- export
+    | "export" #postWord "default" #postWord Expression #statementTerminator -- export_default
+    | ExportedVariableAssignment #statementTerminator -- export_variable
+
   Statement
     = IfStatement
     | TryStatement
@@ -46,16 +59,6 @@ Storymatic {
     | "repeat" #postWord Expression SingleStatementBlock<"do"> -- repeat
     | ("while" | "until") #postWord Expression SingleStatementBlock<"do"> -- while
     | "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression SingleStatementBlock<"do"> -- for
-    | "import" #postWord importLocation #statementTerminator -- empty_import
-    | "import" (#space "type")? "{" NonemptyListOf<Importable, ","> "}" "from" #postWord importLocation #statementTerminator -- import
-    | "import" "*" "as" #postWord identifier "from" #postWord importLocation #statementTerminator -- import_all
-    | "import" (#space "type")? #postWord identifier #postWord "from" #postWord importLocation #statementTerminator -- import_default
-    | "export" #statementTerminator -- empty_export
-    | "export" (#space "type")? "{" NonemptyListOf<Exportable, ","> "}" "from" #postWord importLocation #statementTerminator -- export_from
-    | "export" "*" "from" #postWord importLocation #statementTerminator -- export_all_from
-    | "export" (#space "type")? "{" NonemptyListOf<Exportable, ","> "}" #statementTerminator -- export
-    | "export" #postWord "default" #postWord Expression #statementTerminator -- export_default
-    | ExportedVariableAssignment #statementTerminator -- export_variable
     | "rescope" #space NonemptyListOf<Rescopable, ","> #statementTerminator -- rescope
     | "rescope" #space VariableAssignment #statementTerminator -- rescope_assign
     | TypedVariableAssignment -- typed_assignment
