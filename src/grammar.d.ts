@@ -28,8 +28,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   CaseTerminator_final?: (this: NonterminalNode, arg0: TerminalNode) => T;
   CaseTerminator?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TryStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode) => T;
-  CatchStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: NonterminalNode) => T;
-  FinallyStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  CatchStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode) => T;
+  FinallyStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode) => T;
   EnumStatement?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: TerminalNode, arg6: IterationNode, arg7: TerminalNode) => T;
   EnumMember_auto_assign?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   EnumMember_assigned?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
