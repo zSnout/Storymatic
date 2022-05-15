@@ -985,7 +985,7 @@ semantics.addOperation<ts.Node>("ts", {
   CatchStatement(_0, _1, ident, block) {
     return ts.factory.createCatchClause(
       ident.child(0)?.ts<ts.Identifier>(),
-      block.ts()
+      block.child(0)?.ts() || ts.factory.createBlock([])
     );
   },
   ClassDeclaration(
@@ -1292,7 +1292,7 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   FinallyStatement(_0, _1, block) {
-    return block.ts();
+    return block.child(0)?.ts() || ts.factory.createBlock([]);
   },
   ForExp(node) {
     return node.ts();
