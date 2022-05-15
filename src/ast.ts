@@ -68,7 +68,7 @@ semantics.addOperation<string>("tree", {
     return node.tree();
   },
   ArgumentList(node) {
-    return `Arguments${optional(node)}`;
+    return node.sourceString && indent`Arguments${optional(node)}`;
   },
   Argument_spread_operator(_, node) {
     return `Spread\n  ${node}`;
@@ -134,6 +134,18 @@ semantics.addOperation<string>("tree", {
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
     return `Number ${this.sourceString}`;
   },
+  GenericTypeArgumentList(node) {
+    return node.tree();
+  },
+  GenericTypeArgumentList_empty() {
+    return "";
+  },
+  GenericTypeArgumentList_with_args(node) {
+    return node.tree();
+  },
+  ImpliedCallArgumentList(node) {
+    return indent`Arguments${optional(node)}`;
+  },
   identifier(node) {
     return `Identifier ${node.sourceString}`;
   },
@@ -162,6 +174,27 @@ semantics.addOperation<string>("tree", {
   MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
     return indent`TypeAssertion\n  ${expr}\n  ${type}`;
   },
+  MemberAccessExpNonCall_class_creation_implied(_0, _1, target, _2, args) {
+    return indent`ClassCreation\n  ${target}\n  ${args}`;
+  },
+  MemberAccessExpNonCall_class_creation_no_args(_0, _1, target) {
+    return indent`ClassCreation\n  ${target}`;
+  },
+  MemberAccessExpNonCall_class_creation_symbolic(
+    _0,
+    _1,
+    target,
+    generics,
+    _2,
+    args,
+    _3
+  ) {
+    return indent`ClassCreation\n  ${target}\
+${optional(generics)}${optional(args)}`;
+  },
+  NonemptyGenericTypeArgumentList(_0, args, _1) {
+    return indent`TypeArguments\n  ${args}`;
+  },
   NonemptyListOf(_0, _1, _2) {
     return this.asIteration().tree();
   },
@@ -173,6 +206,15 @@ semantics.addOperation<string>("tree", {
   },
   Statement_expression(expr, _) {
     return indent`Expression\n  ${expr}`;
+  },
+  UnionType(list) {
+    let iter = list.asIteration();
+
+    if (iter.numChildren === 1) {
+      return iter.child(0).tree();
+    }
+
+    return indent`Union\n  ${list}`;
   },
   undefined(_) {
     return "Undefined";
