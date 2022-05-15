@@ -91,8 +91,81 @@ semantics.addOperation<string>("tree", {
   ArrayEntry_spread_operator(_, node) {
     return indent`Spread\n  ${node}`;
   },
+  Assignable(node) {
+    return node.tree();
+  },
+  AssignableKeyWithRewrite(node) {
+    return node.tree();
+  },
+  AssignableKeyWithRewrite_rewrite(name, _, rewrite) {
+    return indent`PropertyRename\n  ${name}\n  ${rewrite}`;
+  },
+  AssignableOrAccessor(node) {
+    return node.tree();
+  },
+  AssignableWithDefault(node) {
+    return node.tree();
+  },
+  AssignableWithDefault_with_default(assignable, _, expr) {
+    return indent`WithDefault\n  ${assignable}\n  ${expr}`;
+  },
+  Assignable_array(_0, members, _1, _2, rest, _3, _4) {
+    return indent`DestructuredIterable\
+  ${optional(members)}${optional(namespace("Rest", rest))}`;
+  },
+  Assignable_identifier(node) {
+    return node.tree();
+  },
+  Assignable_object(_0, members, _1, _2, rest, _3, _4) {
+    return indent`DestructuredObject\
+${optional(members)}${optional(namespace("Rest", rest))}`;
+  },
+  AssignmentExp(node) {
+    return node.tree();
+  },
   AssignmentExp_assignment(assignable, _, expr) {
-    return indent`Assignment\n  ${assignable}\n  ${expr}`;
+    return indent`Assignment =\n  ${assignable}\n  ${expr}`;
+  },
+  AssignmentExp_splice(accessor, _0, start, dots, end, _1, _2, expr) {
+    let range = `${start.tree()}
+${dots.sourceString === "..." ? "Through" : "To"}\
+${optional(end.tree())}`.trimStart();
+
+    return indent`ArraySplice
+  ${accessor}
+  ${namespace("Range", range)}
+  ${expr}`;
+  },
+  AssignmentExp_update_assignment(accessor, op, expr) {
+    return indent`Assignment ${op.sourceString
+      .replace("and", "&&")
+      .replace("or", "||")}
+  ${accessor}
+  ${expr}`;
+  },
+  AssignmentExp_yield(_0, _1, expr) {
+    return indent`Yield\n  ${expr}`;
+  },
+  AssignmentExp_yield_from(_0, _1, _2, _3, expr) {
+    return indent`YieldFrom\n  ${expr}`;
+  },
+  alnum(_) {
+    return "Alnum";
+  },
+  applySyntactic(node) {
+    return node.tree();
+  },
+  BitwiseExp(node) {
+    return node.tree();
+  },
+  BitwiseExp_left_shift(left, _, right) {
+    return indent`LeftShift\n  ${left}\n  ${right}`;
+  },
+  BitwiseExp_right_shift(left, _, right) {
+    return indent`RightShift\n  ${left}\n  ${right}`;
+  },
+  BitwiseExp_unsigned_right_shift(left, _, right) {
+    return indent`UnsignedRightShift\n  ${left}\n  ${right}`;
   },
   bigint(_0, _1, _2) {
     return indent`BigInt ${this.sourceString}`;
@@ -318,11 +391,13 @@ ${optional(namespace("Default", _default))}`;
     return node.tree();
   },
   MemberAccessExpNonCall_array_slice(target, qMark, _0, start, dots, end, _1) {
+    let range = `${start.tree()}
+${dots.sourceString === "..." ? "Through" : "To"}\
+${optional(end.tree())}`.trimStart();
+
     return indent`ArraySlice${qMark.sourceString && "Chain"}
   ${target}
-  ${start.tree() || "Undefined"}
-  ${dots.sourceString === "..." ? "Through" : "To"}
-  ${end.tree() || "Undefined"}`;
+  ${namespace("Range", range)}`;
   },
   MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
     return indent`TypeAssertion\n  ${expr}\n  ${type}`;
@@ -358,6 +433,74 @@ ${optional(generics)}${optional(args)}`;
   },
   MemberAccessExpNonCall_optional_chaining_member_access(target, _, prop) {
     return indent`PropertyAccessChain\n  ${target}\n  Identifier ${prop.sourceString}`;
+  },
+  MemberAccessExpNonCall_tagged_template_literal(fn, string) {
+    return indent`TaggedTemplateLiteral\n  ${fn}\n  ${string}`;
+  },
+  MemberAccessExp_function_call(target, generics, _0, args, _1) {
+    return indent`FunctionCall\n  ${target}\
+${optional(generics)}${optional(args)}`;
+  },
+  MemberAccessExp_implied_call(target, _, args) {
+    return indent`FunctionCall\n  ${target}${optional(args)}`;
+  },
+  MemberAccessExp_optional_chaining_function_call(
+    target,
+    _,
+    generics,
+    _0,
+    args,
+    _1
+  ) {
+    return indent`FunctionCallChain\n  ${target}\
+${optional(generics)}${optional(args)}`;
+  },
+  MemberAccessType(node) {
+    return node.tree();
+  },
+  MemberAccessType_array(node, _0, _1) {
+    return indent`ArrayOf\n  ${node}`;
+  },
+  MemberAccessType_keyof(_, node) {
+    return indent`Keyof\n  ${node}`;
+  },
+  MemberAccessType_member_access(target, _0, prop, _1) {
+    return indent`MemberAccess\n  ${target}\n  ${prop}`;
+  },
+  MemberAccessType_named_tuple(_0, members, _1, _2) {
+    return indent`Tuple\n  ${members}`;
+  },
+  MemberAccessType_tuple(_0, members, _1, _2) {
+    return indent`Tuple\n  ${members}`;
+  },
+  MethodName(node) {
+    return node.tree();
+  },
+  MethodName_computed_key(_0, node, _1) {
+    return node.tree();
+  },
+  MethodName_computed_string_key(node) {
+    return node.tree();
+  },
+  MethodName_identifier(ident) {
+    return indent`Property ${ident.sourceString}`;
+  },
+  MethodName_numerical_key(node) {
+    return node.tree();
+  },
+  MethodName_string_key(node) {
+    return node.tree();
+  },
+  NamedTupleElement(node) {
+    return node.tree();
+  },
+  NamedTupleElement_spread_operator(_0, name, _1, expr) {
+    return indent`NamedElement ${name.tree().slice(11)}
+  ${namespace("Spread", expr)}`;
+  },
+  NamedTupleElement_name_value(name, qMark, _, expr) {
+    let text = qMark.sourceString ? namespace("Optional", expr) : expr.tree();
+    return indent`NamedElement ${name.tree().slice(11)}\n  ${text}`;
   },
   NonemptyGenericTypeArgumentList(_0, args, _1) {
     return indent`TypeArguments\n  ${args}`;
@@ -406,7 +549,7 @@ ${optional(specifiers)}`;
     return node.tree();
   },
   Statement_expression(expr, _) {
-    return indent`Expression\n  ${expr}`;
+    return expr.tree();
   },
   SwitchStatement(_0, _1, target, _2, cases, _default, _3) {
     return indent`SwitchStatement
@@ -493,9 +636,61 @@ ${optional(specifiers)}`;
   string_type(node) {
     return indent`TemplateLiteral${optional(node)}`;
   },
+  TernaryExp(node) {
+    return node.tree();
+  },
+  TernaryExp_if_then_else(
+    ifUnless,
+    _0,
+    condition,
+    _1,
+    _2,
+    ifTrue,
+    _3,
+    _4,
+    ifFalse
+  ) {
+    return indent`Conditional\
+${ifUnless.sourceString === "unless" ? "Unless" : ""}
+  ${condition}\n  ${ifTrue}\n  ${ifFalse}`;
+  },
+  TernaryExp_symbolic(condition, _0, ifTrue, _1, ifFalse) {
+    return indent`Conditional\n  ${condition}\n  ${ifTrue}\n  ${ifFalse}`;
+  },
+  TopLevelExp(node) {
+    return node.tree();
+  },
+  TopLevelExp_break(_) {
+    return "Break";
+  },
+  TopLevelExp_continue(_) {
+    return "Continue";
+  },
+  TopLevelExp_expression(node) {
+    return indent`Expression\n  ${node}`;
+  },
+  TopLevelExp_return(_, expr) {
+    return indent`Return${optional(expr)}`;
+  },
+  TopLevelExp_throw(_, expr) {
+    return indent`Throw\n  ${expr}`;
+  },
   TryStatement(_0, _1, block, _catch, _finally) {
     return indent`TryStatement\n  ${block}\
 ${optional(_catch)}${optional(_finally)}`;
+  },
+  TupleElement(node) {
+    return node.tree();
+  },
+  TupleElement_spread_operator(_0, expr) {
+    return namespace("Spread", expr);
+  },
+  TupleElement_value(expr, qMark) {
+    if (qMark.sourceString) {
+      return namespace("Optional", expr);
+    }
+
+    return expr.tree();
   },
   UnionType(list) {
     let iter = list.asIteration();
