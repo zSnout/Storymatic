@@ -138,7 +138,7 @@ Storymatic {
   LiteralExp
     = Function
     | JSXElement
-    |  "(" Expression ")" -- parenthesized
+    | "(" Expression ")" -- parenthesized
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
     | "@" ~(id_continue | "[" | ".") -- self
