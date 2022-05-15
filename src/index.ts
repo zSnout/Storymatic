@@ -1145,17 +1145,7 @@ semantics.addOperation<ts.Node>("ts", {
   ConditionalType(node) {
     return node.ts();
   },
-  ConditionalType_conditional(
-    target,
-    _0,
-    _1,
-    _2,
-    mustBe,
-    _3,
-    ifTrue,
-    _4,
-    ifFalse
-  ) {
+  ConditionalType_conditional(target, _0, _1, mustBe, _2, ifTrue, _3, ifFalse) {
     return ts.factory.createConditionalTypeNode(
       target.ts(),
       mustBe.ts(),
