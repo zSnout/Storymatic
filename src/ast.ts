@@ -238,11 +238,46 @@ ${optional(end.tree())}`.trimStart();
     members,
     _10
   ) {
-    return indent`${_export.sourceString && "Exported"}ClassDeclaration \
-${ident.tree().slice(11)}\
+    return indent`ClassDeclaration ${ident.tree().slice(11)}\
+${optional(_export.sourceString && "[Exported]")}\
 ${optional(generics)}\
 ${optional(namespace("Extends", extendable))}\
-${optional(namespace("Implements", implemented))}`;
+${optional(namespace("Implements", implemented))}\
+${optional(members)}`;
+  },
+  ClassElement(node) {
+    return node.tree();
+  },
+  ClassElement_index_signature(signature, _) {
+    return signature.tree();
+  },
+  ClassElement_method(node) {
+    return node.tree();
+  },
+  ClassElement_property(node, _) {
+    return node.tree();
+  },
+  ClassElement_static_index_signature(node, _) {
+    return modify("Static", node.tree());
+  },
+  ClassElement_static_method(node) {
+    return node.tree();
+  },
+  ClassElement_static_property(node, _) {
+    return node.tree();
+  },
+  ClassProperty(privacy, readonly, _0, prefix, name, mark, _1, type, _2, init) {
+    let prop = indent`Property\n  ${name}\
+${optional(namespace("Type", type))}\
+${optional(namespace("Initializer", init))}`;
+
+    if (mark.sourceString === "?") prop = modify("Optional", prop);
+    if (mark.sourceString === "!") prop = modify("DefinitelyAssigned", prop);
+    if (readonly.sourceString) prop = modify("Readonly", prop);
+    if (prefix.sourceString === "@") prop = modify("Static", prop);
+    if (privacy.sourceString) prop = modify(privacy.tree(), prop);
+
+    return prop;
   },
   CompareExp(primary, ops, exps) {
     if (ops.numChildren === 0) {
@@ -257,7 +292,7 @@ ${optional(namespace("Implements", implemented))}`;
     }
 
     return (
-      indent`ChainedComparison\n  ${primary}` +
+      indent`Comparison\n  [Chained]\n  ${primary}` +
       ops.children
         .map((op, i) => indent`\n  ${op}\n  ${exps.child(i)}`)
         .join("")
@@ -352,6 +387,29 @@ ${optional(members)}`;
   FinallyStatement(_0, _1, block) {
     return indent`FinallyStatement${optional(block)}`;
   },
+  Function(generics, _0, params, _1, _2, returnType, arrow, body) {
+    return indent`Function\
+${optional(arrow.sourceString === "=>" ? "[Bound]" : "")}\
+${optional(generics)}\
+${optional(params)}\
+${optional(returnType)}\
+${optional(body)}`;
+  },
+  FunctionBody(node) {
+    return node.tree();
+  },
+  FunctionBody_expression(expr) {
+    return namespace("ConciseBody", expr);
+  },
+  FunctionReturnType(node) {
+    return namespace("ReturnType", node);
+  },
+  FunctionReturnType_predicate(asserts, _0, param, _1, _2, type) {
+    return indent`TypePredicate\
+${optional(asserts.sourceString && "[Assertion]")}
+  ${param}
+  ${type}`;
+  },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
     return indent`Number ${this.sourceString}`;
   },
@@ -414,6 +472,18 @@ ${optional(readonly.sourceString && "[Readonly]")}
   },
   LiteralExp_array(_0, elements, _1, _2) {
     return indent`Array${optional(elements)}`;
+  },
+  LiteralExp_parenthesized(_0, expr, _1) {
+    return indent`Parenthesized\n  ${expr}`;
+  },
+  LiteralExp_self(_) {
+    return "This";
+  },
+  LiteralExp_topic_token(_) {
+    return "TopicToken";
+  },
+  LiteralExp_with(_0, _1, self, block) {
+    return indent`With\n  ${self}\n  ${block}`;
   },
   MemberAccessExp(node) {
     return node.tree();
@@ -504,6 +574,15 @@ ${optional(generics)}${optional(args)}`;
   MemberAccessType_tuple(_0, members, _1, _2) {
     return indent`Tuple\n  ${members}`;
   },
+  Method(privacy, prefix, name, qMark, fn) {
+    let prop = indent`Method\n  ${name}\n  ${fn}`;
+
+    if (qMark.sourceString === "?") prop = modify("Optional", prop);
+    if (prefix.sourceString === "@") prop = modify("Static", prop);
+    if (privacy.sourceString) prop = modify(privacy.tree(), prop);
+
+    return prop;
+  },
   MethodName(node) {
     return node.tree();
   },
@@ -556,6 +635,73 @@ ${optional(generics)}${optional(args)}`;
   },
   null(_) {
     return "Null";
+  },
+  Parameter(node) {
+    return node.tree();
+  },
+  ParameterList(node) {
+    return node.tree();
+  },
+  ParameterList_params(params, _, rest) {
+    return indent`ParameterList\n  ${params}${optional(rest)}`;
+  },
+  ParameterList_rest_params(rest) {
+    return namespace("ParameterList", rest);
+  },
+  Parameter_assignable(assignable) {
+    return namespace("Parameter", assignable);
+  },
+  Parameter_initializer(assignable, _0, type, _1, expr) {
+    return indent`Parameter
+  ${assignable}${optional(namespace("Type", type))}
+  ${namespace("Initializer", expr)}`;
+  },
+  Parameter_type(assignable, qMark, _, type) {
+    return indent`Parameter${optional(qMark.sourceString && "[Optional]")}
+  ${assignable}
+  ${namespace("Type", type)}`;
+  },
+  PipeExp(node) {
+    return node.tree();
+  },
+  PipeExp_pipe(pipes, _, last) {
+    return indent`Pipe\n  ${pipes}\n  ${last}`;
+  },
+  PostfixExp(node) {
+    return node.tree();
+  },
+  PostfixExp_decrement(accessor, _) {
+    return namespace("Decrement", accessor);
+  },
+  PostfixExp_increment(accessor, _) {
+    return namespace("Increment", accessor);
+  },
+  PrivacyLevel(node) {
+    return node.tree();
+  },
+  PrivacyLevel_none() {
+    return "";
+  },
+  PrivacyLevel_private(_0, _1) {
+    return "Private";
+  },
+  PrivacyLevel_protected(_0, _1) {
+    return "Protected";
+  },
+  PrivacyLevel_public(_0, _1) {
+    return "Public";
+  },
+  RestParameter(node) {
+    return node.tree();
+  },
+  RestParameter_with_type(_0, assignable, _1, type) {
+    return indent`Parameter
+  [Rest]
+  ${assignable}
+  ${namespace("Type", type)}`;
+  },
+  RestParameter_without_type(_, assignable) {
+    return indent`Parameter\n  [Rest]\n  ${assignable}`;
   },
   Script(statements) {
     return indent`Script${optional(statements)}`;
