@@ -298,6 +298,40 @@ ${optional(namespace("Initializer", init))}`;
         .join("")
     );
   },
+  ConditionalType(node) {
+    return node.tree();
+  },
+  ConditionalType_conditional(target, _0, _1, mustBe, _2, ifTrue, _3, ifFalse) {
+    return indent`ConditionalType\n  ${target}\n  ${mustBe}\n  ${ifTrue}\n  ${ifFalse}`;
+  },
+  ConditionalType_if_then_else(
+    ifUnless,
+    _0,
+    target,
+    _1,
+    _2,
+    mustBe,
+    _3,
+    _4,
+    ifTrue,
+    _5,
+    _6,
+    ifFalse
+  ) {
+    return indent`ConditionalType\
+${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
+  ${target}\n  ${mustBe}\n  ${ifTrue}\n  ${ifFalse}`;
+  },
+  char(_) {
+    return "Char";
+  },
+  colonTerminator(_) {
+    return "ColonTerminator";
+  },
+  colonTerminator_colon(_0, _1) {
+    return "ColonTerminator";
+  },
+  
   comparisonOperator(op) {
     return indent`Operator ${op}`;
   },
