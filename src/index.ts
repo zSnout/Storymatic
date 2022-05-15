@@ -99,10 +99,7 @@ export function compile(text: string) {
   let match = story.match(addBrackets(text));
   if (match.failed()) throw new SyntaxError(match.message);
 
-  scriptHasEvents = false;
   let file = semantics(match).ts<ts.SourceFile>();
-  (file as any).__storymaticHasEvents = scriptHasEvents;
-
   return file;
 }
 
@@ -133,13 +130,6 @@ export function transpile(node: ts.Node, flags: Flags = {}) {
 
   let printer = ts.createPrinter({});
   let text = printer.printNode(ts.EmitHint.Unspecified, node, source);
-  if ((node as any).__storymaticHasEvents)
-    text = `if (typeof EventTarget === "function") {
-  (EventTarget.prototype as any).on = function on(name: any, ...args: any[]) { this.addEventListener(name, ...args) };
-  (EventTarget.prototype as any).emit = function emit(name: any, ...args: any[]) { this.dispatchEvent(new Event(name, ...args)) };
-}
-${text}`;
-
   if (flags.typescript) return text;
 
   return ts.transpileModule(text, {
@@ -300,8 +290,6 @@ function makeAssignment(name: string, value: ts.Expression) {
     )
   );
 }
-
-let scriptHasEvents = false;
 
 function transformer(context: ts.TransformationContext) {
   return (node: ts.Block) => {
@@ -1382,8 +1370,6 @@ semantics.addOperation<ts.Node>("ts", {
         body.ts()
       );
     }
-
-    throw "unimplemented";
   },
   FunctionBody(node) {
     return node.ts();
@@ -1926,36 +1912,6 @@ semantics.addOperation<ts.Node>("ts", {
       template.ts()
     );
   },
-  MemberAccessExp_dispatch_event(
-    expr,
-    qMark,
-    _0,
-    eventName,
-    typeArgs,
-    _1,
-    args,
-    _2
-  ) {
-    scriptHasEvents = true;
-
-    return ts.factory.createCallChain(
-      ts.factory.createPropertyAccessChain(
-        expr.ts(),
-        qMark.tsn({
-          "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-        }),
-        "emit"
-      ),
-      qMark.tsn({
-        "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-      }),
-      typeArgs.child(0)?.tsa(),
-      [
-        ts.factory.createStringLiteral(eventName.sourceString),
-        ...(args.child(0)?.tsa<ts.Expression>() || []),
-      ]
-    );
-  },
   MemberAccessExp_function_call(target, typeArgs, _0, args, _1) {
     return ts.factory.createCallExpression(
       target.ts(),
@@ -1965,36 +1921,6 @@ semantics.addOperation<ts.Node>("ts", {
   },
   MemberAccessExp_implied_call(target, _0, args) {
     return ts.factory.createCallExpression(target.ts(), undefined, args.tsa());
-  },
-  MemberAccessExp_listen_event(
-    expr,
-    qMark,
-    _0,
-    eventName,
-    typeArgs,
-    _1,
-    args,
-    _2
-  ) {
-    scriptHasEvents = true;
-
-    return ts.factory.createCallChain(
-      ts.factory.createPropertyAccessChain(
-        expr.ts(),
-        qMark.tsn({
-          "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-        }),
-        "on"
-      ),
-      qMark.tsn({
-        "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
-      }),
-      typeArgs.child(0)?.tsa(),
-      [
-        ts.factory.createStringLiteral(eventName.sourceString),
-        ...(args.child(0)?.tsa<ts.Expression>() || []),
-      ]
-    );
   },
   MemberAccessExp_optional_chaining_function_call(
     target,
