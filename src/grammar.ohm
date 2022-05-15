@@ -316,8 +316,8 @@ Storymatic {
     = AssignableOrAccessor "=" AssignmentExp -- assignment
     | (Accessor | identifier) "[" Expression? ("..." | "..") Expression? "]" "=" AssignmentExp -- splice
     | (Accessor | identifier) ("+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&&=" | "||=" | "??=" | "and=" | "or=" | "<<=" | ">>=" | ">>>=") AssignmentExp -- update_assignment
-    | "yield" #space AssignmentExp? -- yield
     | "yield" #space "from" #postWord AssignmentExp -- yield_from
+    | "yield" #space AssignmentExp? -- yield
     | PipeExp
 
   ForExp
