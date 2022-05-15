@@ -27,7 +27,7 @@ Storymatic {
     | &"{" -- final
 
   TryStatement = "try" #space UnprefixedSingleStatementBlock CatchStatement? FinallyStatement?
-  CatchStatement = "catch" #space (identifier #space "of" #space)? UnprefixedSingleStatementBlock
+  CatchStatement = "catch" #(space+ identifier)? WrappedStatementBlock
   FinallyStatement = "finally" #space UnprefixedSingleStatementBlock
 
   EnumStatement = ("export" #space)? "enum" #space identifier "{" EnumMember* "}"

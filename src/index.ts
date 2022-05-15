@@ -982,7 +982,7 @@ semantics.addOperation<ts.Node>("ts", {
   CaseTerminator_terminator(_) {
     throw "`CaseTerminator_terminator` nodes should never directly be evaluated.";
   },
-  CatchStatement(_0, _1, ident, _2, _3, _4, block) {
+  CatchStatement(_0, _1, ident, block) {
     return ts.factory.createCatchClause(
       ident.child(0)?.ts<ts.Identifier>(),
       block.ts()
