@@ -206,10 +206,16 @@ Storymatic {
   MemberAccessExp
     = MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp "?"? ":" word (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
-    | MemberAccessExp "?"? "::" word (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
+    | MemberAccessExp "?"? ":" EventName (GenericTypeArgumentList "(" ArgumentList ")")? -- listen_event
+    | MemberAccessExp "?"? "::" EventName (GenericTypeArgumentList "(" ArgumentList ")")? -- dispatch_event
     | MemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | "<" | line_comment)) ImpliedCallArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
+
+  EventName
+    = word -- word
+    | "[" Expression "]" -- computed
+    | string_non_interpolatable
+    | string
 
   MemberAccessExpNonCall<Child>
     = Child "." word -- member_access
