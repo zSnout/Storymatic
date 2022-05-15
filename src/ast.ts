@@ -103,6 +103,12 @@ semantics.addOperation<string>("tree", {
   boolean(value) {
     return value.sourceString === "true" ? "True" : "False";
   },
+  CaseClause(_0, _1, expr, _2) {
+    return expr.tree();
+  },
+  CaseStatement(clauses, block) {
+    return indent`CaseBlock\n  ${namespace("Clauses", clauses)}\n  ${block}`;
+  },
   ClassDeclaration(
     _export,
     _0,
@@ -173,6 +179,9 @@ ${optional(namespace("Implements", implemented))}`;
   },
   comparisonOperator_not_equal_to(_) {
     return "!==";
+  },
+  DefaultStatement(_0, _1, block) {
+    return namespace("DefaultBlock", block);
   },
   decimalNumber(node) {
     return node.tree();
@@ -380,6 +389,10 @@ ${optional(specifiers)}`;
   Statement_expression(expr, _) {
     return indent`Expression\n  ${expr}`;
   },
+  SwitchStatement(_0, _1, target, _2, cases, _default, _3) {
+    return indent`SwitchStatement
+  ${namespace("Target", target)}${optional(cases)}${optional(_default)}`;
+  },
   sign(sign) {
     return indent`Sign ${sign.sourceString}`;
   },
@@ -469,6 +482,12 @@ ${optional(specifiers)}`;
     }
 
     return indent`Union\n  ${list}`;
+  },
+  UnprefixedSingleStatementBlock(node) {
+    return node.tree();
+  },
+  UnprefixedSingleStatementBlock_single_statement(statement) {
+    return indent`StatementBlock\n  ${statement}`;
   },
   undefined(_) {
     return "Undefined";
