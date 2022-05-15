@@ -273,7 +273,7 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
       } catch (e) {
         if (args.debug) console.log(e);
         if (e instanceof SyntaxError) cb(new Recoverable(e), null);
-        throw e;
+        return;
       }
 
       try {
@@ -285,7 +285,7 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
 
       cb(null, output);
     },
-    writer: mode === "noeval" || mode == "ast" ? (x) => "" + x : undefined,
+    writer: mode === "noeval" || mode === "ast" ? (x) => "" + x : undefined,
   });
 
   repl.defineCommand("clear", () => {
