@@ -174,7 +174,7 @@ semantics.addOperation<string>("tree", {
     return node.tree();
   },
   MemberAccessExpNonCall_array_slice(target, qMark, _0, start, dots, end, _1) {
-    return indent`ArraySlice${qMark.sourceString ? "Chain" : ""}
+    return indent`ArraySlice${qMark.sourceString && "Chain"}
   ${target}
   ${start.tree() || "Undefined"}
   ${dots.sourceString === "..." ? "Through" : "To"}
@@ -201,6 +201,20 @@ semantics.addOperation<string>("tree", {
     return indent`ClassCreation\n  ${target}\
 ${optional(generics)}${optional(args)}`;
   },
+  MemberAccessExpNonCall_computed_member_access(target, qMark, _0, prop, _1) {
+    return indent`MemberAccess${qMark.sourceString && "Chain"}
+  ${target}
+  ${prop}`;
+  },
+  MemberAccessExpNonCall_member_access(target, _, prop) {
+    return indent`PropertyAccess\n  ${target}\n  Identifier ${prop.sourceString}`;
+  },
+  MemberAccessExpNonCall_non_null_assertion(target, _) {
+    return indent`NonNullAssertion\n  ${target}`;
+  },
+  MemberAccessExpNonCall_optional_chaining_member_access(target, _, prop) {
+    return indent`PropertyAccessChain\n  ${target}\n  Identifier ${prop.sourceString}`;
+  },
   NonemptyGenericTypeArgumentList(_0, args, _1) {
     return indent`TypeArguments\n  ${args}`;
   },
@@ -221,6 +235,87 @@ ${optional(generics)}${optional(args)}`;
   },
   Statement_expression(expr, _) {
     return indent`Expression\n  ${expr}`;
+  },
+  sign(sign) {
+    return `Sign ${sign.sourceString}`;
+  },
+  space(_) {
+    return "Whitespace";
+  },
+  statementTerminator(_) {
+    return "StatementTerminator";
+  },
+  statementTerminator_semicolon(_0, _1) {
+    return "StatementTerminator";
+  },
+  string_bit(_) {
+    let char = this.sourceString;
+    if (char === "\n") char = "\\n";
+    if (char === "\r") char = "\\r";
+    if (char === "⇦" || char === "⇨") char = "";
+
+    return char;
+  },
+  string_bit_character(_) {
+    let char = this.sourceString;
+    if (char === "\n") char = "\\n";
+    if (char === "\r") char = "\\r";
+    if (char === "⇦" || char === "⇨") char = "";
+
+    return char;
+  },
+  string_bit_escape(_0, _1) {
+    return this.sourceString;
+  },
+  string_bit_escape_sequence(_0, _1) {
+    return this.sourceString;
+  },
+  string_bit_hex_sequence(_0, _1, _2) {
+    return this.sourceString;
+  },
+  string_bit_unicode_code_point_sequence(_0, _1, _2) {
+    return this.sourceString;
+  },
+  string_bit_unicode_sequence(_0, _1, _2, _3, _4) {
+    return this.sourceString;
+  },
+  string_full(delim, bits, _) {
+    return indent`${delim}${bits.children
+      .map((e) => e.tree())
+      .join("")}${delim}`;
+  },
+  string_interpolatable(delim, head, _0, spans, _1) {
+    return (
+      (head.sourceString && indent`${head}`.replace(/⇨/g, delim.sourceString)) +
+      spans.children
+        .map((x) => optional(x))
+        .map((x) => x.replace(/⇨/g, delim.sourceString))
+        .join("")
+    ).trimStart();
+  },
+  string_interpolatable_head(bits) {
+    return (
+      bits.sourceString &&
+      indent`⇨${bits.children.map((x) => x.tree()).join("")}⇨`
+    );
+  },
+  string_interpolatable_span(_0, expr, _1, bits, _2) {
+    return (
+      indent`${expr}` +
+      optional(
+        bits.sourceString &&
+          indent`⇨${bits.children.map((x) => x.tree()).join("")}⇨`
+      )
+    );
+  },
+  string(node) {
+    return indent`String${node}`;
+  },
+  string_non_interpolatable(node) {
+    return indent`String${node}`;
+  },
+  string_type(node) {
+    return indent`TemplateLiteral${node}`;
   },
   UnionType(list) {
     let iter = list.asIteration();
