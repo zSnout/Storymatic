@@ -1735,6 +1735,9 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralExp_parenthesized(_0, expr, _1) {
     return expr.ts();
   },
+  LiteralExp_statement(statement) {
+    return createIIFE(ts.factory.createBlock([statement.ts()], true));
+  },
   LiteralExp_with(_0, _1, expr, block) {
     return ts.factory.createCallExpression(
       ts.factory.createPropertyAccessExpression(
@@ -2344,54 +2347,6 @@ semantics.addOperation<ts.Node>("ts", {
   Statement(node) {
     return node.ts();
   },
-  Statement_empty_export(_0, _1) {
-    return ts.factory.createExportDeclaration(
-      undefined,
-      undefined,
-      false,
-      ts.factory.createNamedExports([])
-    );
-  },
-  Statement_empty_import(_0, _1, filename, _2) {
-    return ts.factory.createImportDeclaration(
-      undefined,
-      undefined,
-      undefined,
-      filename.ts()
-    );
-  },
-  Statement_export(_0, _1, type, _2, exports, _3, _4) {
-    return ts.factory.createExportDeclaration(
-      undefined,
-      undefined,
-      !!type.sourceString,
-      ts.factory.createNamedExports(exports.tsa())
-    );
-  },
-  Statement_export_all_from(_0, _1, _2, _3, filename, _4) {
-    return ts.factory.createExportDeclaration(
-      undefined,
-      undefined,
-      false,
-      undefined,
-      filename.ts<ts.StringLiteral>()
-    );
-  },
-  Statement_export_default(_0, _1, _2, _3, expression, _4) {
-    return ts.factory.createExportDefault(expression.ts());
-  },
-  Statement_export_from(_0, _1, type, _2, exports, _3, _4, _5, filename, _6) {
-    return ts.factory.createExportDeclaration(
-      undefined,
-      undefined,
-      !!type.sourceString,
-      ts.factory.createNamedExports(exports.tsa()),
-      filename.ts<ts.Expression>()
-    );
-  },
-  Statement_export_variable(expr, _) {
-    return expr.ts();
-  },
   Statement_expression(node, _) {
     return node.ts();
   },
@@ -2413,42 +2368,6 @@ semantics.addOperation<ts.Node>("ts", {
       list,
       expression.ts(),
       block.ts()
-    );
-  },
-  Statement_import(_0, _1, type, _2, imports, _3, _4, _5, filename, _6) {
-    return ts.factory.createImportDeclaration(
-      undefined,
-      undefined,
-      ts.factory.createImportClause(
-        !!type.sourceString,
-        undefined,
-        ts.factory.createNamedImports(imports.tsa())
-      ),
-      filename.ts()
-    );
-  },
-  Statement_import_all(_0, _1, _2, _3, ident, _4, _5, filename, _6) {
-    return ts.factory.createImportDeclaration(
-      undefined,
-      undefined,
-      ts.factory.createImportClause(
-        false,
-        undefined,
-        ts.factory.createNamespaceImport(ident.ts())
-      ),
-      filename.ts<ts.StringLiteral>()
-    );
-  },
-  Statement_import_default(_0, _1, type, _2, ident, _3, _4, _5, filename, _6) {
-    return ts.factory.createImportDeclaration(
-      undefined,
-      undefined,
-      ts.factory.createImportClause(
-        !!type.sourceString,
-        ident.ts<ts.Identifier>(),
-        undefined
-      ),
-      filename.ts()
     );
   },
   Statement_repeat(_0, _1, count, block) {
@@ -2755,6 +2674,126 @@ semantics.addOperation<ts.Node>("ts", {
       ),
       iterable.ts(),
       statement
+    );
+  },
+  TopLevelStatement(node) {
+    return node.ts();
+  },
+  TopLevelStatement_empty_export(_0, _1) {
+    return ts.factory.createExportDeclaration(
+      undefined,
+      undefined,
+      false,
+      ts.factory.createNamedExports([])
+    );
+  },
+  TopLevelStatement_empty_import(_0, _1, filename, _2) {
+    return ts.factory.createImportDeclaration(
+      undefined,
+      undefined,
+      undefined,
+      filename.ts()
+    );
+  },
+  TopLevelStatement_export(_0, _1, type, _2, exports, _3, _4) {
+    return ts.factory.createExportDeclaration(
+      undefined,
+      undefined,
+      !!type.sourceString,
+      ts.factory.createNamedExports(exports.tsa())
+    );
+  },
+  TopLevelStatement_export_all_from(_0, _1, _2, _3, filename, _4) {
+    return ts.factory.createExportDeclaration(
+      undefined,
+      undefined,
+      false,
+      undefined,
+      filename.ts<ts.StringLiteral>()
+    );
+  },
+  TopLevelStatement_export_default(_0, _1, _2, _3, expression, _4) {
+    return ts.factory.createExportDefault(expression.ts());
+  },
+  TopLevelStatement_export_from(
+    _0,
+    _1,
+    type,
+    _2,
+    exports,
+    _3,
+    _4,
+    _5,
+    filename,
+    _6
+  ) {
+    return ts.factory.createExportDeclaration(
+      undefined,
+      undefined,
+      !!type.sourceString,
+      ts.factory.createNamedExports(exports.tsa()),
+      filename.ts<ts.Expression>()
+    );
+  },
+  TopLevelStatement_export_variable(expr, _) {
+    return expr.ts();
+  },
+  TopLevelStatement_import(
+    _0,
+    _1,
+    type,
+    _2,
+    imports,
+    _3,
+    _4,
+    _5,
+    filename,
+    _6
+  ) {
+    return ts.factory.createImportDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createImportClause(
+        !!type.sourceString,
+        undefined,
+        ts.factory.createNamedImports(imports.tsa())
+      ),
+      filename.ts()
+    );
+  },
+  TopLevelStatement_import_all(_0, _1, _2, _3, ident, _4, _5, filename, _6) {
+    return ts.factory.createImportDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createImportClause(
+        false,
+        undefined,
+        ts.factory.createNamespaceImport(ident.ts())
+      ),
+      filename.ts<ts.StringLiteral>()
+    );
+  },
+  TopLevelStatement_import_default(
+    _0,
+    _1,
+    type,
+    _2,
+    ident,
+    _3,
+    _4,
+    _5,
+    filename,
+    _6
+  ) {
+    return ts.factory.createImportDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createImportClause(
+        !!type.sourceString,
+        ident.ts<ts.Identifier>(),
+        undefined
+      ),
+      filename.ts()
     );
   },
   TopLevelWhileExp(node) {

@@ -158,6 +158,7 @@ Storymatic {
     | string
     | null
     | NonemptyListOf<ObjectEntry_key_value, #expressionTerminator> -- object_implied
+    | Statement -- statement
 
   InlineClassDeclaration
     = "class" GenericTypeParameterList?
