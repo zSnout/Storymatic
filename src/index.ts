@@ -1458,7 +1458,7 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createVoidZero()
     );
   },
-  IfStatement(ifUnless, _0, condition, block, _1, _2, _3, elseBlock) {
+  IfStatement(ifUnless, _0, condition, block, _1, _2, elseBlock) {
     let cond = condition.ts<ts.Expression>();
 
     if (ifUnless.sourceString === "unless")
@@ -2659,15 +2659,6 @@ semantics.addOperation<ts.Node>("ts", {
       ifFalse.ts()
     );
   },
-  TernaryExp_symbolic(condition, _0, ifTrue, _1, ifFalse) {
-    return ts.factory.createConditionalExpression(
-      condition.ts(),
-      ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-      ifTrue.ts(),
-      ts.factory.createToken(ts.SyntaxKind.ColonToken),
-      ifFalse.ts()
-    );
-  },
   TopLevelExp(node) {
     return node.ts();
   },
@@ -2910,9 +2901,6 @@ semantics.addOperation<ts.Node>("ts", {
   },
   terminator(_0, _1) {
     throw new Error("`terminator` nodes should never directly be evaluated.");
-  },
-  thenOrDo(_) {
-    throw new Error("`thenOrDo` nodes should never directly be evaluated.");
   },
   typeTerminator(_) {
     throw new Error(
