@@ -2527,44 +2527,6 @@ semantics.addOperation<ts.Node>("ts", {
   Statement_typed_assignment(node) {
     return node.ts();
   },
-  Statement_when_callback(expressionNode, qMark, _0, _1, _2, params, block) {
-    let fn = ts.factory.createFunctionExpression(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      params.child(0)?.tsa(),
-      undefined,
-      block.ts()
-    );
-
-    let expression = expressionNode.ts<ts.Expression>();
-
-    let mark = qMark
-      .child(0)
-      ?.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken) });
-
-    if (ts.isCallExpression(expression)) {
-      expression = ts.factory.createCallChain(
-        expression.expression,
-        expression.questionDotToken || mark,
-        expression.typeArguments,
-        expression.arguments.concat(fn)
-      );
-    } else if (ts.isNewExpression(expression)) {
-      expression = ts.factory.createNewExpression(
-        expression.expression,
-        expression.typeArguments,
-        expression.arguments?.concat(fn) || [fn]
-      );
-    } else {
-      expression = ts.factory.createCallChain(expression, mark, undefined, [
-        fn,
-      ]);
-    }
-
-    return ts.factory.createExpressionStatement(expression);
-  },
   Statement_while(whileUntil, _, expression, block) {
     let cond = expression.ts<ts.Expression>();
 

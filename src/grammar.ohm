@@ -38,7 +38,6 @@ Storymatic {
 
   Statement
     = "await" #space (Assignable "=")? Expression SingleStatementBlock<"do"> -- await_new_thread
-    | Expression "?"? (#space "of" #space ParameterList)? SingleStatementBlock<"do"> -- when_callback
     | IfStatement
     | TryStatement
     | ClassDeclaration
