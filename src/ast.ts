@@ -82,6 +82,15 @@ semantics.addOperation<string>("tree", {
   AssignmentExp_assignment(assignable, _, expr) {
     return indent`Assignment\n  ${assignable}\n  ${expr}`;
   },
+  bigint(_0, _1, _2) {
+    return `BigInt ${this.sourceString}`;
+  },
+  block_comment(_0, _1, _2) {
+    return "BlockComment";
+  },
+  boolean(value) {
+    return value.sourceString === "true" ? "True" : "False";
+  },
   CompareExp(primary, ops, exps) {
     if (ops.numChildren === 0) {
       return primary.tree();
@@ -197,6 +206,12 @@ ${optional(generics)}${optional(args)}`;
   },
   NonemptyListOf(_0, _1, _2) {
     return this.asIteration().tree();
+  },
+  nonemptyListOf(_0, _1, _2) {
+    return this.asIteration().tree();
+  },
+  null(_) {
+    return "Null";
   },
   Script(statements) {
     return indent`Script${optional(statements)}`;
