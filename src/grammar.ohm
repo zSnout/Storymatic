@@ -12,10 +12,8 @@ Storymatic {
     | Statement -- single_statement
 
   IfStatement
-    = ("if" | "unless") #space Expression SingleStatementBlock<thenOrDo>
-      (#space "else" #space (UnprefixedSingleStatementBlock | IfStatement))?
-
-  thenOrDo = "then" | "do"
+    = ("if" | "unless") #postWord Expression SingleStatementBlock<"then">
+      ("else" #postWord (UnprefixedSingleStatementBlock | IfStatement))?
 
   SwitchStatement = "switch" #space Expression "{" CaseStatement* DefaultStatement? "}"
   CaseClause = "case" #space NonemptyListOf<Expression, ","> CaseTerminator
@@ -140,7 +138,6 @@ Storymatic {
     |  "(" Expression ")" -- parenthesized
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
-    | NonemptyListOf<ObjectEntry_key_value, #expressionTerminator> -- object_implied
     | "@" ~(id_continue | "[" | "#" | ".") -- self
     | "%" -- topic_token
     | "with" #space Expression SingleStatementBlock<"do"> -- with
@@ -157,6 +154,7 @@ Storymatic {
     | string_non_interpolatable
     | string
     | null
+    | NonemptyListOf<ObjectEntry_key_value, #expressionTerminator> -- object_implied
 
   InlineClassDeclaration
     = "class" GenericTypeParameterList?
@@ -302,8 +300,7 @@ Storymatic {
     | LogicalAndExp
 
   TernaryExp
-    = LogicalOrExp "?" TernaryExp ":" TernaryExp -- symbolic
-    | ("if" | "unless") #postWord TernaryExp "then" #postWord TernaryExp "else" #postWord TernaryExp -- if_then_else
+    = ("if" | "unless") #postWord LogicalOrExp "then" #postWord TernaryExp "else" #postWord TernaryExp -- if_then_else
     | LogicalOrExp
 
   postWord = space* ~id_continue | space+
