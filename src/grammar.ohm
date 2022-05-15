@@ -519,7 +519,8 @@ Storymatic {
   UnionType = NonemptyListOf<IntersectionType, "|">
 
   ConditionalType
-    = Type "is" #postWord Type "?" Type ":" Type -- conditional
+    = ConditionalType "is" #postWord ConditionalType "?" ConditionalType ":" ConditionalType -- conditional
+    | ("if" | "unless") #postWord ConditionalType "is" #postWord ConditionalType "then" #postWord ConditionalType "else" #postWord ConditionalType -- if_then_else
     | UnionType
 
   NamespaceDeclaration = ("export" #space)? "namespace" #space identifier WrappedStatementBlock

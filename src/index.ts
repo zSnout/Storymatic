@@ -1153,6 +1153,31 @@ semantics.addOperation<ts.Node>("ts", {
       ifFalse.ts()
     );
   },
+  ConditionalType_if_then_else(
+    ifUnless,
+    _0,
+    target,
+    _1,
+    _2,
+    mustBe,
+    _3,
+    _4,
+    ifTrue,
+    _5,
+    _6,
+    ifFalse
+  ) {
+    if (ifUnless.sourceString === "unless") {
+      [ifTrue, ifFalse] = [ifFalse, ifTrue];
+    }
+
+    return ts.factory.createConditionalTypeNode(
+      target.ts(),
+      mustBe.ts(),
+      ifTrue.ts(),
+      ifFalse.ts()
+    );
+  },
   char(_) {
     throw "`char` nodes should never directly be evaluated.";
   },

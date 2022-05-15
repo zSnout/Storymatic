@@ -325,6 +325,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   IntersectionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ConditionalType_conditional?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: NonterminalNode) => T;
+  ConditionalType_if_then_else?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: NonterminalNode, arg9: TerminalNode, arg10: NonterminalNode, arg11: NonterminalNode) => T;
   ConditionalType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   NamespaceDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: NonterminalNode) => T;
   InterfaceDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: NonterminalNode, arg12: TerminalNode) => T;
