@@ -19,7 +19,7 @@ function indent(
   );
 }
 
-function list(node: string | Node) {
+function optional(node: string | Node) {
   if (typeof node === "object") {
     node = node.tree();
   }
@@ -68,7 +68,7 @@ semantics.addOperation<string>("tree", {
     return node.tree();
   },
   ArgumentList(node) {
-    return `Arguments${list(node)}`;
+    return `Arguments${optional(node)}`;
   },
   Argument_spread_operator(_, node) {
     return `Spread\n  ${node}`;
@@ -128,9 +128,14 @@ semantics.addOperation<string>("tree", {
   comparisonOperator_not_equal_to(_) {
     return "!==";
   },
-
+  decimalNumber(node) {
+    return node.tree();
+  },
+  fullNumber(_0, _1, _2, _3, _4, _5, _6) {
+    return `Number ${this.sourceString}`;
+  },
   identifier(node) {
-    return indent`Identifier ${node.sourceString}`;
+    return `Identifier ${node.sourceString}`;
   },
   ListOf(node) {
     return node.asIteration().tree();
@@ -139,16 +144,41 @@ semantics.addOperation<string>("tree", {
     return node.tree();
   },
   LiteralExp_array(_0, elements, _1, _2) {
-    return indent`Array${list(elements)}`;
+    return indent`Array${optional(elements)}`;
+  },
+  MemberAccessExp(node) {
+    return node.tree();
+  },
+  MemberAccessExpNonCall(node) {
+    return node.tree();
+  },
+  MemberAccessExpNonCall_array_slice(target, qMark, _0, start, dots, end, _1) {
+    return indent`ArraySlice${qMark.sourceString ? "Chain" : ""}
+  ${target}
+  ${start.tree() || "Undefined"}
+  ${dots.sourceString === "..." ? "Through" : "To"}
+  ${end.tree() || "Undefined"}`;
+  },
+  MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
+    return indent`TypeAssertion\n  ${expr}\n  ${type}`;
+  },
+  NonemptyListOf(_0, _1, _2) {
+    return this.asIteration().tree();
   },
   Script(statements) {
-    return indent`Script\n  ${statements}`;
+    return indent`Script${optional(statements)}`;
   },
   Statement(node) {
     return node.tree();
   },
   Statement_expression(expr, _) {
     return indent`Expression\n  ${expr}`;
+  },
+  undefined(_) {
+    return "Undefined";
+  },
+  unitNumber(value, unit) {
+    return indent`UnitNumber\n  ${value}\n  ${unit}`;
   },
 
   _iter(...children) {
