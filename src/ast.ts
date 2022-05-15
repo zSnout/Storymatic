@@ -515,6 +515,9 @@ ${optional(readonly.sourceString && "[Readonly]")}
   LiteralExp_self(_) {
     return "This";
   },
+  LiteralExp_statement(node) {
+    return namespace("EmbeddedStatement", node.tree());
+  },
   LiteralExp_topic_token(_) {
     return "TopicToken";
   },
@@ -751,31 +754,6 @@ ${optional(generics)}${optional(args)}`;
   Statement(node) {
     return node.tree();
   },
-  //   Statement_empty_export(_0, _1) {
-  //     return indent`Export`;
-  //   },
-  //   Statement_empty_import(_0, _1, loc, _2) {
-  //     return indent`Import ${loc}`;
-  //   },
-  //   Statement_export(_0, _1, type, _2, specifiers, _3, _4) {
-  //     return indent`Export\
-  // ${optional(type.sourceString && "[TypeOnly]")}\
-  // ${optional(specifiers)}`;
-  //   },
-  //   Statement_export_all_from(_0, _1, _2, _3, loc, _4) {
-  //     return indent`ExportFrom ${loc}\n  [ExportAll]`;
-  //   },
-  //   Statement_export_default(_0, _1, _2, _3, expr, _4) {
-  //     return indent`ExportDefault\n  ${expr}`;
-  //   },
-  //   Statement_export_from(_0, _1, type, _2, specifiers, _3, _4, _5, loc, _6) {
-  //     return indent`ExportFrom ${loc}\
-  // ${optional(type.sourceString && "[TypeOnly]")}\
-  // ${optional(specifiers)}`;
-  //   },
-  //   Statement_export_variable(node, _) {
-  //     return node.tree();
-  //   },
   Statement_expression(expr, _) {
     return expr.tree();
   },
@@ -902,6 +880,45 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
   },
   TopLevelExp_throw(_, expr) {
     return indent`Throw\n  ${expr}`;
+  },
+  TopLevelStatement(node) {
+    return node.tree();
+  },
+  TopLevelStatement_empty_export(_0, _1) {
+    return indent`Export`;
+  },
+  TopLevelStatement_empty_import(_0, _1, loc, _2) {
+    return indent`Import ${loc}`;
+  },
+  TopLevelStatement_export(_0, _1, type, _2, specifiers, _3, _4) {
+    return indent`Export\
+  ${optional(type.sourceString && "[TypeOnly]")}\
+  ${optional(specifiers)}`;
+  },
+  TopLevelStatement_export_all_from(_0, _1, _2, _3, loc, _4) {
+    return indent`ExportFrom ${loc}\n  [ExportAll]`;
+  },
+  TopLevelStatement_export_default(_0, _1, _2, _3, expr, _4) {
+    return indent`ExportDefault\n  ${expr}`;
+  },
+  TopLevelStatement_export_from(
+    _0,
+    _1,
+    type,
+    _2,
+    specifiers,
+    _3,
+    _4,
+    _5,
+    loc,
+    _6
+  ) {
+    return indent`ExportFrom ${loc}\
+  ${optional(type.sourceString && "[TypeOnly]")}\
+  ${optional(specifiers)}`;
+  },
+  TopLevelStatement_export_variable(node, _) {
+    return node.tree();
   },
   TryStatement(_0, _1, block, _catch, _finally) {
     return indent`TryStatement\n  ${block}\
