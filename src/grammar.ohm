@@ -141,7 +141,7 @@ Storymatic {
     |  "(" Expression ")" -- parenthesized
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
-    | "@" ~(id_continue | "[" | "#" | ".") -- self
+    | "@" ~(id_continue | "[" | ".") -- self
     | "%" -- topic_token
     | "with" #space Expression SingleStatementBlock<"do"> -- with
     | "do" Expression -- do
