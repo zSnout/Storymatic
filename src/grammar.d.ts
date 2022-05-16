@@ -304,7 +304,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessType_named_tuple?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
   MemberAccessType_tuple?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
   MemberAccessType_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
-  MemberAccessType_object_implied?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
+  MemberAccessType_object_implied?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MemberAccessType_readonly?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   MemberAccessType_keyof?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   MemberAccessType?: (this: NonterminalNode, arg0: NonterminalNode) => T;

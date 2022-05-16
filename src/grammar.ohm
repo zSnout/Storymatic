@@ -494,7 +494,7 @@ Storymatic {
     | "[" ListOf<NamedTupleElement, #expressionTerminator> ","? "]" -- named_tuple
     | "[" ListOf<TupleElement, #expressionTerminator> ","? "]" -- tuple
     | "{" ListOf<TypeObjectEntry, #typeTerminator> ("," | ";")? "}" -- object
-    | NonemptyListOf<TypeObjectEntry_key_value, ","> -- object_implied
+    | NonemptyListOf<TypeObjectEntry_key_value, ("," | ";")> -- object_implied
     | "readonly" ~(#id_continue) MemberAccessType -- readonly
     | "keyof" ~(#id_continue) MemberAccessType -- keyof
     | LiteralType

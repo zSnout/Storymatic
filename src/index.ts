@@ -1958,6 +1958,9 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessType_object(_0, members, _1, _2) {
     return ts.factory.createTypeLiteralNode(members.tsa());
   },
+  MemberAccessType_object_implied(members) {
+    return ts.factory.createTypeLiteralNode(members.tsa());
+  },
   MemberAccessType_readonly(_, expr) {
     return ts.factory.createTypeOperatorNode(
       ts.SyntaxKind.ReadonlyKeyword,
