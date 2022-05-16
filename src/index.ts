@@ -1627,14 +1627,10 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createJsxExpression(undefined, value.ts<ts.Expression>())
     );
   },
-  JSXAttribute_value_expression(key, _0, _1, dotDotDot, value, _2) {
-    let spread = dotDotDot.sourceString
-      ? ts.factory.createToken(ts.SyntaxKind.DotDotDotToken)
-      : undefined;
-
+  JSXAttribute_value_expression(key, _0, _1, value, _2) {
     return ts.factory.createJsxAttribute(
       key.ts(),
-      ts.factory.createJsxExpression(spread, value.ts<ts.Expression>())
+      ts.factory.createJsxExpression(undefined, value.ts<ts.Expression>())
     );
   },
   JSXAttribute_value_string(key, _, string) {

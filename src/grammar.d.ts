@@ -280,7 +280,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   JSXAttribute_value_true?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   JSXAttribute_value_string?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   JSXAttribute_value_computed_string?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
-  JSXAttribute_value_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: TerminalNode, arg3: IterationNode, arg4: NonterminalNode, arg5: TerminalNode) => T;
+  JSXAttribute_value_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   JSXAttribute_spread_attributes?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
   JSXAttribute?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   JSXAttributeKey?: (this: NonterminalNode, arg0: NonterminalNode) => T;
