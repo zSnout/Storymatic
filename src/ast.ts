@@ -504,7 +504,7 @@ ${optional(namespace("Default", _default))}`;
     return "HexDigit";
   },
   hexNumber(_0, _1, _2, _3, _4) {
-    return `HexNumber ${this.sourceString}`;
+    return indent`HexNumber ${this.sourceString}`;
   },
   IfExp(node) {
     return node.tree();
@@ -621,6 +621,80 @@ ${optional(members)}`;
   importLocation_filename(bits, _) {
     return indent`String "${bits.sourceString}"`;
   },
+  JSXAttribute(node) {
+    return node.tree();
+  },
+  JSXAttributeKey(node) {
+    return node.sourceString;
+  },
+  JSXAttribute_spread_attributes(_0, _1, expr, _2) {
+    return indent`JSXAttribute\n  [Spread]\n  ${expr}`;
+  },
+  JSXAttribute_value_computed_string(name, _, expr) {
+    return indent`JSXAttribute ${name}\n  [Computed]\n  ${expr}`;
+  },
+  JSXAttribute_value_expression(name, _0, _1, expr, _2) {
+    return indent`JSXAttribute ${name}\n  [Computed]\n  ${expr}`;
+  },
+  JSXAttribute_value_string(name, _, expr) {
+    return indent`JSXAttribute ${name}\n  ${expr}`;
+  },
+  JSXAttribute_value_true(name) {
+    return indent`JSXAttribute ${name}\n  [Implied]\n  True`;
+  },
+  JSXChild(node) {
+    return node.tree();
+  },
+  JSXChild_interpolation(_0, dots, expr, _1) {
+    if (dots.sourceString) {
+      return namespace("Spread", expr);
+    }
+
+    return expr.tree();
+  },
+  JSXElement(node) {
+    return node.tree();
+  },
+  JSXElement_open_close(
+    _0,
+    name,
+    generics,
+    attributes,
+    _1,
+    children,
+    _2,
+    _3,
+    _4
+  ) {
+    return indent`JSXElement ${name.sourceString}\
+${optional(generics)}\
+${optional(attributes)}\
+${optional(children)}`;
+  },
+  JSXElement_self_closing(_0, name, generics, attributes, _1, _2) {
+    return indent`JSXElement ${name.sourceString}
+  [SelfClosing]\
+${optional(generics)}\
+${optional(attributes)}`;
+  },
+  jsxTagName(_) {
+    return indent`JSXTagName ${this.sourceString}`;
+  },
+  jsxTagName_property_access(_0, _1, _2) {
+    return indent`JSXTagName ${this.sourceString}`;
+  },
+  jsxTagName_standard(_0) {
+    return indent`JSXTagName ${this.sourceString}`;
+  },
+  jsx_string(node) {
+    let text = node.sourceString
+      .trim()
+      .replace(/\s+/g, " ")
+      .replace(/[⇦⇨]/g, "")
+      .replace(/"/g, '\\"');
+
+    return indent`"${text}"`;
+  },
   ListOf(node) {
     return node.asIteration().tree();
   },
@@ -629,6 +703,9 @@ ${optional(members)}`;
   },
   LiteralExp_array(_0, elements, _1, _2) {
     return indent`Array${optional(elements)}`;
+  },
+  LiteralExp_do(_, expr) {
+    return namespace("Do", expr);
   },
   LiteralExp_parenthesized(_0, expr, _1) {
     return indent`Parenthesized\n  ${expr}`;
@@ -641,6 +718,21 @@ ${optional(members)}`;
   },
   LiteralExp_topic_token(_) {
     return "TopicToken";
+  },
+  LogicalAndExp(node) {
+    return node.tree();
+  },
+  LogicalAndExp_logical_and(left, _0, _1, _2, right) {
+    return indent`LogicalAnd\n  ${left}\n  ${right}`;
+  },
+  LogicalOrExp(node) {
+    return node.tree();
+  },
+  LogicalOrExp_logical_nullish_coalescing(left, _, right) {
+    return indent`NullishCoalescing\n  ${left}\n  ${right}`;
+  },
+  LogicalOrExp_logical_or(left, _0, _1, _2, right) {
+    return indent`LogicalOr\n  ${left}\n  ${right}`;
   },
   LiteralExp_with(_0, _1, self, block) {
     return indent`With\n  ${self}\n  ${block}`;
@@ -729,7 +821,16 @@ ${optional(generics)}${optional(args)}`;
     return indent`MemberAccess\n  ${target}\n  ${prop}`;
   },
   MemberAccessType_named_tuple(_0, members, _1, _2) {
-    return indent`Tuple\n  ${members}`;
+    return indent`Tuple\n  [Named]\n  ${members}`;
+  },
+  MemberAccessType_object(_0, members, _1, _2) {
+    return indent`ObjectType\n  ${members}`;
+  },
+  MemberAccessType_object_implied(members) {
+    return indent`ObjectType\n  [Implied]\n  ${members}`;
+  },
+  MemberAccessType_readonly(_, node) {
+    return indent`Readonly\n  ${node}`;
   },
   MemberAccessType_tuple(_0, members, _1, _2) {
     return indent`Tuple\n  ${members}`;
@@ -783,6 +884,14 @@ ${optional(generics)}${optional(args)}`;
   NamedTupleElement_name_value(name, qMark, _, expr) {
     let text = qMark.sourceString ? namespace("Optional", expr) : expr.tree();
     return indent`NamedElement ${name.tree().slice(11)}\n  ${text}`;
+  },
+  NamespaceDeclaration(_export, _0, _1, _2, name, block) {
+    return indent`Namespace ${name.tree().slice(11)}\
+${optional(_export.sourceString && "[Exported]")}\
+${optional(block)}`;
+  },
+  NCMemberAccessExp(node) {
+    return node.tree();
   },
   NonemptyGenericTypeArgumentList(_0, args, _1) {
     return indent`TypeArguments\n  ${args}`;
@@ -850,6 +959,15 @@ ${optional(generics)}${optional(args)}`;
   },
   PrivacyLevel_public(_0, _1) {
     return "Public";
+  },
+  QualifiedName(base, _, qualifiers) {
+    let text = base.tree();
+
+    for (let qualifier of qualifiers.children) {
+      text = indent`PropertyAccess\n  ${text}\n  Property ${qualifier.sourceString}`;
+    }
+
+    return text;
   },
   RestParameter(node) {
     return node.tree();
@@ -1149,6 +1267,9 @@ ${optional(type.sourceString && "[TypeOnly]")}
   },
   unitNumber(value, unit) {
     return indent`UnitNumber\n  ${value}\n  ${unit}`;
+  },
+  WrappedScriptBlock(_0, statements, _1) {
+    return indent`StatementBlock${optional(statements)}`;
   },
   WrappedStatementBlock(_0, statements, _1) {
     return indent`StatementBlock${optional(statements)}`;
