@@ -899,6 +899,33 @@ ${optional(block)}`;
   NonemptyListOf(_0, _1, _2) {
     return this.asIteration().tree();
   },
+  NotExp(node) {
+    return node.tree();
+  },
+  NotExp_await(_0, _1, node) {
+    return indent`Await\n  ${node}`;
+  },
+  NotExp_logical_not_symbolic(_, node) {
+    return indent`Not\n  ${node}`;
+  },
+  NotExp_logical_not_worded(_0, _1, node) {
+    return indent`Not\n  ${node}`;
+  },
+  NotExp_prefix_decrement(_, node) {
+    return indent`Decrement\n  ${node}`;
+  },
+  NotExp_prefix_increment(_, node) {
+    return indent`Increment\n  ${node}`;
+  },
+  NotExp_typeof(_0, _1, _2, node) {
+    return indent`Typeof\n  ${node}`;
+  },
+  NotExp_unary_minus(_, node) {
+    return indent`UnaryMinus\n  ${node}`;
+  },
+  NotExp_unary_plus(_, node) {
+    return indent`UnaryPlus\n  ${node}`;
+  },
   nonemptyListOf(_0, _1, _2) {
     return this.asIteration().tree();
   },
