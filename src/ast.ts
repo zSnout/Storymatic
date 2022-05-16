@@ -554,6 +554,57 @@ ${optional(readonly.sourceString && "[Readonly]")}
   ${key}
   ${type}`;
   },
+  InlineClassDeclaration(
+    _0,
+    generics,
+    _1,
+    _2,
+    _3,
+    extendable,
+    _4,
+    _5,
+    _6,
+    implemented,
+    _7,
+    members,
+    _8
+  ) {
+    return indent`ClassExpression\
+${optional(generics)}\
+${optional(namespace("Extends", extendable))}\
+${optional(namespace("Implements", implemented))}\
+${optional(members)}`;
+  },
+  InterfaceDeclaration(
+    _export,
+    _0,
+    _1,
+    _2,
+    ident,
+    generics,
+    _3,
+    _4,
+    _5,
+    extended,
+    _6,
+    members,
+    _7
+  ) {
+    return indent`InterfaceDeclaration ${ident.tree().slice(11)}\
+${optional(_export.sourceString && "[Exported]")}\
+${optional(generics)}\
+${optional(namespace("Extends", extended))}\
+${optional(members)}`;
+  },
+  IntersectionType(node) {
+    let iter = node.asIteration();
+
+    if (iter.numChildren === 1) {
+      return iter.child(0).tree();
+    }
+
+    return indent`Intersection\n  ${node}`;
+  },
   identifier(node) {
     let src = node.sourceString;
     return indent`Identifier ${src[0] === "~" ? src.slice(1) : src}`;
@@ -1037,14 +1088,55 @@ ${optional(type.sourceString && "[TypeOnly]")}
 
     return expr.tree();
   },
-  UnionType(list) {
-    let iter = list.asIteration();
+  TypeObjectEntry(node) {
+    return node.tree();
+  },
+  TypeObjectEntry_call_signature(node) {
+    return node.tree().replace("FunctionType", "CallSignature");
+  },
+  TypeObjectEntry_construct_signature(_, node) {
+    return node.tree().replace("FunctionType", "ConstructSignature");
+  },
+  TypeObjectEntry_key_value(readonly, _0, name, qMark, _1, type) {
+    let text = indent`Property\n  ${name}\n  ${type}`;
+
+    if (qMark.sourceString) text = modify("Optional", text);
+    if (readonly.sourceString) text = modify("Readonly", text);
+
+    return text;
+  },
+  TypeObjectEntry_method(name, qMark, node) {
+    let text = node.tree().replace("FunctionType", "Method");
+
+    if (qMark.sourceString) {
+      text = modify("Optional", name);
+    }
+
+    return text;
+  },
+  TypeObjectKey(node) {
+    return node.tree();
+  },
+  TypeObjectKey_computed_accessor(_0, node, _1) {
+    return node.tree();
+  },
+  TypeObjectKey_identifier(node) {
+    return indent`Property ${node.sourceString}`;
+  },
+  TypeObjectKey_numerical_key(node) {
+    return node.tree();
+  },
+  TypeObjectKey_string(node) {
+    return node.tree();
+  },
+  UnionType(node) {
+    let iter = node.asIteration();
 
     if (iter.numChildren === 1) {
       return iter.child(0).tree();
     }
 
-    return indent`Union\n  ${list}`;
+    return indent`Union\n  ${node}`;
   },
   UnprefixedSingleStatementBlock(node) {
     return node.tree();
