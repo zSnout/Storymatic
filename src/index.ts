@@ -1600,6 +1600,9 @@ semantics.addOperation<ts.Node>("ts", {
   identifier(node) {
     return node.ts();
   },
+  identifier_escape(_, node) {
+    return node.ts();
+  },
   id_continue(_) {
     throw new Error("`id_continue` nodes should never directly be evaluated.");
   },
@@ -1746,6 +1749,12 @@ semantics.addOperation<ts.Node>("ts", {
       [expr.ts()]
     );
   },
+  LiteralExp_self(_) {
+    return ts.factory.createIdentifier("this");
+  },
+  LiteralExp_topic_token(_) {
+    return ts.factory.createIdentifier("$");
+  },
   LiteralType(node) {
     return node.ts();
   },
@@ -1769,12 +1778,6 @@ semantics.addOperation<ts.Node>("ts", {
   },
   LiteralType_parenthesized(_0, expr, _1) {
     return ts.factory.createParenthesizedType(expr.ts());
-  },
-  LiteralExp_self(_) {
-    return ts.factory.createIdentifier("this");
-  },
-  LiteralExp_topic_token(_) {
-    return ts.factory.createIdentifier("$");
   },
   LiteralType_type_args(expr, args) {
     return ts.factory.createTypeReferenceNode(

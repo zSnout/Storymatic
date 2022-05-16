@@ -263,6 +263,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   reserved?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   char?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   word?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode) => T;
+  identifier_escape?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Property_identifier?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   Property_computed?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
