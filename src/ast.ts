@@ -367,16 +367,16 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
   EmptyListOf() {
     return "";
   },
-  Exportable(type, _0, name, _1, _2, _3, out) {
-    if (out.sourceString) {
+  Exportable(type, _0, left, _1, _2, _3, right) {
+    if (right.sourceString) {
       return indent`ExportSpecifier\
 ${optional(type.sourceString && "[TypeOnly]")}
-  Identifier ${name.sourceString}
-  Identifier ${out.child(0).sourceString}`;
+  Identifier ${left.sourceString}
+  Identifier ${right.child(0).sourceString}`;
     } else {
       return indent`ExportSpecifier\
 ${optional(type.sourceString && "[TypeOnly]")}
-  Identifier ${name.sourceString}`;
+  Identifier ${left.sourceString}`;
     }
   },
   EnumMember(node) {
@@ -423,6 +423,34 @@ ${optional(members)}`;
   ForExp(node) {
     return node.tree();
   },
+  ForExp_for(
+    expr,
+    _0,
+    _1,
+    await,
+    _2,
+    assignable,
+    _3,
+    _4,
+    iterable,
+    _5,
+    _6,
+    guard
+  ) {
+    let text = indent`Comprehension
+  ${assignable.child(0)?.tree() || "[ValueIsntCaptured]"}
+  ${iterable}
+  ${expr}${optional(namespace("Guard", guard))}`;
+
+    if (await.sourceString) {
+      return modify("Async", text);
+    }
+
+    return text;
+  },
+  ForExp_print(_0, _1, exps) {
+    return namespace("Print", exps);
+  },
   Function(generics, _0, params, _1, _2, returnType, arrow, body) {
     return indent`Function\
 ${optional(arrow.sourceString === "=>" ? "[Bound]" : "")}\
@@ -445,6 +473,12 @@ ${optional(body)}`;
 ${optional(asserts.sourceString && "[Assertion]")}
   ${param}
   ${type}`;
+  },
+  FunctionType(generics, _0, params, _1, _2, returnType) {
+    return indent`FunctionType\
+  ${optional(generics)}\
+  ${optional(params)}\
+  ${optional(namespace("ReturnType", returnType))}`;
   },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
     return indent`Number ${this.sourceString}`;
@@ -475,6 +509,20 @@ ${optional(namespace("Default", _default))}`;
   IfExp(node) {
     return node.tree();
   },
+  IfExp_if(expr, ifUnless, _, condition) {
+    return indent`IfExpression\
+${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
+  ${condition}
+  ${expr}`;
+  },
+  IfStatement(ifUnless, _0, condition, block, _1, _2, elseBlock) {
+    return (
+      indent`IfStatement\
+${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
+  ${condition}
+  ${block}` + optional(namespace("ElseStatement", elseBlock))
+    );
+  },
   Implementable(ident, _0, props, generics, _1) {
     let text = ident.tree();
 
@@ -488,6 +536,18 @@ ${optional(namespace("Default", _default))}`;
   ImpliedCallArgumentList(node) {
     return indent`Arguments${optional(node)}`;
   },
+  Importable(type, _0, left, _1, _2, _3, right) {
+    if (right.sourceString) {
+      return indent`ImportSpecifier\
+${optional(type.sourceString && "[TypeOnly]")}
+  Identifier ${left.sourceString}
+  Identifier ${right.child(0).sourceString}`;
+    } else {
+      return indent`ImportSpecifier\
+${optional(type.sourceString && "[TypeOnly]")}
+  Identifier ${left.sourceString}`;
+    }
+  },
   IndexSignatureType(readonly, _0, _1, name, _2, key, _3, _4, type) {
     return indent`IndexSignature ${name.tree().slice(11)}\
 ${optional(readonly.sourceString && "[Readonly]")}
@@ -495,6 +555,10 @@ ${optional(readonly.sourceString && "[Readonly]")}
   ${type}`;
   },
   identifier(node) {
+    let src = node.sourceString;
+    return indent`Identifier ${src[0] === "~" ? src.slice(1) : src}`;
+  },
+  identifier_escape(_, node) {
     return indent`Identifier ${node.sourceString}`;
   },
   id_continue(_) {
@@ -688,10 +752,10 @@ ${optional(generics)}${optional(args)}`;
     return node.tree();
   },
   ParameterList_params(params, _, rest) {
-    return indent`ParameterList\n  ${params}${optional(rest)}`;
+    return indent`Parameters\n  ${params}${optional(rest)}`;
   },
   ParameterList_rest_params(rest) {
-    return namespace("ParameterList", rest);
+    return namespace("Parameters", rest);
   },
   Parameter_assignable(assignable) {
     return namespace("Parameter", assignable);
@@ -894,12 +958,12 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
     return indent`Export`;
   },
   TopLevelStatement_empty_import(_0, _1, loc, _2) {
-    return indent`Import ${loc}`;
+    return indent`ImportFrom ${loc}`;
   },
   TopLevelStatement_export(_0, _1, type, _2, specifiers, _3, _4) {
     return indent`Export\
-  ${optional(type.sourceString && "[TypeOnly]")}\
-  ${optional(specifiers)}`;
+${optional(type.sourceString && "[TypeOnly]")}\
+${optional(specifiers)}`;
   },
   TopLevelStatement_export_all_from(_0, _1, _2, _3, loc, _4) {
     return indent`ExportFrom ${loc}\n  [ExportAll]`;
@@ -920,15 +984,45 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
     _6
   ) {
     return indent`ExportFrom ${loc}\
-  ${optional(type.sourceString && "[TypeOnly]")}\
-  ${optional(specifiers)}`;
+${optional(type.sourceString && "[TypeOnly]")}\
+${optional(specifiers)}`;
   },
   TopLevelStatement_export_variable(node, _) {
     return node.tree();
   },
+  TopLevelStatement_import(_0, _1, type, _2, specifiers, _3, _4, _5, loc, _6) {
+    return indent`ImportFrom ${loc}\
+${optional(type.sourceString && "[TypeOnly]")}\
+${optional(specifiers)}`;
+  },
+  TopLevelStatement_import_all(_0, _1, _2, _3, ns, _4, _5, loc, _6) {
+    return indent`ImportFrom ${loc}
+  [ImportAll]${optional(ns)}`;
+  },
+  TopLevelStatement_import_default(
+    _0,
+    _1,
+    type,
+    _2,
+    ident,
+    _3,
+    _4,
+    _5,
+    loc,
+    _6
+  ) {
+    return indent`ImportDefaultFrom ${loc}\
+${optional(type.sourceString && "[TypeOnly]")}
+  ${ident}`;
+  },
   TryStatement(_0, _1, block, _catch, _finally) {
-    return indent`TryStatement\n  ${block}\
-${optional(_catch)}${optional(_finally)}`;
+    // We use a different syntax so that "return `" doesn't match this.
+    // "return `" is used to search for non-indented template literals.
+
+    return (
+      `TryStatement\n  ${indentText(block.tree())}` +
+      `${optional(_catch)}${optional(_finally)}`
+    );
   },
   TupleElement(node) {
     return node.tree();
