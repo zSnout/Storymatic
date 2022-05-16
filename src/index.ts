@@ -200,23 +200,6 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   ParameterList_rest_params(rest) {
     return ts.factory.createNodeArray([rest.ts()]);
   },
-  TypeParameterList(node) {
-    return node.tsa();
-  },
-  TypeParameterList_params(paramNodes, _, rest) {
-    let params = paramNodes.tsa<ts.ParameterDeclaration>();
-
-    if (rest.sourceString) {
-      return ts.factory.createNodeArray(
-        params.concat(rest.child(0).ts<ts.ParameterDeclaration>())
-      );
-    } else {
-      return params;
-    }
-  },
-  TypeParameterList_rest_params(rest) {
-    return ts.factory.createNodeArray([rest.ts()]);
-  },
 });
 
 semantics.addOperation<ts.Node | undefined>("tsn(map)", {
@@ -2908,41 +2891,6 @@ semantics.addOperation<ts.Node>("ts", {
   },
   TypeObjectKey_string(node) {
     return node.ts();
-  },
-  TypeParameter(ident, qMark, _, type) {
-    return ts.factory.createParameterDeclaration(
-      undefined,
-      undefined,
-      undefined,
-      ident.ts<ts.BindingName>(),
-      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-      type.ts<ts.TypeNode>()
-    );
-  },
-  TypeParameterList(_) {
-    throw new Error(
-      "`TypeParameterList` nodes should never directly be evaluated."
-    );
-  },
-  TypeParameterList_params(_0, _1, _2) {
-    throw new Error(
-      "`TypeParameterList_params` nodes should never directly be evaluated."
-    );
-  },
-  TypeParameterList_rest_params(_) {
-    throw new Error(
-      "`TypeParameterList_rest_params` nodes should never directly be evaluated."
-    );
-  },
-  TypeRestParameter(_0, ident, _1, type) {
-    return ts.factory.createParameterDeclaration(
-      undefined,
-      undefined,
-      ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
-      ident.ts<ts.BindingName>(),
-      undefined,
-      type.ts<ts.TypeNode>()
-    );
   },
   TypedVariableAssignment(assignable, _0, type, _1, expr) {
     let declaration = ts.factory.createVariableDeclaration(

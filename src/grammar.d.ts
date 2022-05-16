@@ -333,11 +333,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   InterfaceDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: NonterminalNode, arg12: TerminalNode) => T;
   IndexSignatureType?: (this: NonterminalNode, arg0: IterationNode, arg1: Node, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: TerminalNode, arg8: NonterminalNode) => T;
   TypeDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: NonterminalNode) => T;
-  TypeParameter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
-  TypeRestParameter?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode) => T;
-  TypeParameterList_params?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode) => T;
-  TypeParameterList_rest_params?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  TypeParameterList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   GenericTypeParameter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode) => T;
   GenericTypeParameterList?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   NonemptyGenericTypeArgumentList?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;

@@ -539,13 +539,6 @@ Storymatic {
   TypeDeclaration
     = ("export" #space)? "type" #space identifier GenericTypeParameterList? "=" Type #statementTerminator
 
-  TypeParameter = identifier "?"? ":" Type
-  TypeRestParameter = "..." identifier ":" Type
-
-  TypeParameterList
-    = NonemptyListOf<TypeParameter, #expressionTerminator> (#expressionTerminator TypeRestParameter)? -- params
-    | TypeRestParameter -- rest_params
-
   GenericTypeParameter = identifier (":" Type)? ("=" Type)?
   GenericTypeParameterList = "<" NonemptyListOf<GenericTypeParameter, #expressionTerminator> ">"
 
