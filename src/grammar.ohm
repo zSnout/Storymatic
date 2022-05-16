@@ -145,6 +145,7 @@ Storymatic {
     | "with" #space Expression SingleStatementBlock<"do"> -- with
     | "do" Expression -- do
     | InlineClassDeclaration
+    | NonemptyListOf<ObjectEntry_key_value, ","> -- object_implied
     | decimalNumber
     | unitNumber
     | hexNumber
@@ -156,7 +157,6 @@ Storymatic {
     | string_non_interpolatable
     | string
     | null
-    | NonemptyListOf<ObjectEntry_key_value, #expressionTerminator> -- object_implied
     | Statement -- statement
 
   InlineClassDeclaration
@@ -494,6 +494,7 @@ Storymatic {
     | "[" ListOf<NamedTupleElement, #expressionTerminator> ","? "]" -- named_tuple
     | "[" ListOf<TupleElement, #expressionTerminator> ","? "]" -- tuple
     | "{" ListOf<TypeObjectEntry, #typeTerminator> ("," | ";")? "}" -- object
+    | NonemptyListOf<TypeObjectEntry_key_value, ","> -- object_implied
     | "readonly" ~(#id_continue) MemberAccessType -- readonly
     | "keyof" ~(#id_continue) MemberAccessType -- keyof
     | LiteralType
@@ -513,11 +514,13 @@ Storymatic {
     | "[" Accessor "]" -- computed_accessor
 
   TypeObjectEntry
-    = ("readonly" #space)? TypeObjectKey "?"? ":" Type -- key_value
+    = TypeObjectEntry_key_value
     | "new" FunctionType -- construct_signature
     | FunctionType -- call_signature
     | ~("new" ~"?") TypeObjectKey "?"? FunctionType -- method
     | IndexSignatureType<"">
+
+  TypeObjectEntry_key_value = ("readonly" #space)? TypeObjectKey "?"? ":" Type
 
   FunctionType = (GenericTypeParameterList? "(" ParameterList? ")")? "->" Type
 

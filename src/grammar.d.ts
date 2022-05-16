@@ -304,6 +304,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessType_named_tuple?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
   MemberAccessType_tuple?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
   MemberAccessType_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: TerminalNode) => T;
+  MemberAccessType_object_implied?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
   MemberAccessType_readonly?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   MemberAccessType_keyof?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   MemberAccessType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -318,11 +319,11 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TypeObjectKey_numerical_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectKey_computed_accessor?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   TypeObjectKey?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  TypeObjectEntry_key_value?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
   TypeObjectEntry_construct_signature?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   TypeObjectEntry_call_signature?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectEntry_method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   TypeObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  TypeObjectEntry_key_value?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
   FunctionType?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
   IntersectionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
