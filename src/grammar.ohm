@@ -2,6 +2,7 @@ Storymatic {
   Script = TopLevelStatement*
 
   WrappedStatementBlock = "{" Statement* "}" | "⇨" Statement* "⇦"
+  WrappedScriptBlock = "{" TopLevelStatement* "}" | "⇨" TopLevelStatement* "⇦"
 
   SingleStatementBlock<prefix>
     = WrappedStatementBlock
@@ -532,7 +533,7 @@ Storymatic {
     | ("if" | "unless") #postWord ConditionalType "is" #postWord ConditionalType "then" #postWord ConditionalType "else" #postWord ConditionalType -- if_then_else
     | UnionType
 
-  NamespaceDeclaration = ("export" #space)? "namespace" #space identifier WrappedStatementBlock
+  NamespaceDeclaration = ("export" #space)? "namespace" #space identifier WrappedScriptBlock
 
   InterfaceDeclaration
     = ("export" #space)? "interface" #space identifier GenericTypeParameterList?

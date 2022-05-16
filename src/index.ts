@@ -2962,6 +2962,9 @@ semantics.addOperation<ts.Node>("ts", {
       )
     );
   },
+  WrappedScriptBlock(_0, statements, _1) {
+    return ts.factory.createBlock(statements.tsa(), true);
+  },
   WrappedStatementBlock(_0, statements, _1) {
     return ts.factory.createBlock(statements.tsa(), true);
   },
