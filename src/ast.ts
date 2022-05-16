@@ -364,6 +364,9 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
   decimalNumber(node) {
     return node.tree();
   },
+  digit(_) {
+    return "Digit";
+  },
   EmptyListOf() {
     return "";
   },
@@ -416,6 +419,15 @@ ${optional(members)}`;
     }
 
     return indent`${text}\n${generics}`;
+  },
+  emptyListOf() {
+    return "";
+  },
+  expressionTerminator(_) {
+    return "ExpressionTerminator";
+  },
+  expressionTerminator_comma(_0, _1) {
+    return "ExpressionTerminator";
   },
   FinallyStatement(_0, _1, block) {
     return indent`FinallyStatement${optional(block)}`;
@@ -729,6 +741,12 @@ ${optional(attributes)}`;
     return indent`Infer ${ident.tree().slice(11)}\
 ${optional(namespace("Constraint", constraint))}`;
   },
+  LiteralExp_object(_0, members, _1, _2) {
+    return indent`Object${optional(members)}`;
+  },
+  LiteralExp_object_implied(members) {
+    return indent`Object\n  [Implied]${optional(members)}`;
+  },
   LiteralType_parenthesized(_0, node, _1) {
     return namespace("Parenthesized", node);
   },
@@ -737,6 +755,9 @@ ${optional(namespace("Constraint", constraint))}`;
   },
   LiteralType_typeof(_0, _1, node) {
     return namespace("Typeof", node);
+  },
+  LiteralExp_with(_0, _1, self, block) {
+    return indent`With\n  ${self}\n  ${block}`;
   },
   LogicalAndExp(node) {
     return node.tree();
@@ -752,9 +773,6 @@ ${optional(namespace("Constraint", constraint))}`;
   },
   LogicalOrExp_logical_or(left, _0, _1, _2, right) {
     return indent`LogicalOr\n  ${left}\n  ${right}`;
-  },
-  LiteralExp_with(_0, _1, self, block) {
-    return indent`With\n  ${self}\n  ${block}`;
   },
   letter(_) {
     return "Letter";
@@ -962,6 +980,24 @@ ${optional(block)}`;
   },
   null(_) {
     return "Null";
+  },
+  number(_0, _1, _2) {
+    return this.sourceString;
+  },
+  ObjectEntry(node) {
+    return node.tree();
+  },
+  ObjectEntry_key_value(key, _, value) {
+    return indent`Property\n  ${key}\n  ${value}`;
+  },
+  ObjectEntry_object_method(name, fn) {
+    return fn.tree().replace("Function", indent`Method\n  ${name}`);
+  },
+  ObjectEntry_restructure(node) {
+    return indent`Property\n  [Shorthand]\n  ${node}`;
+  },
+  ObjectEntry_spread_operator(_, node) {
+    return indent`Spread\n  ${node}`;
   },
   Parameter(node) {
     return node.tree();
@@ -1332,7 +1368,7 @@ ${optional(generics)}\n  ${type}`;
     return text;
   },
   TypeObjectEntry_method(name, qMark, node) {
-    let text = node.tree().replace("FunctionType", "Method");
+    let text = node.tree().replace("FunctionType", indent`Method\n  ${name}`);
 
     if (qMark.sourceString) {
       text = modify("Optional", name);
@@ -1354,6 +1390,18 @@ ${optional(generics)}\n  ${type}`;
   },
   TypeObjectKey_string(node) {
     return node.tree();
+  },
+  terminator(_0, _1) {
+    return "Terminator";
+  },
+  typeTerminator(_) {
+    return "TypeTerminator";
+  },
+  typeTerminator_comma(_0, _1) {
+    return "TypeTerminator";
+  },
+  typeTerminator_semicolon(_0, _1) {
+    return "TypeTerminator";
   },
   UnionType(node) {
     let iter = node.asIteration();
@@ -1381,6 +1429,12 @@ ${optional(generics)}\n  ${type}`;
   },
   WrappedStatementBlock(_0, statements, _1) {
     return indent`StatementBlock${optional(statements)}`;
+  },
+  whitespace(_) {
+    return "Whitespace";
+  },
+  word(_0, _1, _2) {
+    return this.sourceString;
   },
 
   _iter(...children) {
