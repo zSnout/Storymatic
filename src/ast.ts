@@ -1063,6 +1063,24 @@ ${optional(block)}`;
   RestParameter_without_type(_, assignable) {
     return indent`Parameter\n  [Rest]\n  ${assignable}`;
   },
+  reserved(_) {
+    return "ReservedWord";
+  },
+  reserved_block(_) {
+    return "ReservedWord";
+  },
+  reserved_inline(_) {
+    return "ReservedWord";
+  },
+  reserved_javascript(_) {
+    return "ReservedWord";
+  },
+  reserved_operators(_) {
+    return "ReservedWord";
+  },
+  reserved_primitive(_) {
+    return "ReservedWord";
+  },
   Script(statements) {
     return indent`Script${optional(statements)}`;
   },
