@@ -111,18 +111,20 @@ Storymatic {
     | spaces &"⇦"
     | spaces &reserved_block
     | spaces end
-    | (~("\r" | "\n") space)* ("\r" | "\n")+
+    | (~"\n" space)* "\n"+
 
   TopLevelIfExp
-    = TopLevelWhileExp ("if" | "unless") #postWord Expression -- if
+    = TopLevelWhileExp #(~lineBreak) ("if" | "unless") #postWord Expression -- if
     | TopLevelWhileExp
 
   TopLevelWhileExp
-    = TopLevelForExp ("while" | "until") #postWord Expression ("when" #postWord Expression)? -- while
+    = TopLevelForExp #(~lineBreak) ("while" | "until") #postWord Expression
+      ("when" #postWord Expression)? -- while
     | TopLevelForExp
 
   TopLevelForExp
-    = TopLevelExp "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression ("when" #postWord Expression)? -- for
+    = TopLevelExp #(~lineBreak) "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression  
+      ("when" #postWord Expression)? -- for
     | TopLevelExp
 
   TopLevelExp
@@ -207,7 +209,7 @@ Storymatic {
   MemberAccessExp
     = MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | "<" | line_comment)) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #(whitespace ~("\n" | "(" | "[" | "{" | "<" | line_comment)) ImpliedCallArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
@@ -219,7 +221,7 @@ Storymatic {
     | Child "!" ~"=" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
     | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "\r" | "(" | "[" | "{" | "<" | line_comment)) ImpliedCallArgumentList -- class_creation_implied
+    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "(" | "[" | "{" | "<" | line_comment)) ImpliedCallArgumentList -- class_creation_implied
     | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
@@ -309,6 +311,7 @@ Storymatic {
     | LogicalOrExp
 
   postWord = space* ~id_continue | space+
+  lineBreak = whitespace? "\n"
 
   PipeExp
     = (TernaryExp "|>")+ TernaryExp -- pipe
@@ -323,16 +326,17 @@ Storymatic {
     | PipeExp
 
   ForExp
-    = AssignmentExp "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? ForExp ("when" #postWord Expression)? -- for
-    | "print" #whitespace #(~("\n" | "\r")) NonemptyListOf<AssignmentExp, ","> -- print
+    = AssignmentExp #(~lineBreak) "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? ForExp 
+      ("when" #postWord Expression)? -- for
+    | "print" #whitespace #(~"\n") NonemptyListOf<AssignmentExp, ","> -- print
     | AssignmentExp
 
   WhileExp
-    = ForExp ("while" | "until") #postWord WhileExp ("when" #postWord Expression)? -- while
+    = ForExp #(~lineBreak) ("while" | "until") #postWord WhileExp ("when" #postWord Expression)? -- while
     | ForExp
 
   IfExp
-    = WhileExp ("if" | "unless") #postWord IfExp -- if
+    = WhileExp #(~lineBreak) ("if" | "unless") #postWord IfExp -- if
     | WhileExp
 
   VariableAssignment = Assignable (":" Type)? "=" Expression
@@ -364,7 +368,7 @@ Storymatic {
     = "." word -- member_access
     | "[" Expression "]" -- computed_member_access
 
-  whitespace = (~("\r" | "\n" | line_comment | block_comment) space)+
+  whitespace = (~("\n" | line_comment | block_comment) space)+
 
   sign = ("+" | "-")?
   number = digit+ ("_" digit+)*
@@ -431,7 +435,7 @@ Storymatic {
 
   space += block_comment | line_comment
   block_comment = "/*" (~"*/" any)* "*/"
-  line_comment = "//" (~("\r" | "\n") any)*
+  line_comment = "//" (~"\n" any)*
 
   JSXElement
     = "<" #jsxTagName GenericTypeArgumentList JSXAttribute* ">" JSXChild* "</" #jsxTagName ">" -- open_close
@@ -482,11 +486,11 @@ Storymatic {
     | decimalNumber
     | bigint
     | FunctionType
+    | "infer" #space identifier (":" #space Type)? -- infer
+    | "typeof" #space QualifiedName -- typeof
+    | "new" FunctionType -- construct
     | QualifiedName ~"<"
     | QualifiedName NonemptyGenericTypeArgumentList -- type_args
-    | "typeof" #space QualifiedName -- typeof
-    | "infer" #space identifier (":" #space Type)? -- infer
-    | "new" FunctionType -- construct
     | "(" Type ")" -- parenthesized
 
   MemberAccessType

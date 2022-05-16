@@ -1809,6 +1809,9 @@ semantics.addOperation<ts.Node>("ts", {
   line_comment(_0, _1) {
     throw new Error("`line_comment` nodes should never directly be evaluated.");
   },
+  lineBreak(_0, _1) {
+    throw new Error("`lineBreak` nodes should never directly be evaluated.");
+  },
   listOf(_) {
     throw new Error("`listOf` nodes should never directly be evaluated.");
   },

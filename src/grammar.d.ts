@@ -198,6 +198,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TernaryExp_symbolic?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode) => T;
   TernaryExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   postWord?: (this: NonterminalNode, arg0: IterationNode) => T;
+  lineBreak?: (this: NonterminalNode, arg0: IterationNode, arg1: TerminalNode) => T;
   PipeExp_pipe?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   PipeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AssignmentExp_assignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
@@ -294,10 +295,10 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Implementable?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   Extendable?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   QualifiedName?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode) => T;
-  LiteralType_type_args?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
-  LiteralType_typeof?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   LiteralType_infer?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode) => T;
+  LiteralType_typeof?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   LiteralType_construct?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
+  LiteralType_type_args?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   LiteralType_parenthesized?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   LiteralType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MemberAccessType_member_access?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
