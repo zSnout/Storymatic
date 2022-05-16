@@ -458,7 +458,7 @@ Storymatic {
     | word -- standard
 
   Type = ConditionalType
-  
+
   FunctionReturnType
     = ("asserts" #space)? identifier "is" #postWord Type -- predicate
     | Type
