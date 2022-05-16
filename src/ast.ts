@@ -719,6 +719,25 @@ ${optional(attributes)}`;
   LiteralExp_topic_token(_) {
     return "TopicToken";
   },
+  LiteralType(node) {
+    return node.tree();
+  },
+  LiteralType_construct(_, node) {
+    return node.tree().replace("FunctionType", "ConstructType");
+  },
+  LiteralType_infer(_0, _1, ident, _2, _3, constraint) {
+    return indent`Infer ${ident.tree().slice(11)}\
+${optional(namespace("Constraint", constraint))}`;
+  },
+  LiteralType_parenthesized(_0, node, _1) {
+    return namespace("Parenthesized", node);
+  },
+  LiteralType_type_args(name, generics) {
+    return indent`TypeReference\n  ${name}\n  ${generics}`;
+  },
+  LiteralType_typeof(_0, _1, node) {
+    return namespace("Typeof", node);
+  },
   LogicalAndExp(node) {
     return node.tree();
   },
@@ -736,6 +755,18 @@ ${optional(attributes)}`;
   },
   LiteralExp_with(_0, _1, self, block) {
     return indent`With\n  ${self}\n  ${block}`;
+  },
+  letter(_) {
+    return "Letter";
+  },
+  lineBreak(_0, _1) {
+    return "LineBreak";
+  },
+  line_comment(_0, _1) {
+    return "LineComment";
+  },
+  listOf(node) {
+    return node.asIteration().tree();
   },
   MemberAccessExp(node) {
     return node.tree();
@@ -972,6 +1003,9 @@ ${optional(block)}`;
   PostfixExp_increment(accessor, _) {
     return namespace("Increment", accessor);
   },
+  PrimitiveType(node) {
+    return indent`PrimitiveType ${node.sourceString}`;
+  },
   PrivacyLevel(node) {
     return node.tree();
   },
@@ -987,6 +1021,18 @@ ${optional(block)}`;
   PrivacyLevel_public(_0, _1) {
     return "Public";
   },
+  Property(node) {
+    return node.tree();
+  },
+  Property_computed(_0, _1, expr, _2) {
+    return namespace("ThisProperty", expr);
+  },
+  Property_identifier(_0, node) {
+    return indent`ThisProperty ${node.sourceString}`;
+  },
+  postWord(_) {
+    return "PostWord";
+  },
   QualifiedName(base, _, qualifiers) {
     let text = base.tree();
 
@@ -995,6 +1041,15 @@ ${optional(block)}`;
     }
 
     return text;
+  },
+  Rescopable(node) {
+    return node.tree();
+  },
+  Rescopable_identifier(ident) {
+    return indent`Rescopable ${ident.tree().slice(11)}`;
+  },
+  Rescopable_with_type(ident, _, type) {
+    return indent`Rescopable ${ident.tree().slice(11)}\n  ${type}`;
   },
   RestParameter(node) {
     return node.tree();
@@ -1232,6 +1287,14 @@ ${optional(type.sourceString && "[TypeOnly]")}
     }
 
     return expr.tree();
+  },
+  Type(node) {
+    return node.tree();
+  },
+  TypeDeclaration(_export, _0, _1, _2, ident, generics, _3, type, _4) {
+    return indent`TypeDeclaration ${ident.tree().slice(11)}\
+${optional(_export.sourceString && "[Exported]")}\
+${optional(generics)}\n  ${type}`;
   },
   TypeObjectEntry(node) {
     return node.tree();
