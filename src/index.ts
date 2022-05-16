@@ -2352,28 +2352,6 @@ semantics.addOperation<ts.Node>("ts", {
       block.ts()
     );
   },
-  Statement_repeat(_0, _1, count, block) {
-    return ts.factory.createForOfStatement(
-      undefined,
-      ts.factory.createVariableDeclarationList(
-        [
-          ts.factory.createVariableDeclaration(
-            ts.factory.createIdentifier("$loop")
-          ),
-        ],
-        ts.NodeFlags.Let
-      ),
-      ts.factory.createCallExpression(
-        ts.factory.createPropertyAccessExpression(
-          ts.factory.createArrayLiteralExpression([]),
-          "constructor"
-        ),
-        undefined,
-        [count.ts()]
-      ),
-      block.ts()
-    );
-  },
   Statement_rescope(_0, _1, declarations, _2) {
     let list = ts.factory.createVariableDeclarationList(
       declarations.tsa(),

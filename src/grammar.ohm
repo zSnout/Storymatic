@@ -56,7 +56,6 @@ Storymatic {
     | NamespaceDeclaration
     | SwitchStatement
     | EnumStatement
-    | "repeat" #postWord Expression SingleStatementBlock<"do"> -- repeat
     | ("while" | "until") #postWord Expression SingleStatementBlock<"do"> -- while
     | "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression SingleStatementBlock<"do"> -- for
     | "rescope" #space NonemptyListOf<Rescopable, ","> #statementTerminator -- rescope

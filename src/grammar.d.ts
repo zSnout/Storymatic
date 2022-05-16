@@ -44,7 +44,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TopLevelStatement_export_default?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: NonterminalNode) => T;
   TopLevelStatement_export_variable?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   TopLevelStatement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  Statement_repeat?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_while?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   Statement_for?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: NonterminalNode, arg8: NonterminalNode) => T;
   Statement_rescope?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
