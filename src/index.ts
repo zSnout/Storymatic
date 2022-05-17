@@ -71,7 +71,7 @@ function addBrackets(text: string) {
         let prevChar = prev.trimEnd()[prev.length - 2] || "";
 
         if (
-          !"+-*/%^&|?:[={(><.".includes(lastChar) ||
+          !"+-*/%^&|?:[={(><.,".includes(lastChar) ||
           (lastChar === "/" && "*/".includes(prevChar)) ||
           (lastChar === ">" && "-=".includes(prevChar))
         ) {

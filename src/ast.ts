@@ -727,6 +727,12 @@ ${optional(attributes)}`;
   LiteralExp_do(_, expr) {
     return namespace("Do", expr);
   },
+  LiteralExp_object(_0, members, _1, _2) {
+    return indent`Object${optional(members)}`;
+  },
+  LiteralExp_object_implied(members) {
+    return indent`Object\n  [Implied]${optional(members)}`;
+  },
   LiteralExp_parenthesized(_0, expr, _1) {
     return indent`Parenthesized\n  ${expr}`;
   },
@@ -739,6 +745,9 @@ ${optional(attributes)}`;
   LiteralExp_topic_token(_) {
     return "TopicToken";
   },
+  LiteralExp_with(_0, _1, self, block) {
+    return indent`With\n  ${self}\n  ${block}`;
+  },
   LiteralType(node) {
     return node.tree();
   },
@@ -749,12 +758,6 @@ ${optional(attributes)}`;
     return indent`Infer ${ident.tree().slice(11)}\
 ${optional(namespace("Constraint", constraint))}`;
   },
-  LiteralExp_object(_0, members, _1, _2) {
-    return indent`Object${optional(members)}`;
-  },
-  LiteralExp_object_implied(members) {
-    return indent`Object\n  [Implied]${optional(members)}`;
-  },
   LiteralType_parenthesized(_0, node, _1) {
     return namespace("Parenthesized", node);
   },
@@ -763,9 +766,6 @@ ${optional(namespace("Constraint", constraint))}`;
   },
   LiteralType_typeof(_0, _1, node) {
     return namespace("Typeof", node);
-  },
-  LiteralExp_with(_0, _1, self, block) {
-    return indent`With\n  ${self}\n  ${block}`;
   },
   LogicalAndExp(node) {
     return node.tree();
