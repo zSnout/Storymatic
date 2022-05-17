@@ -170,8 +170,15 @@ async function buildFile(file: string) {
 
   try {
     let out = file.replace(/\.\w+$/, args.typescript ? ".tsx" : ".js");
-    if (args.src) out = out.slice(args.src.length + 1);
-    if (args.dist) mkdir(args.dist, { recursive: true }).catch(() => {});
+
+    if (args.src) {
+      out = out.slice(args.src.length + 1);
+    }
+
+    if (args.dist) {
+      await mkdir(args.dist, { recursive: true }).catch(() => {});
+    }
+
     await writeFile((args.dist ? args.dist + "/" : "") + out, transpiled);
   } catch (error) {
     console.error(error);
