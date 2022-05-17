@@ -234,7 +234,7 @@ if (args.build) {
         console.log(ast(contents));
       } else {
         let result = execute(compiled);
-        if (args.print) console.log(result);
+        console.log(result);
       }
     }
   })();
@@ -259,7 +259,7 @@ if (args.build) {
 }
 
 function execute(node: ts.Node) {
-  return runInNewContext(transpile(node, args));
+  return runInNewContext(transpile(node, args), { console });
 }
 
 function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
