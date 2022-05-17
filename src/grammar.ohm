@@ -57,8 +57,8 @@ Storymatic {
     | NamespaceDeclaration
     | SwitchStatement
     | EnumStatement
-    | ("while" | "until") #postWord Expression SingleStatementBlock<"do"> -- while
-    | "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression SingleStatementBlock<"do"> -- for
+    | ("while" | "until") #postWord Expression SingleStatementBlock<"then"> -- while
+    | "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression SingleStatementBlock<"then"> -- for
     | "rescope" #space NonemptyListOf<Rescopable, ","> #statementTerminator -- rescope
     | "rescope" #space VariableAssignment #statementTerminator -- rescope_assign
     | TypedVariableAssignment -- typed_assignment
@@ -134,8 +134,8 @@ Storymatic {
     | "throw" AssignmentExp -- throw
     | Expression -- expression
 
-  Expression
-    = IfExp
+  Expression = IfExp
+  NonLoopExpression = AssignmentExp
 
   LiteralExp
     = Function
@@ -145,10 +145,10 @@ Storymatic {
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
     | "@" ~(id_continue | "[" | ".") -- self
     | "%" -- topic_token
-    | "with" #space Expression SingleStatementBlock<"do"> -- with
+    | "with" #space Expression SingleStatementBlock<"then"> -- with
     | "do" Expression -- do
     | InlineClassDeclaration
-    | NonemptyListOf<ObjectEntry_key_value, ","> -- object_implied
+    | NonemptyListOf<ObjectEntry_implied, ","> -- object_implied
     | decimalNumber
     | unitNumber
     | hexNumber
@@ -200,11 +200,11 @@ Storymatic {
 
   ObjectEntry
     = MethodName Function -- object_method
-    | ObjectEntry_key_value
+    | MethodName ":" Expression -- key_value
     | "..." Expression -- spread_operator
     | identifier -- restructure
 
-  ObjectEntry_key_value = MethodName ":" Expression
+  ObjectEntry_implied = MethodName ":" NonLoopExpression
 
   MemberAccessExp
     = MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
@@ -227,12 +227,12 @@ Storymatic {
 
   NCMemberAccessExp = MemberAccessExpNonCall<NCMemberAccessExp>
 
-  ArgumentList = ListOf<Argument, #expressionTerminator>
-  ImpliedCallArgumentList = NonemptyListOf<Argument, ",">
+  ArgumentList = ListOf<Argument<Expression>, #expressionTerminator>
+  ImpliedCallArgumentList = NonemptyListOf<Argument<NonLoopExpression>, ",">
 
-  Argument
-    = Expression
-    | "..." Expression -- spread_operator
+  Argument<Expr>
+    = Expr
+    | "..." Expr -- spread_operator
 
   Parameter
     = Assignable (":" Type)? "=" Expression -- initializer
@@ -461,11 +461,12 @@ Storymatic {
     = jsxTagName "." word -- property_access
     | word -- standard
 
-  Type = ConditionalType
+  Type = IfType
+  NonLoopType = MappedType
 
   FunctionReturnType
-    = ("asserts" #space)? identifier "is" #postWord Type -- predicate
-    | Type
+    = ("asserts" #space)? identifier "is" #postWord NonLoopType -- predicate
+    | NonLoopType
 
   PrimitiveType
     = "string" | "number" | "boolean" | "true" | "false" | "bigint" | "symbol"
@@ -519,13 +520,13 @@ Storymatic {
     | "[" Accessor "]" -- computed_accessor
 
   TypeObjectEntry
-    = TypeObjectEntry_key_value
+    = ("readonly" #space)? TypeObjectKey "?"? ":" Type -- key_value
     | "new" FunctionType -- construct_signature
     | FunctionType -- call_signature
     | ~("new" ~"?") TypeObjectKey "?"? FunctionType -- method
     | IndexSignatureType<"">
 
-  TypeObjectEntry_key_value = ("readonly" #space)? TypeObjectKey "?"? ":" Type
+  TypeObjectEntry_implied = ("readonly" #space)? TypeObjectEntry "?"? ":" NonLoopType
 
   FunctionType = (GenericTypeParameterList? "(" ParameterList? ")")? "->" Type
 
@@ -536,6 +537,15 @@ Storymatic {
     = ConditionalType "is" #postWord ConditionalType "?" ConditionalType ":" ConditionalType -- conditional
     | ("if" | "unless") #postWord ConditionalType "is" #postWord ConditionalType "then" #postWord ConditionalType "else" #postWord ConditionalType -- if_then_else
     | UnionType
+
+  MappedType
+    = "{" (("+" | "-")? "readonly")? "[" identifier "in" Type
+      ("as" Type)? "]" (("+" | "-")? "?")? ":" Type "}" -- mapped
+    | ConditionalType
+
+  IfType
+    = MappedType ("if" | "unless") #postWord IfType "is" #postWord IfType -- if
+    | MappedType
 
   NamespaceDeclaration = ("export" #space)? "namespace" #space identifier WrappedScriptBlock
 

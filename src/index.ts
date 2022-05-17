@@ -1468,6 +1468,26 @@ semantics.addOperation<ts.Node>("ts", {
       elseBlock.child(0)?.ts<ts.Block>()
     );
   },
+  IfType(node) {
+    return node.ts();
+  },
+  IfType_if(type, ifUnless, _0, target, _1, _2, constraint) {
+    let never: ts.TypeNode = ts.factory.createKeywordTypeNode(
+      ts.SyntaxKind.NeverKeyword
+    );
+    let node = type.ts<ts.TypeNode>();
+
+    if (ifUnless.sourceString === "unless") {
+      [node, never] = [never, node];
+    }
+
+    return ts.factory.createConditionalTypeNode(
+      target.ts(),
+      constraint.ts(),
+      node,
+      never
+    );
+  },
   Implementable(base, _0, accessors, generics, _1) {
     let ident = base.ts<ts.Expression>();
 
@@ -1815,6 +1835,56 @@ semantics.addOperation<ts.Node>("ts", {
   listOf(_) {
     throw new Error("`listOf` nodes should never directly be evaluated.");
   },
+  MappedType(node) {
+    return node.ts();
+  },
+  MappedType_mapped(
+    _0,
+    readonlyPlusMinus,
+    readonlyKeyword,
+    _1,
+    ident,
+    _2,
+    keys,
+    _3,
+    asClause,
+    _4,
+    qMarkPlusMinus,
+    qMark,
+    _5,
+    type,
+    _6
+  ) {
+    return ts.factory.createMappedTypeNode(
+      readonlyPlusMinus
+        .child(0)
+        ?.child(0)
+        ?.tsn({
+          "+": ts.factory.createToken(ts.SyntaxKind.PlusToken),
+          "-": ts.factory.createToken(ts.SyntaxKind.MinusToken),
+        }) ||
+        readonlyKeyword.child(0)?.tsn({
+          "?": ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword),
+        }),
+      ts.factory.createTypeParameterDeclaration(
+        ident.ts<ts.Identifier>(),
+        keys.ts<ts.TypeNode>()
+      ),
+      asClause.child(0)?.ts<ts.TypeNode>(),
+      qMarkPlusMinus
+        .child(0)
+        ?.child(0)
+        ?.tsn({
+          "+": ts.factory.createToken(ts.SyntaxKind.PlusToken),
+          "-": ts.factory.createToken(ts.SyntaxKind.MinusToken),
+        }) ||
+        qMark.child(0)?.tsn({
+          readonly: ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+        }),
+      type.ts<ts.TypeNode>(),
+      undefined
+    );
+  },
   MemberAccessExp(node) {
     return node.ts();
   },
@@ -2055,6 +2125,12 @@ semantics.addOperation<ts.Node>("ts", {
   NCMemberAccessExp(node) {
     return node.ts();
   },
+  NonLoopExpression(node) {
+    return node.ts();
+  },
+  NonLoopType(node) {
+    return node.ts();
+  },
   NonemptyGenericTypeArgumentList(_0, _1, _2) {
     throw new Error(
       "`NonemptyGenericTypeArgumentList` nodes should never directly be evaluated."
@@ -2111,6 +2187,12 @@ semantics.addOperation<ts.Node>("ts", {
   },
   ObjectEntry(node) {
     return node.ts();
+  },
+  ObjectEntry_implied(key, _, value) {
+    return ts.factory.createPropertyAssignment(
+      key.ts<ts.PropertyName>(),
+      value.ts()
+    );
   },
   ObjectEntry_key_value(key, _, value) {
     return ts.factory.createPropertyAssignment(
@@ -2811,7 +2893,7 @@ semantics.addOperation<ts.Node>("ts", {
         ? [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)]
         : undefined,
       ident.ts<ts.Identifier>(),
-      generics.tsa(),
+      generics.child(0)?.tsa(),
       value.ts()
     );
   },
@@ -2834,6 +2916,16 @@ semantics.addOperation<ts.Node>("ts", {
       fn.typeParameters,
       fn.parameters,
       fn.type
+    );
+  },
+  TypeObjectEntry_implied(readonly, _0, key, qMark, _1, value) {
+    return ts.factory.createPropertySignature(
+      readonly.sourceString
+        ? [ts.factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)]
+        : undefined,
+      key.ts<ts.PropertyName>(),
+      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+      value.ts<ts.TypeNode>()
     );
   },
   TypeObjectEntry_key_value(readonly, _0, key, qMark, _1, value) {
