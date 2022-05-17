@@ -439,7 +439,7 @@ ${optional(members)}`;
     expr,
     _0,
     _1,
-    await,
+    _await,
     _2,
     assignable,
     _3,
@@ -455,7 +455,7 @@ ${optional(members)}`;
   ${expr}${optional(namespace("Guard", guard))}`;
 
     if (guard.sourceString) text = modify("HasGuard", text);
-    if (await.sourceString) text = modify("Async", text);
+    if (_await.sourceString) text = modify("Async", text);
 
     return text;
   },
@@ -1188,13 +1188,13 @@ ${optional(block)}`;
   Statement_expression(expr, _) {
     return expr.tree();
   },
-  Statement_for(_0, _1, await, _2, assignable, _3, _4, iterable, block) {
+  Statement_for(_0, _1, _await, _2, assignable, _3, _4, iterable, block) {
     let text = indent`ForLoop
   ${assignable.child(0)?.tree() || "[ValueIsntCaptured]"}
   ${iterable}
   ${block}`;
 
-    if (await.sourceString) text = modify("Async", text);
+    if (_await.sourceString) text = modify("Async", text);
 
     return text;
   },
@@ -1344,7 +1344,7 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
     expr,
     _0,
     _1,
-    await,
+    _await,
     _2,
     assignable,
     _3,
@@ -1360,7 +1360,7 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
   ${expr}${optional(namespace("Guard", guard))}`;
 
     if (guard.sourceString) text = modify("HasGuard", text);
-    if (await.sourceString) text = modify("Async", text);
+    if (_await.sourceString) text = modify("Async", text);
 
     return text;
   },

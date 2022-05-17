@@ -1299,7 +1299,7 @@ semantics.addOperation<ts.Node>("ts", {
     expr,
     _0,
     _1,
-    await,
+    _await,
     _2,
     assignable,
     _3,
@@ -1320,7 +1320,7 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createBlock(
         [
           ts.factory.createForOfStatement(
-            await.child(0)?.tsn({
+            _await.child(0)?.tsn({
               await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword),
             }),
 
@@ -2692,7 +2692,7 @@ semantics.addOperation<ts.Node>("ts", {
     expr,
     _0,
     _1,
-    await,
+    _await,
     _2,
     assignable,
     _3,
@@ -2708,7 +2708,7 @@ semantics.addOperation<ts.Node>("ts", {
       statement = ts.factory.createIfStatement(guard.child(0).ts(), statement);
 
     return ts.factory.createForOfStatement(
-      await
+      _await
         .child(0)
         ?.tsn({ await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword) }),
 
