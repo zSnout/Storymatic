@@ -222,39 +222,28 @@ if (args.build) {
     let result = execute(compile(code));
     if (args.print) console.log(result);
   }
-} else if (args._) {
+} else if (args._.length) {
   (async () => {
     for (let file of args._) {
-      let contents = await readFile("" + file, "utf-8");
-      let compiled = compile(contents);
-
-      if (args.output) {
-        console.log(transpile(compiled, args));
-      } else if (args.ast) {
-        console.log(ast(contents));
-      } else {
-        let result = execute(compiled);
-        console.log(result);
-      }
+      let code = await readFile("" + file, "utf-8");
+      await getResult(code);
     }
   })();
 } else if (process.stdin.isTTY) {
   startREPL(args.output ? "noeval" : args.ast ? "ast" : "repl");
 } else {
   let code = readFileSync(process.stdin.fd, "utf-8");
+  if (code.length) getResult(code);
+}
 
-  if (code.length) {
-    let compiled = compile(code);
-    let tree = ast(code);
-
-    if (args.output) {
-      if (args.print) console.log(transpile(compiled, args));
-    } else if (args.ast) {
-      if (args.print) console.log(tree);
-    } else {
-      let result = execute(compiled);
-      if (args.print) console.log(result);
-    }
+function getResult(code: string) {
+  if (args.output) {
+    if (args.print) console.log(transpile(compile(code), args));
+  } else if (args.ast) {
+    if (args.print) console.log(ast(code));
+  } else {
+    let result = execute(compile(code));
+    if (args.print) console.log(result);
   }
 }
 

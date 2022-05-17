@@ -8,6 +8,9 @@
     "grammar": "mkdir dist > /dev/null; ohm generateBundles --withTypes src/grammar.ohm; mv src/grammar.ohm-bundle.js dist/grammar.js; mv src/grammar.ohm-bundle.d.ts src/grammar.d.ts",
     "build": "npm run grammar; tsc -b"
   },
+  "engines": {
+    "node": "18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/zsnout/storymatic"
