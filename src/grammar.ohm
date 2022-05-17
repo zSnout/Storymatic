@@ -148,7 +148,6 @@ Storymatic {
     | "with" #space Expression SingleStatementBlock<"then"> -- with
     | "do" Expression -- do
     | InlineClassDeclaration
-    | NonemptyListOf<ObjectEntry_implied, ","> -- object_implied
     | decimalNumber
     | unitNumber
     | hexNumber
@@ -160,6 +159,7 @@ Storymatic {
     | string_non_interpolatable
     | string
     | null
+    | NonemptyListOf<ObjectEntry_implied, ","> -- object_implied
     | Statement -- statement
 
   InlineClassDeclaration

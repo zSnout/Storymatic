@@ -404,7 +404,7 @@ ${optional(members)}`;
   },
   ExportedVariableAssignment(_0, _1, assignable, _2, type, _3, expr) {
     return indent`Assignment =
-  [Exported]
+  [Exported${type.sourceString && ", Typed"}]
   ${assignable}${optional(type)}
   ${expr}`;
   },
@@ -454,9 +454,8 @@ ${optional(members)}`;
   ${iterable}
   ${expr}${optional(namespace("Guard", guard))}`;
 
-    if (await.sourceString) {
-      return modify("Async", text);
-    }
+    if (guard.sourceString) text = modify("HasGuard", text);
+    if (await.sourceString) text = modify("Async", text);
 
     return text;
   },
@@ -523,17 +522,26 @@ ${optional(namespace("Default", _default))}`;
   },
   IfExp_if(expr, ifUnless, _, condition) {
     return indent`IfExpression\
-${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
+${optional(ifUnless.sourceString === "unless" ? "[Inverted]" : "")}
   ${condition}
   ${expr}`;
   },
   IfStatement(ifUnless, _0, condition, block, _1, _2, elseBlock) {
     return (
       indent`IfStatement\
-${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
+${optional(ifUnless.sourceString === "unless" ? "[Inverted]" : "")}
   ${condition}
   ${block}` + optional(namespace("ElseStatement", elseBlock))
     );
+  },
+  IfType(node) {
+    return node.tree();
+  },
+  IfType_if(type, ifUnless, _0, target, _1, _2, condition) {
+    let text = indent`IfType\n  ${target}\n  ${condition}\n  ${type}`;
+    if (ifUnless.sourceString === "unless") text = modify("Inverted", text);
+
+    return text;
   },
   Implementable(ident, _0, props, generics, _1) {
     let text = ident.tree();
@@ -786,6 +794,45 @@ ${optional(namespace("Constraint", constraint))}`;
   listOf(node) {
     return node.asIteration().tree();
   },
+  MappedType(node) {
+    return node.tree();
+  },
+  MappedType_mapped(
+    _0,
+    readPlusMinus,
+    readKeyword,
+    _1,
+    ident,
+    _2,
+    keys,
+    _3,
+    asClause,
+    _4,
+    qMarkPlusMinus,
+    qMark,
+    _5,
+    type,
+    _6
+  ) {
+    let text = indent`MappedType ${ident.tree().slice(11)}
+  ${keys}${optional(asClause)}\n  ${type}`;
+
+    if (asClause.sourceString) text = modify("HasAsClause", text);
+
+    if (qMarkPlusMinus.child(0)?.child(0)?.sourceString === "-") {
+      text = modify("NonOptional", text);
+    } else if (qMark.child(0)) {
+      text = modify("Optional", text);
+    }
+
+    if (readPlusMinus.child(0)?.child(0)?.sourceString === "-") {
+      text = modify("NonReadonly", text);
+    } else if (readKeyword.child(0)) {
+      text = modify("Readonly", text);
+    }
+
+    return text;
+  },
   MemberAccessExp(node) {
     return node.tree();
   },
@@ -942,6 +989,12 @@ ${optional(block)}`;
   NCMemberAccessExp(node) {
     return node.tree();
   },
+  NonLoopExpression(node) {
+    return node.tree();
+  },
+  NonLoopType(node) {
+    return node.tree();
+  },
   NonemptyGenericTypeArgumentList(_0, args, _1) {
     return indent`TypeArguments\n  ${args}`;
   },
@@ -986,6 +1039,9 @@ ${optional(block)}`;
   },
   ObjectEntry(node) {
     return node.tree();
+  },
+  ObjectEntry_implied(key, _, value) {
+    return indent`Property\n  ${key}\n  ${value}`;
   },
   ObjectEntry_key_value(key, _, value) {
     return indent`Property\n  ${key}\n  ${value}`;
@@ -1132,6 +1188,31 @@ ${optional(block)}`;
   Statement_expression(expr, _) {
     return expr.tree();
   },
+  Statement_for(_0, _1, await, _2, assignable, _3, _4, iterable, block) {
+    let text = indent`ForLoop
+  ${assignable.child(0)?.tree() || "[ValueIsntCaptured]"}
+  ${iterable}
+  ${block}`;
+
+    if (await.sourceString) text = modify("Async", text);
+
+    return text;
+  },
+  Statement_rescope(_0, _1, rescopables, _2) {
+    return indent`Rescope\n  ${rescopables}`;
+  },
+  Statement_rescope_assign(_0, _1, assignment, _2) {
+    return assignment.tree().replace("Assignment =", "Rescope");
+  },
+  Statement_typed_assignment(node) {
+    return node.tree();
+  },
+  Statement_while(whileUntil, _0, condition, block) {
+    let text = indent`WhileStatement\n  ${condition}\n  ${block}`;
+    if (whileUntil.sourceString === "until") text = modify("Inverted", text);
+
+    return text;
+  },
   SwitchStatement(_0, _1, target, _2, cases, _default, _3) {
     return indent`SwitchStatement
   ${namespace("Target", target)}${optional(cases)}${optional(_default)}`;
@@ -1256,6 +1337,54 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
   TopLevelExp_throw(_, expr) {
     return indent`Throw\n  ${expr}`;
   },
+  TopLevelForExp(node) {
+    return node.tree();
+  },
+  TopLevelForExp_for(
+    expr,
+    _0,
+    _1,
+    await,
+    _2,
+    assignable,
+    _3,
+    _4,
+    iterable,
+    _5,
+    _6,
+    guard
+  ) {
+    let text = indent`ForLoop
+  ${assignable.child(0)?.tree() || "[ValueIsntCaptured]"}
+  ${iterable}
+  ${expr}${optional(namespace("Guard", guard))}`;
+
+    if (guard.sourceString) text = modify("HasGuard", text);
+    if (await.sourceString) text = modify("Async", text);
+
+    return text;
+  },
+  TopLevelIfExp(node) {
+    return node.tree();
+  },
+  TopLevelIfExp_if(expr, ifUnless, _, condition) {
+    return indent`IfStatement\
+${optional(ifUnless.sourceString === "unless" ? "[Inverted]" : "")}
+  ${condition}
+  ${expr}`;
+  },
+  TopLevelWhileExp(node) {
+    return node.tree();
+  },
+  TopLevelWhileExp_while(expr, whileUntil, _0, condition, _1, _2, guard) {
+    let text = indent`WhileStatement\n  ${condition}\n  ${expr}\
+${optional(guard)}`;
+
+    if (guard.sourceString) text = modify("HasGuard", text);
+    if (whileUntil.sourceString === "until") text = modify("Inverted", text);
+
+    return text;
+  },
   TopLevelStatement(node) {
     return node.tree();
   },
@@ -1359,6 +1488,14 @@ ${optional(generics)}\n  ${type}`;
   TypeObjectEntry_construct_signature(_, node) {
     return node.tree().replace("FunctionType", "ConstructSignature");
   },
+  TypeObjectEntry_implied(readonly, _0, name, qMark, _1, type) {
+    let text = indent`Property\n  ${name}\n  ${type}`;
+
+    if (qMark.sourceString) text = modify("Optional", text);
+    if (readonly.sourceString) text = modify("Readonly", text);
+
+    return text;
+  },
   TypeObjectEntry_key_value(readonly, _0, name, qMark, _1, type) {
     let text = indent`Property\n  ${name}\n  ${type}`;
 
@@ -1390,6 +1527,9 @@ ${optional(generics)}\n  ${type}`;
   },
   TypeObjectKey_string(node) {
     return node.tree();
+  },
+  TypedVariableAssignment(assignable, _0, type, _1, expr) {
+    return indent`Assignment =\n  [Declaration, Typed]\n  ${assignable}\n  ${type}\n  ${expr}`;
   },
   terminator(_0, _1) {
     return "Terminator";
@@ -1423,6 +1563,23 @@ ${optional(generics)}\n  ${type}`;
   },
   unitNumber(value, unit) {
     return indent`UnitNumber\n  ${value}\n  ${unit}`;
+  },
+  VariableAssignment(assignable, _0, type, _1, expr) {
+    return indent`Assignment =
+  ${type.sourceString ? "[Declaration, Typed]" : "[Declaration]"}
+  ${assignable}${optional(type)}\n  ${expr}`;
+  },
+  WhileExp(node) {
+    return node.tree();
+  },
+  WhileExp_while(expr, whileUntil, _0, condition, _1, _2, guard) {
+    let text = indent`WhileExpression\n  ${condition}\n  ${expr}\
+${optional(guard)}`;
+
+    if (guard.sourceString) text = modify("HasGuard", text);
+    if (whileUntil.sourceString === "until") text = modify("Inverted", text);
+
+    return text;
   },
   WrappedScriptBlock(_0, statements, _1) {
     return indent`StatementBlock${optional(statements)}`;
