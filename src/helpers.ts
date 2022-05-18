@@ -1,5 +1,5 @@
-import ohm = require("ohm-js");
-import ts = require("typescript");
+import * as ohm from "ohm-js";
+import * as ts from "typescript";
 
 let newlines = /\s*\n+\s*/g;
 let beginEnd = /^\s*\n+\s*|\s*\n+\s*$/g;
