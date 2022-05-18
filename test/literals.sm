@@ -1,14 +1,43 @@
 import { ok } from "assert"
 import { describe } from "mocha"
-import { expectAST } from "./index.sm"
+import { expectAST, expectFailure } from "./index.js"
 
 describe "numeric literals", ->
-  expectAST "check 32",
-    """
-    32
-    """,
-    """
-    Script
-      Expression
-        Number 32
-    """
+  for value of ["3458", "325", "78.5", "3423e7", "2334.78453e-90", "23_342423", "3242_243_423"]
+    expectAST value, value,
+      """
+      Script
+        Expression
+          Number #{value}
+      """,
+      """
+      SourceFile
+        ExpressionStatement
+          NumericLiteral
+            #{value}
+        EndOfFileToken
+      """
+
+  for value of ["3.", ".2", "2423.4543.6546", "1231_", "231__4324", "3231___3423_3142"]
+    describe value, ->
+      expectFailure "fail compilation", value
+
+describe "bigint literals", ->
+  for value of ["35n", "4534n", "0n", "-93n", "345_34242n", "987_987_3n"]
+    expectAST value, value,
+      """
+      Script
+        Expression
+          BigInt #{value}
+      """,
+      """
+      SourceFile
+        ExpressionStatement
+          BigIntLiteral
+            #{value}
+        EndOfFileToken
+      """
+
+  for value of ["35.6n", "-.2n", "-0.2n", "4564e4n", "42__3n", "4534_345_n"]
+    describe value, ->
+      expectFailure "fail compilation", value
