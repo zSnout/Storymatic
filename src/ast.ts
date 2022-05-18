@@ -656,9 +656,6 @@ ${optional(members)}`;
   JSXAttribute_value_expression(name, _0, _1, expr, _2) {
     return indent`JSXAttribute ${name}\n  [Computed]\n  ${expr}`;
   },
-  JSXAttribute_value_string(name, _, expr) {
-    return indent`JSXAttribute ${name}\n  ${expr}`;
-  },
   JSXAttribute_value_true(name) {
     return indent`JSXAttribute ${name}\n  [Implied]\n  True`;
   },
@@ -953,9 +950,6 @@ ${optional(generics)}${optional(args)}`;
     return indent`Property ${ident.sourceString}`;
   },
   MethodName_numerical_key(node) {
-    return node.tree();
-  },
-  MethodName_string_key(node) {
     return node.tree();
   },
   MulExp(node) {
