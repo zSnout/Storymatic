@@ -79,10 +79,6 @@ export function transformMultiLineString(
     let whitespace =
       cutoff.contents.length - cutoff.contents.trimStart().length;
 
-    console.log(cutoff.contents);
-    console.log(cutoff.getLineAndColumnMessage());
-    console.log(cutoff.sourceString);
-
     if (whitespace === cutoff.contents.length) {
       cutoff = 0;
     } else {
