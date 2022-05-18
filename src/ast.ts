@@ -221,7 +221,11 @@ ${optional(end.tree())}`.trimStart();
     return "BlockComment";
   },
   boolean(value) {
-    return value.sourceString === "true" ? "True" : "False";
+    if (value.sourceString === "true" || value.sourceString === "yes") {
+      return "True";
+    } else {
+      return "False";
+    }
   },
   CaseClause(_0, _1, expr, _2) {
     return expr.tree();
