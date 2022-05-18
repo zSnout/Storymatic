@@ -1,0 +1,11 @@
+import { ok } from assert
+import { describe } from mocha
+import { ast } from .
+
+describe "numeric literals", ->
+  ast "numeric literals", "32",
+    "
+    Script
+      Expression
+        Number 32
+    "

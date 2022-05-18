@@ -1,0 +1,8 @@
+import { ok } from assert
+import { it } from mocha
+import { ast } from ..
+
+export expectAST = (name, code, expected) ->
+  it name, ->
+    console.log(Object.keys ast code)
+    ok ast(code).trim() is expected.trim()
