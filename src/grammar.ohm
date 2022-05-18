@@ -386,7 +386,7 @@ Storymatic {
   id_continue = alnum | "_"
 
   string_bit<delimeter>
-    = ~("\\" | "{" | delimeter) any -- character
+    = ~("\\" | "#{" | delimeter) any -- character
     | "\\" ~("b" | "f" | "n" | "r" | "t" | "u" | "v" | "x" | "0") any -- escape
     | "\\" ("b" | "f" | "n" | "r" | "t" | "v" | ("0" ~digit)) -- escape_sequence
     | "\\x" hexDigit hexDigit -- hex_sequence
@@ -396,7 +396,7 @@ Storymatic {
   string_interpolatable_head<delimeter> = string_bit<delimeter>*
 
   string_interpolatable_span<delimeter, interpolated>
-    = "{" interpolated "}" string_bit<delimeter>* &(delimeter?)
+    = "#{" interpolated "}" string_bit<delimeter>* &(delimeter?)
 
   string_interpolatable<delimeter, interpolated>
     = delimeter string_interpolatable_head<delimeter>
@@ -405,7 +405,10 @@ Storymatic {
   string_full<delimeter> = delimeter string_bit<delimeter>* delimeter
 
   string_non_interpolatable
-    = string_full<"\"\"\""> | string_full<"'''"> | string_full<"\""> | string_full<"'">
+    = string_full<"\"\"\"">
+    | string_full<"'''">
+    | string_full<"\"">
+    | string_full<"'">
 
   string
     = string_interpolatable<"\"\"\"", applySyntactic<Expression>>
