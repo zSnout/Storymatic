@@ -133,8 +133,8 @@ Storymatic {
   TopLevelExp
     = "break" -- break
     | "continue" -- continue
-    | "return" AssignmentExp? -- return
-    | "throw" AssignmentExp -- throw
+    | "return" (#postWord AssignmentExp)? -- return
+    | "throw" #postWord AssignmentExp -- throw
     | Expression -- expression
 
   Expression = IfExp
