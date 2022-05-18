@@ -196,14 +196,23 @@ async function buildFile(file: string) {
 }
 
 if (args.build) {
-  let res = glob(
-    args.src
-      ? args.src + "/**/*.{sm,story,storymatic}"
-      : "**/*.{sm,story,storymatic}"
-  );
-
   console.log("Starting build process...");
-  res.then((files) => files.map(buildFile));
+
+  if (args._.length) {
+    for (let src of args._) {
+      src = "" + src;
+
+      glob(src).then((files) => files.map(buildFile));
+    }
+  } else {
+    let res = glob(
+      args.src
+        ? args.src + "/**/*.{sm,story,storymatic}"
+        : "**/*.{sm,story,storymatic}"
+    );
+
+    res.then((files) => files.map(buildFile));
+  }
 } else if (args.watch) {
   let res = glob(
     args.src
