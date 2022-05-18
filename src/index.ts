@@ -4,104 +4,17 @@ import * as grammar from "./grammar.js";
 import { story, semantics } from "./semantics.js";
 import "./ast.js";
 
-export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
-  if (flags.typescript)
-    throw new Error(
-      "TypeScript flag may not be active when creating compiler options."
-    );
-
-  return {
-    module: flags.module,
-    target: flags.target,
-    jsx: flags.jsx ? ts.JsxEmit.React : ts.JsxEmit.Preserve,
-    jsxFactory: flags.jsx || undefined,
-    strict: true,
-    allowJs: true,
-    checkJs: true,
-    skipLibCheck: true,
-    allowSyntheticDefaultImports: true,
-    moduleResolution: ts.ModuleResolutionKind.NodeJs,
-  };
-}
-
-function addBrackets(text: string) {
-  type Indented = { indentLevel: number; content: string };
-
-  type Tree = {
-    indentLevel: number;
-    content: (string | Tree)[];
-    parent?: Tree;
-  };
-
-  text = text.replace(/[⇦⇨]+/g, "");
-  let sections: Indented[] = text.split(/[\r\n]+/g).map((e) => ({
-    indentLevel: e.match(/^\s+/)?.[0].length || 0,
-    content: e,
-  }));
-
-  let top: Tree = { indentLevel: 0, content: [] };
-
-  sections.reduce<Tree>(function reduce(prev, next): Tree {
-    if (!next.content.trim().length) {
-      prev.content.push(next.content);
-      return prev;
-    }
-
-    if (next.indentLevel === prev.indentLevel) {
-      prev.content.push(next.content);
-      return prev;
-    } else if (next.indentLevel > prev.indentLevel) {
-      let item: Tree = {
-        indentLevel: next.indentLevel,
-        content: [next.content],
-        parent: prev,
-      };
-
-      prev.content.push(item);
-      return item;
-    } else if (prev.parent) {
-      return reduce(prev.parent, next);
-    } else throw new Error("Unexpected indentation error");
-  }, top);
-
-  let result = (function traverse(node): string {
-    delete node.parent;
-
-    let output = "";
-    let prev: string | Tree | undefined;
-
-    for (let child of node.content) {
-      if (typeof prev === "string" && typeof child === "object") {
-        let lastChar = prev.trimEnd()[prev.length - 1] || "";
-        let prevChar = prev.trimEnd()[prev.length - 2] || "";
-
-        if (
-          !"+-*/%^&|?:[={(><.,".includes(lastChar) ||
-          (lastChar === "/" && "*/".includes(prevChar)) ||
-          (lastChar === ">" && "-=".includes(prevChar))
-        ) {
-          child = `⇨${traverse(child)}⇦`;
-        }
-      }
-
-      if (typeof child === "object") {
-        child = traverse(child);
-      }
-
-      if (!output) output = child;
-      else output += `\n${child}`;
-
-      prev = child;
-    }
-
-    return output;
-  })(top);
-
-  return result;
-}
+import {
+  addIndentMarkers,
+  Flags,
+  makeCompilerOptions,
+  transformMultiLineString,
+  transformSingleLineString,
+} from "./helpers.js";
+export * from "./helpers.js";
 
 export function compile(text: string) {
-  let match = story.match(addBrackets(text));
+  let match = story.match(addIndentMarkers(text));
   if (match.failed()) throw new SyntaxError(match.message);
 
   let file = semantics(match).ts<ts.SourceFile>();
@@ -109,7 +22,7 @@ export function compile(text: string) {
 }
 
 export function ast(text: string) {
-  let match = story.match(addBrackets(text));
+  let match = story.match(addIndentMarkers(text));
   if (match.failed()) throw new SyntaxError(match.message);
 
   return semantics(match).tree();
@@ -140,13 +53,6 @@ export function transpile(node: ts.Node, flags: Flags = {}) {
   return ts.transpileModule(text, {
     compilerOptions: makeCompilerOptions(flags),
   }).outputText;
-}
-
-export interface Flags {
-  typescript?: boolean;
-  module?: ts.ModuleKind;
-  target?: ts.ScriptTarget;
-  jsx?: string;
 }
 
 semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
@@ -1707,12 +1613,6 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createJsxExpression(undefined, value.ts<ts.Expression>())
     );
   },
-  JSXAttribute_value_string(key, _, string) {
-    return ts.factory.createJsxAttribute(
-      key.ts(),
-      string.ts<ts.StringLiteral>()
-    );
-  },
   JSXAttribute_value_true(key) {
     return ts.factory.createJsxAttribute(key.ts(), undefined);
   },
@@ -2130,9 +2030,6 @@ semantics.addOperation<ts.Node>("ts", {
     return ident.ts();
   },
   MethodName_numerical_key(node) {
-    return node.ts();
-  },
-  MethodName_string_key(node) {
     return node.ts();
   },
   MulExp(node) {
@@ -2625,23 +2522,44 @@ semantics.addOperation<ts.Node>("ts", {
   },
   string_full(open, content, _) {
     let bits = content.tsa<ts.StringLiteral>();
-    return ts.factory.createStringLiteral(
+    let literal = ts.factory.createStringLiteral(
       bits.map((e) => e.text).join(""),
       open.sourceString === "'"
     );
+
+    if (open.sourceString.length === 3) {
+      return transformMultiLineString(content.source, literal);
+    } else {
+      return transformSingleLineString(literal);
+    }
   },
-  string_interpolatable(_0, headNode, _1, spansNode, _2) {
+  string_interpolatable(open, headNode, middle, spansNode, end) {
     let head = headNode.ts<ts.TemplateHead>();
     let spans = spansNode.tsa<ts.TemplateSpan>();
 
+    let literal: ts.TemplateLiteral;
     if (spans.length === 0) {
-      return ts.factory.createNoSubstitutionTemplateLiteral(
+      literal = ts.factory.createNoSubstitutionTemplateLiteral(
         head.text,
         head.rawText
       );
+    } else {
+      literal = ts.factory.createTemplateExpression(head, spans);
     }
 
-    return ts.factory.createTemplateExpression(head, spans);
+    if (open.sourceString.length === 3) {
+      return transformMultiLineString(
+        headNode.source.coverageWith(
+          headNode.source,
+          middle.source,
+          spansNode.source,
+          end.source
+        ),
+        literal
+      );
+    } else {
+      return transformSingleLineString(literal);
+    }
   },
   string_interpolatable_head(content) {
     let bits = content.tsa<ts.StringLiteral>();
@@ -3127,6 +3045,10 @@ semantics.addOperation<ts.Node>("ts", {
 
 declare module "ohm-js" {
   export interface Node extends grammar.StorymaticDict {}
+
+  export interface Interval {
+    sourceString: string;
+  }
 }
 
 declare module "./grammar.js" {
