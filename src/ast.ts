@@ -221,7 +221,7 @@ ${optional(end.tree())}`.trimStart();
     return "BlockComment";
   },
   boolean(value) {
-    if (value.sourceString === "true" || value.sourceString === "yes") {
+    if ("true yes on".split(" ").includes(value.sourceString)) {
       return "True";
     } else {
       return "False";

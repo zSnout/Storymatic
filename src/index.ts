@@ -893,6 +893,8 @@ semantics.addOperation<ts.Node>("ts", {
       false: ts.factory.createFalse(),
       yes: ts.factory.createTrue(),
       no: ts.factory.createFalse(),
+      on: ts.factory.createTrue(),
+      off: ts.factory.createFalse(),
     })!;
   },
   CaseClause(_0, _1, expr, _2) {

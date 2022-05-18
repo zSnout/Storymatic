@@ -379,7 +379,7 @@ Storymatic {
   hexNumber = sign "0x" hexDigit+ ("_" hexDigit+)*
   bigint = ~"0x" sign number "n"
 
-  boolean = "true" | "false" | "yes" | "no"
+  boolean = "true" | "false" | "yes" | "no" | "on" | "off"
   null = "null"
   undefined = "undefined"
 
@@ -425,7 +425,7 @@ Storymatic {
   reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "return" | "break" | "continue" | "fn" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "default" | "rescope" | "down" | "type" | "interface" | "namespace" | "with" | "when") ~id_continue
   reserved_operators = ("and" | "or" | "not" | "is" ~"nt" | "isnt") ~id_continue
   reserved_inline = ("new" | "in" | "type" ~"of" | "of" | "from" | "typeof" | "as" | "extends" | "await" | "readonly" | "infer") ~id_continue
-  reserved_primitive = ("true" | "false" | "yes" | "no" | "null" | "undefined") ~id_continue
+  reserved_primitive = ("true" | "false" | "yes" | "no" | "on" | "off" | "null" | "undefined") ~id_continue
 
   // `super` and `this` are omitted because they are valid names and used often.
   reserved_javascript = ("break" | "case" | "catch" | "class" | "const" | "continue" | "debugger" | "default" | "delete" | "do" | "else" | "enum" | "export" | "extends" | "false" | "finally" | "for" | "function" | "if" | "import" | "in" ~"stanceof" | "instanceof" | "new" | "null" | "return" | /* "super" | */ "switch" | /* "this" | */ "throw" | "true" | "try" | "typeof" | "var" | "void" | "while" | "with" | "implements" | "interface" | "let" | "package" | "private" | "protected" | "public" | "static" | "yield") ~id_continue
@@ -477,8 +477,8 @@ Storymatic {
     | NonLoopType
 
   PrimitiveType
-    = "string" | "number" | "boolean" | "true" | "false" | "yes" | "no" | "bigint"
-    | "symbol" | "object" | "null" | "undefined" | "void" | "any" | "unknown" | "this"
+    = "string" | "number" | "boolean" | "true" | "false" | "yes" | "no" | "on" | "off" | "this"
+    | "bigint" | "symbol" | "object" | "null" | "undefined" | "void" | "any" | "unknown"
 
   Implementable
     = identifier ("." word)* GenericTypeArgumentList &("," | "implements" | "{")
