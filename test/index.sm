@@ -1,8 +1,21 @@
-import { ok } from "assert"
+import { ok, throws } from "assert"
 import { it } from "mocha"
-import { ast } from ".."
+import { ast, typescriptAST, compile } from ".."
 
-export expectAST = (name, code, expected) ->
+export expectStorymaticAST = (name, code, expected) ->
   it name, ->
-    console.log(Object.keys ast code)
-    ok ast(code).trim() is expected.trim()
+    ok ast(code) is expected
+
+export expectTypeScriptAST = (name, code, expected) ->
+  it name, ->
+    ok typescriptAST(compile code) is expected
+
+export expectAST = (name, code, storymaticAST, typescriptAST) ->
+  describe name, ->
+    expectStorymaticAST "storymatic AST", ("" + code), ("" + storymaticAST)
+    expectTypeScriptAST "typescript AST", ("" + code), ("" + typescriptAST)
+
+export expectFailure = (name, code) ->
+  it name, ->
+    throws ->
+      compile code
