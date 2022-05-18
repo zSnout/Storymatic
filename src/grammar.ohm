@@ -444,7 +444,7 @@ Storymatic {
 
   space += block_comment | line_comment
   block_comment = "/*" (~"*/" any)* "*/"
-  line_comment = "//" (~"\n" any)*
+  line_comment = "#" (~"\n" any)*
 
   JSXElement
     = "<" #jsxTagName GenericTypeArgumentList JSXAttribute* ">" JSXChild* "</" #jsxTagName ">" -- open_close
