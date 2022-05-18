@@ -2,7 +2,8 @@ import * as ohm from "ohm-js";
 import * as ts from "typescript";
 
 let newlines = /\s*\n+\s*/g;
-let beginEnd = /^\s*\n+\s*|\s*\n+\s*$/g;
+let begin = /^\s*\n+\s*/g;
+let end = /\s*\n+\s*$/g;
 
 export interface Flags {
   typescript?: boolean;
@@ -16,55 +17,53 @@ export function transformSingleLineString(
 ) {
   if (ts.isStringLiteral(node)) {
     return ts.factory.createStringLiteral(
-      node.text.replace(beginEnd, "").replace(newlines, " ")
+      node.text.replace(begin, "").replace(end, "").replace(newlines, " ")
     );
   }
 
   if (ts.isNoSubstitutionTemplateLiteral(node)) {
     return ts.factory.createNoSubstitutionTemplateLiteral(
-      node.text.replace(beginEnd, "").replace(newlines, " ")
+      node.text.replace(begin, "").replace(end, "").replace(newlines, " ")
     );
   }
 
   if (ts.isTemplateExpression(node)) {
     return ts.factory.createTemplateExpression(
       ts.factory.createTemplateHead(
-        node.head.text.replace(beginEnd, "").replace(newlines, " ")
+        node.head.text.replace(begin, "").replace(newlines, " ")
       ),
-      node.templateSpans.map((span) =>
-        ts.factory.updateTemplateSpan(
+      node.templateSpans.map((span, index, arr) => {
+        let text = span.literal.text;
+        if (index === arr.length - 1) text = text.replace(end, "");
+
+        return ts.factory.updateTemplateSpan(
           span,
           span.expression,
           ts.isTemplateMiddle(span.literal)
-            ? ts.factory.createTemplateMiddle(
-                span.literal.text.replace(beginEnd, "").replace(newlines, " ")
-              )
-            : ts.factory.createTemplateTail(
-                span.literal.text.replace(beginEnd, "").replace(newlines, " ")
-              )
-        )
-      )
+            ? ts.factory.createTemplateMiddle(text.replace(newlines, " "))
+            : ts.factory.createTemplateTail(text.replace(newlines, " "))
+        );
+      })
     );
   }
 
   if (ts.isTemplateLiteralTypeNode(node)) {
     return ts.factory.createTemplateLiteralType(
       ts.factory.createTemplateHead(
-        node.head.text.replace(beginEnd, "").replace(newlines, " ")
+        node.head.text.replace(begin, "").replace(newlines, " ")
       ),
-      node.templateSpans.map((span) =>
-        ts.factory.updateTemplateLiteralTypeSpan(
+      node.templateSpans.map((span, index, arr) => {
+        let text = span.literal.text;
+        if (index === arr.length - 1) text = text.replace(end, "");
+
+        return ts.factory.updateTemplateLiteralTypeSpan(
           span,
           span.type,
           ts.isTemplateMiddle(span.literal)
-            ? ts.factory.createTemplateMiddle(
-                span.literal.text.replace(beginEnd, "").replace(newlines, " ")
-              )
-            : ts.factory.createTemplateTail(
-                span.literal.text.replace(beginEnd, "").replace(newlines, " ")
-              )
-        )
-      )
+            ? ts.factory.createTemplateMiddle(text.replace(newlines, " "))
+            : ts.factory.createTemplateTail(text.replace(newlines, " "))
+        );
+      })
     );
   }
 
@@ -102,55 +101,53 @@ export function transformMultiLineString(
 
   if (ts.isStringLiteral(node)) {
     return ts.factory.createStringLiteral(
-      node.text.replace(beginEnd, "").replace(newlines, "\n")
+      node.text.replace(begin, "").replace(end, "").replace(newlines, "\n")
     );
   }
 
   if (ts.isNoSubstitutionTemplateLiteral(node)) {
     return ts.factory.createNoSubstitutionTemplateLiteral(
-      node.text.replace(beginEnd, "").replace(newlines, "\n")
+      node.text.replace(begin, "").replace(end, "").replace(newlines, "\n")
     );
   }
 
   if (ts.isTemplateExpression(node)) {
     return ts.factory.createTemplateExpression(
       ts.factory.createTemplateHead(
-        node.head.text.replace(beginEnd, "").replace(newlines, "\n")
+        node.head.text.replace(begin, "").replace(newlines, "\n")
       ),
-      node.templateSpans.map((span) =>
-        ts.factory.updateTemplateSpan(
+      node.templateSpans.map((span, index, arr) => {
+        let text = span.literal.text;
+        if (index === arr.length - 1) text = text.replace(end, "");
+
+        return ts.factory.updateTemplateSpan(
           span,
           span.expression,
           ts.isTemplateMiddle(span.literal)
-            ? ts.factory.createTemplateMiddle(
-                span.literal.text.replace(beginEnd, "").replace(newlines, "\n")
-              )
-            : ts.factory.createTemplateTail(
-                span.literal.text.replace(beginEnd, "").replace(newlines, "\n")
-              )
-        )
-      )
+            ? ts.factory.createTemplateMiddle(text.replace(newlines, "\n"))
+            : ts.factory.createTemplateTail(text.replace(newlines, "\n"))
+        );
+      })
     );
   }
 
   if (ts.isTemplateLiteralTypeNode(node)) {
     return ts.factory.createTemplateLiteralType(
       ts.factory.createTemplateHead(
-        node.head.text.replace(beginEnd, "").replace(newlines, "\n")
+        node.head.text.replace(begin, "").replace(newlines, "\n")
       ),
-      node.templateSpans.map((span) =>
-        ts.factory.updateTemplateLiteralTypeSpan(
+      node.templateSpans.map((span, index, arr) => {
+        let text = span.literal.text;
+        if (index === arr.length - 1) text = text.replace(end, "");
+
+        return ts.factory.updateTemplateLiteralTypeSpan(
           span,
           span.type,
           ts.isTemplateMiddle(span.literal)
-            ? ts.factory.createTemplateMiddle(
-                span.literal.text.replace(beginEnd, "").replace(newlines, "\n")
-              )
-            : ts.factory.createTemplateTail(
-                span.literal.text.replace(beginEnd, "").replace(newlines, "\n")
-              )
-        )
-      )
+            ? ts.factory.createTemplateMiddle(text.replace(newlines, "\n"))
+            : ts.factory.createTemplateTail(text.replace(newlines, "\n"))
+        );
+      })
     );
   }
 

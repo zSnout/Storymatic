@@ -2,7 +2,7 @@ import * as ohm from "ohm-js";
 import * as ts from "typescript";
 import * as grammar from "./grammar.js";
 import { story, semantics } from "./semantics.js";
-import "./ast.js";
+export { typescriptAST } from "./ast.js";
 
 import {
   addIndentMarkers,
@@ -2385,7 +2385,7 @@ semantics.addOperation<ts.Node>("ts", {
     return ts.factory.createForOfStatement(
       _await
         .child(0)
-        .tsn({ await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword) }),
+        ?.tsn({ await: ts.factory.createToken(ts.SyntaxKind.AwaitKeyword) }),
       list,
       expression.ts(),
       block.ts()
