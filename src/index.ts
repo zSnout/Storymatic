@@ -2640,10 +2640,10 @@ semantics.addOperation<ts.Node>("ts", {
 
     return ts.factory.createExpressionStatement(expr);
   },
-  TopLevelExp_return(_, expr) {
+  TopLevelExp_return(_0, _1, expr) {
     return ts.factory.createReturnStatement(expr.child(0)?.ts<ts.Expression>());
   },
-  TopLevelExp_throw(_, expr) {
+  TopLevelExp_throw(_0, _1, expr) {
     return ts.factory.createThrowStatement(expr.ts<ts.Expression>());
   },
   TopLevelIfExp(node) {

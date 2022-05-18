@@ -1351,10 +1351,10 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
   TopLevelExp_expression(node) {
     return indent`Expression\n  ${node}`;
   },
-  TopLevelExp_return(_, expr) {
+  TopLevelExp_return(_0, _1, expr) {
     return indent`Return${optional(expr)}`;
   },
-  TopLevelExp_throw(_, expr) {
+  TopLevelExp_throw(_0, _1, expr) {
     return indent`Throw\n  ${expr}`;
   },
   TopLevelForExp(node) {
