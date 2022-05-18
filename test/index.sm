@@ -1,6 +1,6 @@
-import { ok } from assert
-import { it } from mocha
-import { ast } from ..
+import { ok } from "assert"
+import { it } from "mocha"
+import { ast } from ".."
 
 export expectAST = (name, code, expected) ->
   it name, ->

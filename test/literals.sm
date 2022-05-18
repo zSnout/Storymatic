@@ -1,11 +1,14 @@
-import { ok } from assert
-import { describe } from mocha
-import { ast } from .
+import { ok } from "assert"
+import { describe } from "mocha"
+import { expectAST } from "./index.sm"
 
 describe "numeric literals", ->
-  ast "numeric literals", "32",
-    "
+  expectAST "check 32",
+    """
+    32
+    """,
+    """
     Script
       Expression
         Number 32
-    "
+    """
