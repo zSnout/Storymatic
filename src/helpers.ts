@@ -173,19 +173,27 @@ export function addIndentMarkers(text: string) {
     content: e,
   }));
 
-  let top: Tree = { indentLevel: 0, content: [] };
-
-  // As we go through a piece of text we have to track whether we're in a string.
+  // As we go through the indents we have to track whether we're in a string.
   let embeddings: StringMode[] = [];
   type StringMode = '"' | "'" | "expr";
+  let oldSections = sections.slice();
+  sections = [];
 
-  sections.reduce<Tree>(function reduce(prev, next): Tree {
-    if (!next.content.trim().length) {
-      prev.content.push(next.content);
-      return prev;
+  for (let node of oldSections) {
+    let prev = sections[sections.length - 1];
+    let last = embeddings[embeddings.length - 1];
+
+    if (last === "'" || last === '"') {
+      if (prev) {
+        prev.content += node.content;
+      } else {
+        sections.push(node);
+      }
+    } else {
+      sections.push(node);
     }
 
-    for (let char of next.content) {
+    for (let char of node.content) {
       let last = embeddings[embeddings.length - 1];
 
       if (char === '"' && (last === "expr" || !last)) {
@@ -196,9 +204,11 @@ export function addIndentMarkers(text: string) {
         embeddings.pop();
       }
     }
+  }
 
-    let last = embeddings[embeddings.length - 1];
-    if (last === "'" || last === '"') {
+  let top: Tree = { indentLevel: 0, content: [] };
+  sections.reduce<Tree>(function reduce(prev, next): Tree {
+    if (!next.content.trim().length) {
       prev.content.push(next.content);
       return prev;
     }
