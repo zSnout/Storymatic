@@ -42,6 +42,11 @@ function addBrackets(text: string) {
   let top: Tree = { indentLevel: 0, content: [] };
 
   sections.reduce<Tree>(function reduce(prev, next): Tree {
+    if (!next.content.trim().length) {
+      prev.content.push(next.content);
+      return prev;
+    }
+
     if (next.indentLevel === prev.indentLevel) {
       prev.content.push(next.content);
       return prev;
@@ -417,10 +422,59 @@ function transformer(context: ts.TransformationContext) {
         }
       }
 
+      if (autoReturn && ts.isCaseClause(node)) {
+        let stmt = node.statements[0];
+
+        if (node.statements.length === 1 && ts.isBlock(stmt)) {
+          let last = stmt.statements[stmt.statements.length - 2];
+          let _break = stmt.statements[stmt.statements.length - 1];
+          // `last` is the 2nd last statement for a `case` block because we add `break` statements.
+
+          return ts.factory.updateCaseClause(node, node.expression, [
+            ts.visitEachChild(
+              stmt,
+              (node) =>
+                node === _break
+                  ? undefined
+                  : visit(
+                      node,
+                      fnScope,
+                      blockScope,
+                      autoReturn && node === last ? autoReturn : false,
+                      exclude
+                    ),
+              context
+            ),
+          ]);
+        }
+      }
+
+      if (autoReturn && ts.isDefaultClause(node)) {
+        let stmt = node.statements[0];
+
+        if (node.statements.length === 1 && ts.isBlock(stmt)) {
+          let last = stmt.statements[stmt.statements.length - 1];
+
+          return ts.factory.updateDefaultClause(node, [
+            ts.visitEachChild(
+              stmt,
+              (node) =>
+                visit(
+                  node,
+                  fnScope,
+                  blockScope,
+                  autoReturn && node === last ? autoReturn : false,
+                  exclude
+                ),
+              context
+            ),
+          ]);
+        }
+      }
+
       if (autoReturn && ts.isIterationStatement(node, false)) {
-        let result: typeof autoReturn = `$res`;
-        if (autoReturn && autoReturn.startsWith("$res"))
-          result += +autoReturn.slice(4) + 1;
+        let result: typeof autoReturn = "$res";
+        if (autoReturn.startsWith("$res")) result += +autoReturn.slice(4) + 1;
 
         let exclude: ts.BindingName[] | undefined;
         if (

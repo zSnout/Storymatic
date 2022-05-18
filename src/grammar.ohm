@@ -16,14 +16,17 @@ Storymatic {
     = ("if" | "unless") #postWord Expression SingleStatementBlock<"then">
       ("else" #postWord (UnprefixedSingleStatementBlock | IfStatement))?
 
-  SwitchStatement = "switch" #space Expression "{" CaseStatement* DefaultStatement? "}"
+  SwitchStatement
+    = "switch" #space Expression "{" CaseStatement* DefaultStatement? "}"
+    | "switch" #space Expression "⇨" CaseStatement* DefaultStatement? "⇦"
+
   CaseClause = "case" #space NonemptyListOf<Expression, ","> CaseTerminator
   CaseStatement = CaseClause+ UnprefixedSingleStatementBlock
   DefaultStatement = "default" #space UnprefixedSingleStatementBlock
 
   CaseTerminator
     = #colonTerminator -- terminator
-    | &"{" -- final
+    | &("{" | "⇨") -- final
 
   TryStatement = "try" #space UnprefixedSingleStatementBlock CatchStatement? FinallyStatement?
   CatchStatement = "catch" #(space+ identifier)? WrappedStatementBlock?
