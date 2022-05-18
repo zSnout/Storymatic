@@ -6,6 +6,7 @@ import { runInContext, runInNewContext } from "vm";
 import * as yargs from "yargs";
 import { ast, compile, transpile } from "./index.js";
 import glob = require("fast-glob");
+import { typescriptAST } from "./ast.js";
 
 let args = yargs
   .scriptName("sm")
@@ -92,14 +93,20 @@ let args = yargs
   })
   .option("output", {
     alias: "o",
-    conflicts: "ast",
+    conflicts: ["ast", "ts-ast"],
     desc: "show the transpiled code without executing",
     type: "boolean",
   })
   .option("ast", {
     alias: "a",
-    conflicts: "output",
-    desc: "show the parsed AST nodes",
+    conflicts: "ts-ast",
+    desc: "show the parsed Storymatic AST nodes",
+    type: "boolean",
+  })
+  .option("ts-ast", {
+    alias: "A",
+    conflicts: "ast",
+    desc: "show the parsed TypeScript AST nodes",
     type: "boolean",
   })
   .option("eval", {
@@ -118,13 +125,13 @@ let args = yargs
   })
   .option("build", {
     alias: "b",
-    conflicts: ["ast", "eval", "output", "print", "watch"],
+    conflicts: ["ast", "ts-ast", "eval", "output", "print", "watch"],
     desc: "build all .sm files in the `src` directory",
     type: "boolean",
   })
   .option("watch", {
     alias: "w",
-    conflicts: ["ast", "build", "eval", "output", "print"],
+    conflicts: ["ast", "ts-ast", "build", "eval", "output", "print"],
     desc: "start a watcher on the `src` directory",
     type: "boolean",
   })
@@ -221,23 +228,18 @@ if (args.build) {
 } else if (args.eval) {
   let code = args.eval;
 
-  if (args.output) {
-    if (args.print) console.log(transpile(compile(code), args));
-  } else if (args.ast) {
-    if (args.print) console.log(ast(code));
-  } else {
-    let result = execute(compile(code));
-    if (args.print) console.log(result);
-  }
+  getResult(code);
 } else if (args._.length) {
   (async () => {
     for (let file of args._) {
       let code = await readFile("" + file, "utf-8");
-      await getResult(code);
+      getResult(code);
     }
   })();
 } else if (process.stdin.isTTY) {
-  startREPL(args.output ? "noeval" : args.ast ? "ast" : "repl");
+  startREPL(
+    args.output ? "noeval" : args.ast ? "ast" : args.tsAst ? "ts-ast" : "repl"
+  );
 } else {
   let code = readFileSync(process.stdin.fd, "utf-8");
   if (code.length) getResult(code);
@@ -248,6 +250,8 @@ function getResult(code: string) {
     if (args.print) console.log(transpile(compile(code), args));
   } else if (args.ast) {
     if (args.print) console.log(ast(code));
+  } else if (args["ts-ast"]) {
+    if (args.print) console.log(typescriptAST(compile(code)));
   } else {
     let result = execute(compile(code));
     if (args.print) console.log(result);
@@ -258,13 +262,15 @@ function execute(node: ts.Node) {
   return runInNewContext(transpile(node, args), { console });
 }
 
-function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
+function startREPL(mode: "ast" | "ts-ast" | "noeval" | "repl" = "repl") {
   console.log("Welcome to the Storymatic REPL.");
 
   let help = {
-    repl: "Enter any expression to run it and output the result.",
-    noeval: "Enter any expression to compile it and view the output code.",
-    ast: "Enter any expression to compile its AST and output it.",
+    "repl": "Enter any expression to run it and output the result.",
+    "noeval": "Enter any expression to compile it and view the output code.",
+    "ast": "Enter any expression to compile its Storymatic AST and output it.",
+    "ts-ast":
+      "Enter any expression to compile its TypeScript AST and output it.",
   }[mode];
   console.log(help);
 
@@ -274,11 +280,13 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
       let output: any;
 
       try {
-        if (mode !== "ast") {
+        if (mode === "ast") {
+          output = ast(cmd);
+        } else if (mode === "ts-ast") {
+          output = typescriptAST(compile(cmd));
+        } else {
           let node = compile(cmd);
           output = transpile(node, args).replace('"use strict";\n', "");
-        } else {
-          output = ast(cmd);
         }
       } catch (e) {
         if (args.debug) console.log(e);
@@ -295,7 +303,10 @@ function startREPL(mode: "ast" | "noeval" | "repl" = "repl") {
 
       cb(null, output);
     },
-    writer: mode === "noeval" || mode === "ast" ? (x) => "" + x : undefined,
+    writer:
+      mode === "noeval" || mode === "ast" || mode === "ts-ast"
+        ? (x) => "" + x
+        : undefined,
   });
 
   repl.defineCommand("clear", () => {

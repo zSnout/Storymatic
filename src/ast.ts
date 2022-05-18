@@ -1,4 +1,5 @@
 import { Node } from "ohm-js";
+import * as ts from "typescript";
 import * as grammar from "./grammar.js";
 import { semantics } from "./semantics.js";
 
@@ -70,6 +71,31 @@ function modify(name: string, node: string | Node) {
 ${optional(lines.slice(2).join("\n"))}`;
   } else {
     return `${lines[0]}\n  [${name}]${optional(lines.slice(1).join("\n"))}`;
+  }
+}
+
+function syntaxKind(kind: number) {
+  for (let key in ts.SyntaxKind) {
+    if (ts.SyntaxKind[key as keyof typeof ts.SyntaxKind] === kind) {
+      return key;
+    }
+  }
+
+  return "UnknownSyntaxKind";
+}
+
+export function typescriptAST(node: ts.Node): string {
+  let output = "";
+  node.forEachChild((node) => {
+    output = output ? `${output}\n${typescriptAST(node)}` : typescriptAST(node);
+  });
+
+  if (!output && "text" in node) {
+    return namespace(syntaxKind(node.kind), "" + (node as any).text);
+  } else if (!output) {
+    return syntaxKind(node.kind);
+  } else {
+    return namespace(syntaxKind(node.kind), output);
   }
 }
 
