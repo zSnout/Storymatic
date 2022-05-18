@@ -41,3 +41,32 @@ describe "bigint literals", ->
   for value of ["35.6n", "-.2n", "-0.2n", "4564e4n", "42__3n", "4534_345_n"]
     describe value, ->
       expectFailure "fail compilation", value
+
+describe "boolean literals", ->
+  for value of ["true", "yes", "on"]
+    expectAST value, value,
+      """
+        Script
+          Expression
+            True
+        """,
+        """
+        SourceFile
+          ExpressionStatement
+            TrueKeyword
+          EndOfFileToken
+        """
+
+  for value of ["false", "no", "off"]
+    expectAST value, value,
+      """
+        Script
+          Expression
+            False
+        """,
+        """
+        SourceFile
+          ExpressionStatement
+            FalseKeyword
+          EndOfFileToken
+        """
