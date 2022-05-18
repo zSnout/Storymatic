@@ -159,7 +159,6 @@ Storymatic {
     | Property
     | undefined
     | boolean
-    | string_non_interpolatable
     | string
     | null
     | NonemptyListOf<ObjectEntry_implied, ","> -- object_implied
@@ -196,7 +195,6 @@ Storymatic {
 
   MethodName
     = word -- identifier
-    | string_non_interpolatable -- string_key
     | string -- computed_string_key
     | decimalNumber -- numerical_key
     | "[" Expression "]" -- computed_key
@@ -220,7 +218,7 @@ Storymatic {
     | Child "?." word -- optional_chaining_member_access
     | Child "?"? "[" Expression "]" -- computed_member_access
     | Child "?"? "[" Expression? ("..." | "..") Expression? "]" -- array_slice
-    | Child #string -- tagged_template_literal
+    | ~("\"" | "'") Child #string -- tagged_template_literal
     | Child "!" ~"=" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
     | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
@@ -406,14 +404,19 @@ Storymatic {
 
   string_full<delimeter> = delimeter string_bit<delimeter>* delimeter
 
-  string_non_interpolatable = string_full<"\""> | string_full<"'">
+  string_non_interpolatable
+    = string_full<"\"\"\""> | string_full<"'''"> | string_full<"\""> | string_full<"'">
 
   string
-    = string_interpolatable<"\"", applySyntactic<Expression>>
+    = string_interpolatable<"\"\"\"", applySyntactic<Expression>>
+    | string_interpolatable<"'''", applySyntactic<Expression>>
+    | string_interpolatable<"\"", applySyntactic<Expression>>
     | string_interpolatable<"'", applySyntactic<Expression>>
 
   string_type
-    = string_interpolatable<"\"", applySyntactic<Type>>
+    = string_interpolatable<"\"\"\"", applySyntactic<Type>>
+    | string_interpolatable<"'''", applySyntactic<Type>>
+    | string_interpolatable<"\"", applySyntactic<Type>>
     | string_interpolatable<"'", applySyntactic<Type>>
 
   reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "return" | "break" | "continue" | "fn" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "default" | "rescope" | "down" | "type" | "interface" | "namespace" | "with" | "when") ~id_continue
@@ -453,7 +456,6 @@ Storymatic {
 
   JSXAttribute
     = JSXAttributeKey ~"=" -- value_true
-    | JSXAttributeKey "=" string_non_interpolatable -- value_string
     | JSXAttributeKey "=" string -- value_computed_string
     | JSXAttributeKey "=" "{" Expression "}" -- value_expression
     | "{" "..." Expression "}" -- spread_attributes
@@ -485,7 +487,6 @@ Storymatic {
 
   LiteralType
     = PrimitiveType ~(id_continue | ".")
-    | string_non_interpolatable
     | string_type
     | decimalNumber
     | bigint

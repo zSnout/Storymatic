@@ -115,7 +115,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   FunctionBody_expression?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   FunctionBody?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MethodName_identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  MethodName_string_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MethodName_computed_string_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MethodName_numerical_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MethodName_computed_key?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
@@ -281,7 +280,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   JSXChild_interpolation?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
   JSXChild?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   JSXAttribute_value_true?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  JSXAttribute_value_string?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   JSXAttribute_value_computed_string?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   JSXAttribute_value_expression?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   JSXAttribute_spread_attributes?: (this: NonterminalNode, arg0: TerminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode) => T;
