@@ -46,27 +46,55 @@ describe "boolean literals", ->
   for value of ["true", "yes", "on"]
     expectAST value, value,
       """
-        Script
-          Expression
-            True
-        """,
-        """
-        SourceFile
-          ExpressionStatement
-            TrueKeyword
-          EndOfFileToken
-        """
+      Script
+        Expression
+          True
+      """,
+      """
+      SourceFile
+        ExpressionStatement
+          TrueKeyword
+        EndOfFileToken
+      """
 
   for value of ["false", "no", "off"]
     expectAST value, value,
       """
-        Script
-          Expression
-            False
-        """,
-        """
-        SourceFile
-          ExpressionStatement
-            FalseKeyword
-          EndOfFileToken
-        """
+      Script
+        Expression
+          False
+      """,
+      """
+      SourceFile
+        ExpressionStatement
+          FalseKeyword
+        EndOfFileToken
+      """
+
+expectAST "null literal", "null",
+  """
+  Script
+    Expression
+      Null
+  """,
+  """
+  SourceFile
+    ExpressionStatement
+      NullKeyword
+    EndOfFileToken
+  """
+
+expectAST "undefined literal", "undefined",
+  """
+  Script
+    Expression
+      Undefined
+  """,
+  """
+  SourceFile
+    ExpressionStatement
+      VoidExpression
+        NumericLiteral
+          0
+    EndOfFileToken
+  """
