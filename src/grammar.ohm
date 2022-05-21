@@ -150,6 +150,7 @@ Storymatic {
     | "%" -- topic_token
     | "with" #space Expression SingleStatementBlock<"then"> -- with
     | "do" Expression -- do
+    | NonemptyListOf<ObjectEntry_implied, ","> -- object_implied
     | InlineClassDeclaration
     | decimalNumber
     | unitNumber
@@ -161,8 +162,7 @@ Storymatic {
     | boolean
     | string
     | null
-    | NonemptyListOf<ObjectEntry_implied, ","> -- object_implied
-    | Statement -- statement
+    | ~Expression Statement -- statement
 
   InlineClassDeclaration
     = "class" GenericTypeParameterList?
