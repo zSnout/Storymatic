@@ -163,7 +163,7 @@ export function addIndentMarkers(text: string) {
     parent?: Tree;
   };
 
-  text = text.replace(/[⇦⇨]+/g, "") + "\n";
+  text = text.replace(/\t/g, "  ").replace(/[⇦⇨]+/g, "") + "\n";
   let sections: Indented[] = text.split(/[\r\n]+/g).map((e) => ({
     indentLevel: e.match(/^\s+/)?.[0].length || 0,
     content: e,
