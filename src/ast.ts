@@ -489,7 +489,7 @@ ${optional(members)}`;
 
     return text;
   },
-  ForExp_print(_0, _1, exps) {
+  ForExp_print(_, exps) {
     return namespace("Print", exps);
   },
   Function(generics, _0, params, _1, _2, returnType, arrow, body) {

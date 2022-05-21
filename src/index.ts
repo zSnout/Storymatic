@@ -1304,7 +1304,7 @@ semantics.addOperation<ts.Node>("ts", {
       )
     );
   },
-  ForExp_print(_0, _1, expr) {
+  ForExp_print(_, expr) {
     return ts.factory.createCallExpression(
       ts.factory.createPropertyAccessExpression(
         ts.factory.createIdentifier("console"),

@@ -328,9 +328,9 @@ Storymatic {
     | PipeExp
 
   ForExp
-    = AssignmentExp #(~lineBreak) "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? ForExp 
+    = "print" #(~lineBreak) NonemptyListOf<AssignmentExp, ","> -- print
+    | AssignmentExp #(~lineBreak) "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? ForExp 
       ("when" #postWord Expression)? -- for
-    | "print" #whitespace #(~"\n") NonemptyListOf<AssignmentExp, ","> -- print
     | AssignmentExp
 
   WhileExp
