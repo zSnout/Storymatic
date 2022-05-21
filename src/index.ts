@@ -1322,7 +1322,7 @@ semantics.addOperation<ts.Node>("ts", {
         params.child(0)?.child(0)?.tsa(),
         type.child(0)?.child(0)?.ts<ts.TypeNode>(),
         undefined,
-        body.ts()
+        body.child(0)?.ts() || ts.factory.createVoidZero()
       );
     } else {
       return ts.factory.createFunctionExpression(
@@ -1332,7 +1332,7 @@ semantics.addOperation<ts.Node>("ts", {
         generics.child(0)?.child(0)?.tsa(),
         params.child(0)?.child(0)?.tsa(),
         type.child(0)?.child(0)?.ts<ts.TypeNode>(),
-        body.ts()
+        body.child(0)?.ts() || ts.factory.createBlock([], false)
       );
     }
   },
@@ -1361,7 +1361,8 @@ semantics.addOperation<ts.Node>("ts", {
     return ts.factory.createFunctionTypeNode(
       generics.child(0)?.child(0)?.tsa(),
       params.child(0)?.child(0)?.tsa(),
-      type.ts()
+      type.child(0)?.ts() ||
+        ts.factory.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)
     );
   },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {

@@ -519,7 +519,7 @@ ${optional(asserts.sourceString && "[Assertion]")}
     return indent`FunctionType\
   ${optional(generics)}\
   ${optional(params)}\
-  ${optional(namespace("ReturnType", returnType))}`;
+  ${optional(returnType)}`;
   },
   fullNumber(_0, _1, _2, _3, _4, _5, _6) {
     return indent`Number ${this.sourceString}`;

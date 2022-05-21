@@ -175,7 +175,8 @@ Storymatic {
     | "..." Expression -- spread_operator
 
   Function
-    = (GenericTypeParameterList? "(" ParameterList? ")" (":" FunctionReturnType)?)? ("->" | "=>") FunctionBody
+    = (GenericTypeParameterList? "(" ParameterList? ")"
+      (":" FunctionReturnType)?)? ("->" | "=>") (#(~lineBreak) FunctionBody)?
 
   Method<prefix>
     = PrivacyLevel prefix MethodName "?"? Function
@@ -533,7 +534,9 @@ Storymatic {
 
   TypeObjectEntry_implied = ("readonly" #space)? TypeObjectEntry "?"? ":" NonLoopType
 
-  FunctionType = (GenericTypeParameterList? "(" ParameterList? ")")? "->" Type
+  FunctionType
+    = (GenericTypeParameterList? "(" ParameterList? ")")?
+    "->" (#(~lineBreak) FunctionReturnType)?
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
   UnionType = NonemptyListOf<IntersectionType, "|">

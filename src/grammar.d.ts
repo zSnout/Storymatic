@@ -104,7 +104,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   InlineClassDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: IterationNode, arg12: TerminalNode) => T;
   ArrayEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   ArrayEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  Function?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode) => T;
+  Function?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode, arg7: IterationNode) => T;
   Method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: Node, arg2: NonterminalNode, arg3: IterationNode, arg4: NonterminalNode) => T;
   ClassProperty?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: Node, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode) => T;
   PrivacyLevel_public?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
@@ -327,7 +327,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TypeObjectEntry_method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   TypeObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectEntry_implied?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
-  FunctionType?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
+  FunctionType?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: TerminalNode, arg5: IterationNode) => T;
   IntersectionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnionType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ConditionalType_conditional?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: NonterminalNode) => T;
