@@ -656,10 +656,6 @@ ${optional(members)}`;
     return indent`Intersection\n  ${node}`;
   },
   identifier(node) {
-    let src = node.sourceString;
-    return indent`Identifier ${src[0] === "~" ? src.slice(1) : src}`;
-  },
-  identifier_escape(_, node) {
     return indent`Identifier ${node.sourceString}`;
   },
   id_continue(_) {

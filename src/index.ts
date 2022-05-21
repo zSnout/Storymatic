@@ -1584,9 +1584,6 @@ semantics.addOperation<ts.Node>("ts", {
   identifier(node) {
     return node.ts();
   },
-  identifier_escape(_, node) {
-    return node.ts();
-  },
   id_continue(_) {
     throw new Error("`id_continue` nodes should never directly be evaluated.");
   },

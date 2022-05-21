@@ -288,8 +288,8 @@ Storymatic {
   CompareExp = BitwiseExp (comparisonOperator BitwiseExp)*
 
   comparisonOperator
-    = ("==" | "is" ~("a" "n"? ~id_continue)) -- equal_to
-    | ("!=" | "isnt" ~("a" "n"? ~id_continue)) -- not_equal_to
+    = ("==" | "is" ~id_continue) -- equal_to
+    | ("!=" | "isnt" ~id_continue) -- not_equal_to
     | "<" -- less_than
     | ">" -- greater_than
     | "<=" -- less_than_equal
@@ -422,7 +422,7 @@ Storymatic {
     | string_interpolatable<"\"", applySyntactic<Type>>
     | string_interpolatable<"'", applySyntactic<Type>>
 
-  reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "repeat" | "return" | "break" | "continue" | "fn" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "default" | "rescope" | "down" | "type" | "interface" | "namespace" | "with" | "when") ~id_continue
+  reserved_block = ("if" | "else" | "then" | "print" | "throw" | "for" | "while" | "until" | "unless" | "do" ~"wn" | "return" | "break" | "continue" | "import" | "export" | "class" | "try" | "catch" | "finally" | "switch" | "case" | "default" | "rescope" | "down" | "type" | "interface" | "namespace" | "with" | "when") ~id_continue
   reserved_operators = ("and" | "or" | "not" | "is" ~"nt" | "isnt") ~id_continue
   reserved_inline = ("new" | "in" | "type" ~"of" | "of" | "from" | "typeof" | "as" | "extends" | "await" | "readonly" | "infer") ~id_continue
   reserved_primitive = ("true" | "false" | "yes" | "no" | "on" | "off" | "null" | "undefined") ~id_continue
@@ -434,9 +434,7 @@ Storymatic {
   char = letter | "_"
   word = char+ (number char*)*
 
-  identifier
-    = "~" ~reserved_javascript word -- escape
-    | ~reserved word
+  identifier = ~reserved word
 
   Property
     = "@" #word -- identifier
