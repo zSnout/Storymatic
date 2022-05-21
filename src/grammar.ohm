@@ -176,7 +176,7 @@ Storymatic {
 
   Function
     = (GenericTypeParameterList? "(" ParameterList? ")"
-      (":" FunctionReturnType)?)? ("->" | "=>") (#(~lineBreak) FunctionBody)?
+      (":" FunctionReturnType)?)? ("->" | "=>") (#(~(lineBreak ~"⇨")) FunctionBody)?
 
   Method<prefix>
     = PrivacyLevel prefix MethodName "?"? Function
@@ -536,7 +536,7 @@ Storymatic {
 
   FunctionType
     = (GenericTypeParameterList? "(" ParameterList? ")")?
-    "->" (#(~lineBreak) FunctionReturnType)?
+    "->" (#(~(lineBreak ~"⇨")) FunctionReturnType)?
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
   UnionType = NonemptyListOf<IntersectionType, "|">
