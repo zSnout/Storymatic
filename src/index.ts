@@ -5,7 +5,7 @@ import { story, semantics } from "./semantics.js";
 export { typescriptAST } from "./ast.js";
 
 import {
-  addIndentMarkers,
+  preCompile,
   Flags,
   makeCompilerOptions,
   transformMultiLineString,
@@ -14,7 +14,7 @@ import {
 export * from "./helpers.js";
 
 export function compile(text: string) {
-  let match = story.match(addIndentMarkers(text));
+  let match = story.match(preCompile(text));
   if (match.failed()) throw new SyntaxError(match.message);
 
   let file = semantics(match).ts<ts.SourceFile>();
@@ -22,7 +22,7 @@ export function compile(text: string) {
 }
 
 export function ast(text: string) {
-  let match = story.match(addIndentMarkers(text));
+  let match = story.match(preCompile(text));
   if (match.failed()) throw new SyntaxError(match.message);
 
   return semantics(match).tree();

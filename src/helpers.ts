@@ -154,7 +154,7 @@ export function transformMultiLineString(
   throw new Error("Bad arguments were passed to `transformMultiLineString`");
 }
 
-export function addIndentMarkers(text: string) {
+export function preCompile(text: string) {
   type Indented = { indentLevel: number; content: string };
 
   type Tree = {

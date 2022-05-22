@@ -28,9 +28,9 @@ Storymatic {
     = #colonTerminator -- terminator
     | &("{" | "⇨") -- final
 
-  TryStatement = "try" #space UnprefixedSingleStatementBlock CatchStatement? FinallyStatement?
-  CatchStatement = "catch" #(space+ identifier)? WrappedStatementBlock?
-  FinallyStatement = "finally" #space UnprefixedSingleStatementBlock?
+  TryStatement = "try" #postWord UnprefixedSingleStatementBlock CatchStatement? FinallyStatement?
+  CatchStatement = "catch" #(postWord identifier)? WrappedStatementBlock?
+  FinallyStatement = "finally" #postWord UnprefixedSingleStatementBlock?
 
   EnumStatement = ("export" #space)? "enum" #space identifier "{" EnumMember* "}"
 
@@ -162,7 +162,7 @@ Storymatic {
     | boolean
     | string
     | null
-    | ~Expression Statement -- statement
+    | Statement -- statement
 
   InlineClassDeclaration
     = "class" GenericTypeParameterList?
@@ -443,7 +443,7 @@ Storymatic {
 
   space += block_comment | line_comment
   block_comment = "/*" (~"*/" any)* "*/"
-  line_comment = "#" (~"\n" any)*
+  line_comment = "#" (~("\n" | "⇦") any)*
 
   JSXElement
     = "<" #jsxTagName GenericTypeArgumentList JSXAttribute* ">" JSXChild* "</" #jsxTagName ">" -- open_close

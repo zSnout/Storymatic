@@ -7,6 +7,7 @@ import * as yargs from "yargs";
 import { ast, compile, transpile } from "./index.js";
 import glob = require("fast-glob");
 import { typescriptAST } from "./ast.js";
+import { preCompile } from "./helpers.js";
 
 let args = yargs
   .scriptName("sm")
@@ -99,14 +100,20 @@ let args = yargs
   })
   .option("ast", {
     alias: "a",
-    conflicts: "ts-ast",
+    conflicts: "typescript-ast",
     desc: "show the parsed Storymatic AST nodes",
     type: "boolean",
   })
-  .option("ts-ast", {
-    alias: "A",
+  .option("typescript-ast", {
+    alias: ["A", "ts-ast"],
     conflicts: "ast",
     desc: "show the parsed TypeScript AST nodes",
+    type: "boolean",
+  })
+  .option("transform", {
+    alias: "s",
+    conflicts: ["typescript"],
+    desc: "show the transformed code without compiling",
     type: "boolean",
   })
   .option("eval", {
@@ -125,13 +132,29 @@ let args = yargs
   })
   .option("build", {
     alias: "b",
-    conflicts: ["ast", "ts-ast", "eval", "output", "print", "watch"],
+    conflicts: [
+      "ast",
+      "typescript-ast",
+      "transform",
+      "eval",
+      "output",
+      "print",
+      "watch",
+    ],
     desc: "build all .sm files in the `src` directory",
     type: "boolean",
   })
   .option("watch", {
     alias: "w",
-    conflicts: ["ast", "ts-ast", "build", "eval", "output", "print"],
+    conflicts: [
+      "ast",
+      "typescript-ast",
+      "transform",
+      "build",
+      "eval",
+      "output",
+      "print",
+    ],
     desc: "start a watcher on the `src` directory",
     type: "boolean",
   })
@@ -247,7 +270,15 @@ if (args.build) {
   })();
 } else if (process.stdin.isTTY) {
   startREPL(
-    args.output ? "noeval" : args.ast ? "ast" : args.tsAst ? "ts-ast" : "repl"
+    args.output
+      ? "noeval"
+      : args.ast
+      ? "ast"
+      : args.tsAst
+      ? "ts-ast"
+      : args.transform
+      ? "transform"
+      : "repl"
   );
 } else {
   let code = readFileSync(process.stdin.fd, "utf-8");
@@ -255,7 +286,9 @@ if (args.build) {
 }
 
 function getResult(code: string) {
-  if (args.output) {
+  if (args.transform) {
+    if (args.print) console.log(preCompile(code));
+  } else if (args.output) {
     if (args.print) console.log(transpile(compile(code), args));
   } else if (args.ast) {
     if (args.print) console.log(ast(code));
@@ -271,7 +304,9 @@ function execute(node: ts.Node) {
   return runInNewContext(transpile(node, args), { console });
 }
 
-function startREPL(mode: "ast" | "ts-ast" | "noeval" | "repl" = "repl") {
+function startREPL(
+  mode: "ast" | "ts-ast" | "transform" | "noeval" | "repl" = "repl"
+) {
   console.log("Welcome to the Storymatic REPL.");
 
   let help = {
@@ -280,6 +315,8 @@ function startREPL(mode: "ast" | "ts-ast" | "noeval" | "repl" = "repl") {
     "ast": "Enter any expression to compile its Storymatic AST and output it.",
     "ts-ast":
       "Enter any expression to compile its TypeScript AST and output it.",
+    "transform":
+      "Enter any expression to run the pre-compile step and output it.",
   }[mode];
   console.log(help);
 
@@ -293,6 +330,8 @@ function startREPL(mode: "ast" | "ts-ast" | "noeval" | "repl" = "repl") {
           output = ast(cmd);
         } else if (mode === "ts-ast") {
           output = typescriptAST(compile(cmd));
+        } else if (mode === "transform") {
+          output = preCompile(cmd);
         } else {
           let node = compile(cmd);
           output = transpile(node, args).replace('"use strict";\n', "");
@@ -312,10 +351,7 @@ function startREPL(mode: "ast" | "ts-ast" | "noeval" | "repl" = "repl") {
 
       cb(null, output);
     },
-    writer:
-      mode === "noeval" || mode === "ast" || mode === "ts-ast"
-        ? (x) => "" + x
-        : undefined,
+    writer: mode === "repl" ? undefined : (x) => "" + x,
   });
 
   repl.defineCommand("clear", () => {
