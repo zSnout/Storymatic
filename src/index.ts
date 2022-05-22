@@ -1340,16 +1340,6 @@ semantics.addOperation<ts.Node>("ts", {
       )
     );
   },
-  ForExp_print(_, expr) {
-    return ts.factory.createCallExpression(
-      ts.factory.createPropertyAccessExpression(
-        ts.factory.createIdentifier("console"),
-        "log"
-      ),
-      undefined,
-      expr.tsa()
-    );
-  },
   Function(generics, _0, params, _1, _2, type, arrow, body) {
     if (arrow.sourceString === "=>") {
       return ts.factory.createArrowFunction(
