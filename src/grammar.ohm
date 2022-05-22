@@ -110,11 +110,8 @@ Storymatic {
     | terminator
 
   terminator
-    = spaces &"}"
-    | spaces &"⇦"
-    | spaces &reserved_block
-    | spaces end
-    | (~"\n" space)* "\n"+
+    = spaces &("}" | "]" | ")" | "⇦" | end | reserved_block)
+    | whitespace? "\n"+
 
   TopLevelIfExp
     = TopLevelWhileExp #(~lineBreak) ("if" | "unless") #postWord Expression -- if

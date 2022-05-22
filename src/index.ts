@@ -190,6 +190,7 @@ function transformer(context: ts.TransformationContext) {
     interface FunctionScope {
       isAsync: boolean;
       isGenerator: boolean;
+      usesThis: boolean;
     }
 
     interface BlockScope {
@@ -250,7 +251,12 @@ function transformer(context: ts.TransformationContext) {
           | ts.FunctionExpression
           | ts.ArrowFunction;
 
-        let scope: FunctionScope = { isAsync: false, isGenerator: false };
+        let scope: FunctionScope = {
+          isAsync: false,
+          isGenerator: false,
+          usesThis: false,
+        };
+
         let params = fn.parameters.flatMap((e) => e.name);
 
         fn = ts.visitEachChild(
@@ -269,8 +275,12 @@ function transformer(context: ts.TransformationContext) {
 
         let modifiers = fn.modifiers?.concat(asyncModifier) || asyncModifier;
 
+        if (scope.usesThis) {
+          fnScope.usesThis = true;
+        }
+
         if (fn.kind === ts.SyntaxKind.FunctionExpression) {
-          return ts.factory.updateFunctionExpression(
+          fn = ts.factory.updateFunctionExpression(
             fn,
             modifiers,
             asterisk,
@@ -280,10 +290,8 @@ function transformer(context: ts.TransformationContext) {
             fn.type,
             fn.body
           );
-        }
-
-        if (fn.kind === ts.SyntaxKind.FunctionDeclaration) {
-          return ts.factory.updateFunctionDeclaration(
+        } else if (fn.kind === ts.SyntaxKind.FunctionDeclaration) {
+          fn = ts.factory.updateFunctionDeclaration(
             fn,
             fn.decorators,
             modifiers,
@@ -294,11 +302,9 @@ function transformer(context: ts.TransformationContext) {
             fn.type,
             fn.body
           );
-        }
-
-        if (fn.kind === ts.SyntaxKind.ArrowFunction) {
+        } else if (fn.kind === ts.SyntaxKind.ArrowFunction) {
           if (asterisk) {
-            return ts.factory.createCallExpression(
+            let f = ts.factory.createCallExpression(
               ts.factory.createPropertyAccessExpression(
                 ts.factory.createFunctionExpression(
                   modifiers,
@@ -314,8 +320,14 @@ function transformer(context: ts.TransformationContext) {
               undefined,
               [ts.factory.createThis()]
             );
+
+            if (scope.usesThis) {
+              (f as any).__storymaticUsesThis = true;
+            }
+
+            return f;
           } else {
-            return ts.factory.updateArrowFunction(
+            fn = ts.factory.updateArrowFunction(
               fn,
               modifiers,
               fn.typeParameters,
@@ -326,6 +338,10 @@ function transformer(context: ts.TransformationContext) {
             );
           }
         }
+
+        if (scope.usesThis) (fn as any).__storymaticUsesThis = true;
+
+        return fn;
       }
 
       if (autoReturn && ts.isCaseClause(node)) {
@@ -534,6 +550,13 @@ function transformer(context: ts.TransformationContext) {
         fnScope.isAsync = true;
       }
 
+      if (
+        (ts.isIdentifier(node) && node.text === "this") ||
+        node.kind === ts.SyntaxKind.ThisKeyword
+      ) {
+        fnScope.usesThis = true;
+      }
+
       if ((node as any).__storymaticIsIIFE) {
         let call = ts.visitEachChild(
           node,
@@ -554,6 +577,14 @@ function transformer(context: ts.TransformationContext) {
 
         fnScope.isAsync = fnScope.isAsync || isAsync;
         fnScope.isGenerator = fnScope.isGenerator || isGenerator;
+
+        if (fnScope.usesThis) {
+          call = ts.factory.createCallExpression(
+            ts.factory.createPropertyAccessExpression(fn, "call"),
+            undefined,
+            [ts.factory.createThis()]
+          );
+        }
 
         if (isGenerator)
           return ts.factory.createYieldExpression(
@@ -580,7 +611,12 @@ function transformer(context: ts.TransformationContext) {
       );
     }
 
-    let fnScope: FunctionScope = { isAsync: false, isGenerator: false };
+    let fnScope: FunctionScope = {
+      isAsync: false,
+      isGenerator: false,
+      usesThis: false,
+    };
+
     let blockScope: BlockScope = { localVars: [], exclude: [] };
     let result = ts.visitNode(node, (node) =>
       visit(node, fnScope, blockScope, false)
