@@ -76,7 +76,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   typeTerminator?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   colonTerminator_colon?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode) => T;
   colonTerminator?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  terminator?: (this: NonterminalNode, arg0: IterationNode | NonterminalNode, arg1: Node) => T;
+  terminator?: (this: NonterminalNode, arg0: IterationNode | NonterminalNode, arg1: NonterminalNode | TerminalNode) => T;
   TopLevelIfExp_if?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   TopLevelIfExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TopLevelWhileExp_while?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode) => T;

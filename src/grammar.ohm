@@ -111,7 +111,8 @@ Storymatic {
 
   terminator
     = spaces &("}" | "]" | ")" | "⇦" | end | reserved_block)
-    | whitespace? "\n"+
+    | whitespace? "\n"
+    | whitespace? "#"
 
   TopLevelIfExp
     = TopLevelWhileExp #(~lineBreak) ("if" | "unless") #postWord Expression -- if
@@ -310,7 +311,7 @@ Storymatic {
     | LogicalOrExp
 
   postWord = space* ~id_continue | space+
-  lineBreak = whitespace? "\n"
+  lineBreak = whitespace? "\n" | whitespace? "#"
 
   PipeExp
     = (TernaryExp "|>")+ TernaryExp -- pipe
