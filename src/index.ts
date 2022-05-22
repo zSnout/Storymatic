@@ -1961,10 +1961,17 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   MemberAccessExpNonCall_tagged_template_literal(tag, template) {
+    let literal = template.ts<ts.TemplateLiteral | ts.StringLiteral>();
+
     return ts.factory.createTaggedTemplateExpression(
       tag.ts(),
       undefined,
-      template.ts()
+      ts.isStringLiteral(literal)
+        ? ts.factory.createNoSubstitutionTemplateLiteral(
+            literal.text,
+            (literal as any).__storymaticRawText
+          )
+        : literal
     );
   },
   MemberAccessExp_function_call(target, typeArgs, _0, args, _1) {
@@ -2478,6 +2485,7 @@ semantics.addOperation<ts.Node>("ts", {
     if (char === "\n") char = "\\n";
     if (char === "\r") char = "\\r";
     if (char === "⇦" || char === "⇨") char = "";
+    if (char === "$") char = "\\$";
 
     if (char.length === 2 && char[0] === "\\") {
       let res = {
@@ -2565,12 +2573,10 @@ semantics.addOperation<ts.Node>("ts", {
     let head = headNode.ts<ts.TemplateHead>();
     let spans = spansNode.tsa<ts.TemplateSpan>();
 
-    let literal: ts.TemplateLiteral;
+    let literal: ts.TemplateLiteral | ts.StringLiteral;
     if (spans.length === 0) {
-      literal = ts.factory.createNoSubstitutionTemplateLiteral(
-        head.text,
-        head.rawText
-      );
+      literal = ts.factory.createStringLiteral(head.text);
+      (literal as any).__storymaticRawText = head.rawText;
     } else {
       literal = ts.factory.createTemplateExpression(head, spans);
     }
