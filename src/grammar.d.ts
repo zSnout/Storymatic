@@ -127,7 +127,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   ObjectEntry_implied?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   MemberAccessExp_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExp_optional_chaining_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: TerminalNode) => T;
-  MemberAccessExp_implied_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  MemberAccessExp_implied_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   MemberAccessExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MemberAccessExpNonCall_member_access?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode) => T;
   MemberAccessExpNonCall_optional_chaining_member_access?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode) => T;
@@ -137,7 +137,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessExpNonCall_non_null_assertion?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode) => T;
   MemberAccessExpNonCall_as_expression?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   MemberAccessExpNonCall_class_creation_symbolic?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: TerminalNode) => T;
-  MemberAccessExpNonCall_class_creation_implied?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
+  MemberAccessExpNonCall_class_creation_implied?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   MemberAccessExpNonCall_class_creation_no_args?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   MemberAccessExpNonCall?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   NCMemberAccessExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;

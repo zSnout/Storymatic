@@ -209,7 +209,7 @@ Storymatic {
   MemberAccessExp
     = MemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp #(whitespace ~("\n" | "(" | "[" | "{" | "<" | line_comment)) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #(~(lineBreak | whitespace ("#" | "(" | "<") | "[")) ImpliedCallArgumentList -- implied_call
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
@@ -220,9 +220,9 @@ Storymatic {
     | ~("\"" | "'") Child #string -- tagged_template_literal
     | Child "!" ~"=" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
-    | "new" #space NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #space NCMemberAccessExp #(whitespace ~("\n" | "(" | "[" | "{" | "<" | line_comment)) ImpliedCallArgumentList -- class_creation_implied
-    | "new" #space NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
+    | "new" #postWord NCMemberAccessExp GenericTypeArgumentList "(" ArgumentList ")" -- class_creation_symbolic
+    | "new" #postWord NCMemberAccessExp #(~(lineBreak | spaces ("#" | "(" | "<") | "[")) ImpliedCallArgumentList -- class_creation_implied
+    | "new" #postWord NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 
   NCMemberAccessExp = MemberAccessExpNonCall<NCMemberAccessExp>

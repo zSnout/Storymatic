@@ -871,7 +871,7 @@ ${optional(end.tree())}`.trimStart();
   MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
     return indent`TypeAssertion\n  ${expr}\n  ${type}`;
   },
-  MemberAccessExpNonCall_class_creation_implied(_0, _1, target, _2, args) {
+  MemberAccessExpNonCall_class_creation_implied(_0, _1, target, args) {
     return indent`ClassCreation\n  ${target}\n  ${args}`;
   },
   MemberAccessExpNonCall_class_creation_no_args(_0, _1, target) {
@@ -910,7 +910,7 @@ ${optional(generics)}${optional(args)}`;
     return indent`FunctionCall\n  ${target}\
 ${optional(generics)}${optional(args)}`;
   },
-  MemberAccessExp_implied_call(target, _, args) {
+  MemberAccessExp_implied_call(target, args) {
     return indent`FunctionCall\n  ${target}${optional(args)}`;
   },
   MemberAccessExp_optional_chaining_function_call(

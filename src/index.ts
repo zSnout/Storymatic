@@ -1914,7 +1914,7 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
     return ts.factory.createAsExpression(expr.ts(), type.ts());
   },
-  MemberAccessExpNonCall_class_creation_implied(_0, _1, target, _2, args) {
+  MemberAccessExpNonCall_class_creation_implied(_0, _1, target, args) {
     return ts.factory.createNewExpression(target.ts(), undefined, args.tsa());
   },
   MemberAccessExpNonCall_class_creation_no_args(_0, _1, target) {
@@ -1974,7 +1974,7 @@ semantics.addOperation<ts.Node>("ts", {
       args.tsa()
     );
   },
-  MemberAccessExp_implied_call(target, _0, args) {
+  MemberAccessExp_implied_call(target, args) {
     return ts.factory.createCallExpression(target.ts(), undefined, args.tsa());
   },
   MemberAccessExp_optional_chaining_function_call(
