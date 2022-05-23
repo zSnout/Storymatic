@@ -1,8 +1,10 @@
 Storymatic {
   Script = TopLevelStatement*
 
-  WrappedStatementBlock = "{" Statement* "}" | "⇨" Statement* "⇦"
-  WrappedScriptBlock = "{" TopLevelStatement* "}" | "⇨" TopLevelStatement* "⇦"
+  WrappedStatementBlock = Wrapped<Statement*>
+  WrappedScriptBlock = Wrapped<TopLevelStatement*>
+  Indented<Element> = indent Element dedent
+  Wrapped<Element> = "{" Element "}" | indent Element dedent | "{" Indented<Element> "}"
 
   SingleStatementBlock<prefix>
     = WrappedStatementBlock
@@ -18,7 +20,7 @@ Storymatic {
 
   SwitchStatement
     = "switch" #space Expression "{" CaseStatement* DefaultStatement? "}"
-    | "switch" #space Expression "⇨" CaseStatement* DefaultStatement? "⇦"
+    | "switch" #space Expression indent CaseStatement* DefaultStatement? dedent
 
   CaseClause = "case" #space NonemptyListOf<Expression, ","> CaseTerminator
   CaseStatement = CaseClause+ UnprefixedSingleStatementBlock
@@ -26,7 +28,7 @@ Storymatic {
 
   CaseTerminator
     = #colonTerminator -- terminator
-    | &("{" | "⇨") -- final
+    | &("{" | indent) -- final
 
   TryStatement = "try" #postWord UnprefixedSingleStatementBlock CatchStatement? FinallyStatement?
   CatchStatement = "catch" #(postWord identifier)? WrappedStatementBlock?
@@ -110,26 +112,30 @@ Storymatic {
     | terminator
 
   terminator
-    = spaces &("}" | "]" | ")" | "⇦" | end | reserved_block)
+    = spaces &("}" | "]" | ")" | dedent | end | reserved_block)
     | whitespace? "\n"
     | whitespace? "#"
 
   TopLevelIfExp
-    = TopLevelWhileExp #(~lineBreak) ("if" | "unless") #postWord Expression -- if
+    = Indented<TopLevelIfExp>
+    | TopLevelWhileExp #(~lineBreak) ("if" | "unless") #postWord Expression -- if
     | TopLevelWhileExp
 
   TopLevelWhileExp
-    = TopLevelForExp #(~lineBreak) ("while" | "until") #postWord Expression
+    = Indented<TopLevelWhileExp>
+    | TopLevelForExp #(~lineBreak) ("while" | "until") #postWord Expression
       ("when" #postWord Expression)? -- while
     | TopLevelForExp
 
   TopLevelForExp
-    = TopLevelExp #(~lineBreak) "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression  
+    = Indented<TopLevelForExp>
+    | TopLevelExp #(~lineBreak) "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? Expression  
       ("when" #postWord Expression)? -- for
     | TopLevelExp
 
   TopLevelExp
-    = "break" -- break
+    = Indented<TopLevelExp>
+    | "break" -- break
     | "continue" -- continue
     | "return" (#postWord AssignmentExp)? -- return
     | "throw" #postWord AssignmentExp -- throw
@@ -139,7 +145,8 @@ Storymatic {
   NonLoopExpression = AssignmentExp
 
   LiteralExp
-    = Function
+    = Indented<LiteralExp>
+    | Function
     | JSXElement
     | "(" Expression ")" -- parenthesized
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
@@ -148,7 +155,7 @@ Storymatic {
     | "%" -- topic_token
     | "with" #space Expression SingleStatementBlock<"then"> -- with
     | "do" Expression -- do
-    | NonemptyListOf<ObjectEntry_implied, ","> -- object_implied
+    | NonemptyListOf<ObjectEntry_implied, ("," | #lineBreak)> -- object_implied
     | InlineClassDeclaration
     | decimalNumber
     | unitNumber
@@ -174,7 +181,7 @@ Storymatic {
 
   Function
     = (GenericTypeParameterList? "(" ParameterList? ")"
-      (":" FunctionReturnType)?)? ("->" | "=>") (#(~(lineBreak ~"⇨")) FunctionBody)?
+      (":" FunctionReturnType)?)? ("->" | "=>") (#(~(lineBreak ~indent)) FunctionBody)?
 
   Method<prefix>
     = PrivacyLevel prefix MethodName "?"? Function
@@ -207,7 +214,8 @@ Storymatic {
   ObjectEntry_implied = MethodName ":" NonLoopExpression
 
   MemberAccessExp
-    = MemberAccessExp #(~lineBreak) GenericTypeArgumentList
+    = Indented<MemberAccessExp>
+    | MemberAccessExp #(~lineBreak) GenericTypeArgumentList
       #(~lineBreak) "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp #(whitespace ~(lineBreak | "#" | "(" | "<")) ImpliedCallArgumentList -- implied_call
@@ -250,12 +258,14 @@ Storymatic {
     | RestParameter -- rest_params
 
   PostfixExp
-    = (Accessor | identifier) #(~space) "++" -- increment
+    = Indented<PostfixExp>
+    | (Accessor | identifier) #(~space) "++" -- increment
     | (Accessor | identifier) #(~space) "--" -- decrement
     | MemberAccessExp
 
   NotExp
-    = "!" NotExp -- logical_not_symbolic
+    = Indented<NotExp>
+    | "!" NotExp -- logical_not_symbolic
     | "not" #space NotExp -- logical_not_worded
     | "type" "of" #space NotExp -- typeof
     | "await" #space NotExp -- await
@@ -266,22 +276,26 @@ Storymatic {
     | PostfixExp
 
   ExpExp
-    = NotExp "^" ExpExp -- exponentiate
+    = Indented<ExpExp>
+    | NotExp "^" ExpExp -- exponentiate
     | NotExp
 
   MulExp
-    = MulExp "*" ExpExp -- multiplication
+    = Indented<MulExp>
+    | MulExp "*" ExpExp -- multiplication
     | MulExp "/" ExpExp -- division
     | MulExp "%" ExpExp -- modulus
     | ExpExp
 
   AddExp
-    = AddExp "+" MulExp -- addition
+    = Indented<AddExp>
+    | AddExp "+" MulExp -- addition
     | AddExp "-" MulExp -- subtraction
     | MulExp
 
   BitwiseExp
-    = BitwiseExp "<<" AddExp -- left_shift
+    = Indented<BitwiseExp>
+    | BitwiseExp "<<" AddExp -- left_shift
     | BitwiseExp ">>" AddExp -- right_shift
     | BitwiseExp ">>>" AddExp -- unsigned_right_shift
     | AddExp
@@ -299,16 +313,19 @@ Storymatic {
     | "instanceof" -- instanceof
 
   LogicalAndExp
-    = LogicalAndExp #(spaces "&&" spaces | space+ "and" space+) CompareExp -- logical_and
+    = Indented<LogicalAndExp>
+    | LogicalAndExp #(spaces "&&" spaces | space+ "and" space+) CompareExp -- logical_and
     | CompareExp
 
   LogicalOrExp
-    = LogicalOrExp #(spaces "||" spaces | space+ "or" space+) LogicalAndExp -- logical_or
+    = Indented<LogicalOrExp>
+    | LogicalOrExp #(spaces "||" spaces | space+ "or" space+) LogicalAndExp -- logical_or
     | LogicalOrExp "??" LogicalAndExp -- logical_nullish_coalescing
     | LogicalAndExp
 
   TernaryExp
-    = ("if" | "unless") #postWord TernaryExp "then" #postWord TernaryExp "else" #postWord TernaryExp -- if_then_else
+    = Indented<TernaryExp>
+    | ("if" | "unless") #postWord TernaryExp "then" #postWord TernaryExp "else" #postWord TernaryExp -- if_then_else
     | LogicalOrExp "?" TernaryExp ":" TernaryExp -- symbolic
     | LogicalOrExp
 
@@ -316,11 +333,13 @@ Storymatic {
   lineBreak = whitespace? "\n" | whitespace? "#"
 
   PipeExp
-    = (TernaryExp "|>")+ TernaryExp -- pipe
+    = Indented<PipeExp>
+    | (TernaryExp "|>")+ TernaryExp -- pipe
     | TernaryExp
 
   AssignmentExp
-    = AssignableOrAccessor "=" AssignmentExp -- assignment
+    = Indented<AssignmentExp>
+    | AssignableOrAccessor "=" AssignmentExp -- assignment
     | (Accessor | identifier) "[" Expression? ("..." | "..") Expression? "]" "=" AssignmentExp -- splice
     | (Accessor | identifier) ("+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&&=" | "||=" | "??=" | "and=" | "or=" | "<<=" | ">>=" | ">>>=") AssignmentExp -- update_assignment
     | "yield" #space "from" #postWord AssignmentExp -- yield_from
@@ -328,16 +347,19 @@ Storymatic {
     | PipeExp
 
   ForExp
-    = AssignmentExp #(~lineBreak) "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? ForExp 
+    = Indented<ForExp>
+    | AssignmentExp #(~lineBreak) "for" #postWord ("await" #postWord)? (Assignable "of" #postWord)? ForExp 
       ("when" #postWord Expression)? -- for
     | AssignmentExp
 
   WhileExp
-    = ForExp #(~lineBreak) ("while" | "until") #postWord WhileExp ("when" #postWord Expression)? -- while
+    = Indented<WhileExp>
+    | ForExp #(~lineBreak) ("while" | "until") #postWord WhileExp ("when" #postWord Expression)? -- while
     | ForExp
 
   IfExp
-    = WhileExp #(~lineBreak) ("if" | "unless") #postWord IfExp -- if
+    = Indented<IfExp>
+    | WhileExp #(~lineBreak) ("if" | "unless") #postWord IfExp -- if
     | WhileExp
 
   VariableAssignment = Assignable (":" Type)? "=" Expression
@@ -370,6 +392,8 @@ Storymatic {
     | "[" Expression "]" -- computed_member_access
 
   whitespace = (~("\n" | line_comment | block_comment) space)+
+  indent = "⇨"
+  dedent = "⇦"
 
   sign = ("+" | "-")?
   number = digit+ ("_" digit+)*
@@ -442,7 +466,7 @@ Storymatic {
 
   space += block_comment | line_comment
   block_comment = "/*" (~"*/" any)* "*/"
-  line_comment = "#" (~("\n" | "⇦") any)*
+  line_comment = "#" (~("\n" | dedent) any)*
 
   JSXElement
     = "<" #jsxTagName GenericTypeArgumentList JSXAttribute* ">" JSXChild* "</" #jsxTagName ">" -- open_close
@@ -505,7 +529,7 @@ Storymatic {
     | "[" ListOf<NamedTupleElement, #expressionTerminator> ","? "]" -- named_tuple
     | "[" ListOf<TupleElement, #expressionTerminator> ","? "]" -- tuple
     | "{" ListOf<TypeObjectEntry, #typeTerminator> ("," | ";")? "}" -- object
-    | NonemptyListOf<TypeObjectEntry_key_value, ("," | ";")> -- object_implied
+    | NonemptyListOf<TypeObjectEntry_key_value, ("," | ";" | #lineBreak)> -- object_implied
     | "readonly" ~(#id_continue) MemberAccessType -- readonly
     | "keyof" ~(#id_continue) MemberAccessType -- keyof
     | LiteralType
@@ -535,7 +559,7 @@ Storymatic {
 
   FunctionType
     = (GenericTypeParameterList? "(" ParameterList? ")")?
-    "->" (#(~(lineBreak ~"⇨")) FunctionReturnType)?
+    "->" (#(~(lineBreak ~indent)) FunctionReturnType)?
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
   UnionType = NonemptyListOf<IntersectionType, "|">

@@ -394,6 +394,9 @@ ${optional(ifUnless.sourceString === "unless" ? "[Unless]" : "")}
   decimalNumber(node) {
     return node.tree();
   },
+  dedent(_) {
+    return "DedentMarker";
+  },
   digit(_) {
     return "Digit";
   },
@@ -595,6 +598,9 @@ ${optional(type.sourceString && "[TypeOnly]")}
   Identifier ${left.sourceString}`;
     }
   },
+  Indented(_0, node, _1) {
+    return node.tree();
+  },
   IndexSignatureType(readonly, _0, _1, name, _2, key, _3, _4, type) {
     return indent`IndexSignature ${name.tree().slice(11)}\
 ${optional(readonly.sourceString && "[Readonly]")}
@@ -663,6 +669,9 @@ ${optional(members)}`;
   },
   importLocation_filename(bits, _) {
     return indent`String "${bits.sourceString}"`;
+  },
+  indent(_) {
+    return "IndentMarker";
   },
   JSXAttribute(node) {
     return node.tree();
@@ -1598,10 +1607,13 @@ ${optional(guard)}`;
 
     return text;
   },
-  WrappedScriptBlock(_0, statements, _1) {
+  Wrapped(_0, node, _1) {
+    return node.tree();
+  },
+  WrappedScriptBlock(statements) {
     return indent`StatementBlock${optional(statements)}`;
   },
-  WrappedStatementBlock(_0, statements, _1) {
+  WrappedStatementBlock(statements) {
     return indent`StatementBlock${optional(statements)}`;
   },
   whitespace(_) {

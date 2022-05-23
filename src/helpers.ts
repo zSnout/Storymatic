@@ -234,16 +234,7 @@ export function preCompile(text: string) {
 
     for (let child of node.content) {
       if (typeof prev === "string" && typeof child === "object") {
-        let lastChar = prev.trimEnd()[prev.length - 1] || "";
-        let prevChar = prev.trimEnd()[prev.length - 2] || "";
-
-        if (
-          !"+-*/%^&|?:[={(><.,".includes(lastChar) ||
-          (lastChar === "/" && "*/".includes(prevChar)) ||
-          (lastChar === ">" && "-=".includes(prevChar))
-        ) {
-          child = `⇨${traverse(child)}⇦`;
-        }
+        child = `⇨${traverse(child)}⇦`;
       }
 
       if (typeof child === "object") {

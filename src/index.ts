@@ -91,6 +91,9 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   GenericTypeParameterList(_0, params, _1) {
     return params.tsa();
   },
+  Indented(_0, node, _1) {
+    return node.tsa();
+  },
   NonemptyGenericTypeArgumentList(_0, typeArgs, _1) {
     return typeArgs.tsa();
   },
@@ -110,6 +113,9 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   },
   ParameterList_rest_params(rest) {
     return ts.factory.createNodeArray([rest.ts()]);
+  },
+  Wrapped(_0,node,_1){
+    return node.tsa()
   },
 });
 
@@ -1205,6 +1211,9 @@ semantics.addOperation<ts.Node>("ts", {
   decimalNumber(number) {
     return number.ts();
   },
+  dedent(_) {
+    throw new Error("`dedent` nodes should never directly be evaluated.");
+  },
   digit(_) {
     throw "`digit` nodes should never directly be evaluated.";
   },
@@ -1504,6 +1513,9 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createIdentifier(name.sourceString)
     );
   },
+  Indented(_0, node, _1) {
+    return node.ts();
+  },
   IndexSignatureType(readonly, prefix, _0, ident, _1, key, _2, _3, value) {
     let modifiers: ts.Modifier[] = [];
     if (prefix.sourceString === "@")
@@ -1619,6 +1631,9 @@ semantics.addOperation<ts.Node>("ts", {
   },
   importLocation_filename(filename, _) {
     return ts.factory.createStringLiteral(filename.sourceString);
+  },
+  indent(_) {
+    throw new Error("`indent` nodes should never directly be evaluated.");
   },
   JSXAttribute(node) {
     return node.ts();
@@ -3071,11 +3086,14 @@ semantics.addOperation<ts.Node>("ts", {
       )
     );
   },
-  WrappedScriptBlock(_0, statements, _1) {
-    return ts.factory.createBlock(statements.tsa(), true);
+  Wrapped(_0, node, _1) {
+    return node.ts();
   },
-  WrappedStatementBlock(_0, statements, _1) {
-    return ts.factory.createBlock(statements.tsa(), true);
+  WrappedScriptBlock(node) {
+    return ts.factory.createBlock(node.tsa(), true);
+  },
+  WrappedStatementBlock(node) {
+    return ts.factory.createBlock(node.tsa(), true);
   },
   whitespace(_) {
     throw new Error("`whitespace` nodes should never directly be evaluated.");

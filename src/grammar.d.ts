@@ -13,19 +13,21 @@ import {
 
 export interface StorymaticActionDict<T> extends ActionDict<T> {
   Script?: (this: NonterminalNode, arg0: IterationNode) => T;
-  WrappedStatementBlock?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
-  WrappedScriptBlock?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: TerminalNode) => T;
+  WrappedStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  WrappedScriptBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  Indented?: (this: NonterminalNode, arg0: NonterminalNode, arg1: Node, arg2: NonterminalNode) => T;
+  Wrapped?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode, arg1: Node, arg2: NonterminalNode | TerminalNode) => T;
   SingleStatementBlock_single_statement?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   SingleStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnprefixedSingleStatementBlock_single_statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   UnprefixedSingleStatementBlock?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   IfStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode) => T;
-  SwitchStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode) => T;
+  SwitchStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode | TerminalNode, arg4: IterationNode, arg5: IterationNode, arg6: NonterminalNode | TerminalNode) => T;
   CaseClause?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   CaseStatement?: (this: NonterminalNode, arg0: IterationNode, arg1: NonterminalNode) => T;
   DefaultStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   CaseTerminator_terminator?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  CaseTerminator_final?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  CaseTerminator_final?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   CaseTerminator?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TryStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: IterationNode) => T;
   CatchStatement?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode) => T;
@@ -231,6 +233,8 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   AccessorAddon_computed_member_access?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   AccessorAddon?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   whitespace?: (this: NonterminalNode, arg0: IterationNode) => T;
+  indent?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  dedent?: (this: NonterminalNode, arg0: TerminalNode) => T;
   sign?: (this: NonterminalNode, arg0: IterationNode) => T;
   number?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode) => T;
   fullNumber?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode) => T;
