@@ -114,8 +114,8 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   ParameterList_rest_params(rest) {
     return ts.factory.createNodeArray([rest.ts()]);
   },
-  Wrapped(_0,node,_1){
-    return node.tsa()
+  Wrapped(_0, node, _1) {
+    return node.tsa();
   },
 });
 
@@ -1965,10 +1965,27 @@ semantics.addOperation<ts.Node>("ts", {
       key.ts<ts.MemberName>()
     );
   },
+  MemberAccessExpNonCall_member_access_indented(target, _, key) {
+    return ts.factory.createPropertyAccessExpression(
+      target.ts(),
+      key.ts<ts.MemberName>()
+    );
+  },
   MemberAccessExpNonCall_non_null_assertion(target, _) {
     return ts.factory.createNonNullExpression(target.ts());
   },
   MemberAccessExpNonCall_optional_chaining_member_access(target, _, key) {
+    return ts.factory.createPropertyAccessChain(
+      target.ts(),
+      ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+      key.ts<ts.MemberName>()
+    );
+},
+  MemberAccessExpNonCall_optional_chaining_member_access_indented(
+    target,
+    _,
+    key
+  ) {
     return ts.factory.createPropertyAccessChain(
       target.ts(),
       ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),

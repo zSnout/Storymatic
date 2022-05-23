@@ -222,10 +222,12 @@ Storymatic {
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
-    = Child #"." word -- member_access
-    | Child #"?." word -- optional_chaining_member_access
-    | Child #("?"?) #"[" Expression "]" -- computed_member_access
-    | Child #("?"?) #"[" Expression? ("..." | "..") Expression? "]" -- array_slice
+    = Child "." word -- member_access
+    | Child "?." word -- optional_chaining_member_access
+    | Child indent "." word dedent -- member_access_indented
+    | Child indent "?." word dedent -- optional_chaining_member_access_indented
+    | Child #"?"? #"[" Expression "]" -- computed_member_access
+    | Child #"?"? #"[" Expression? ("..." | "..") Expression? "]" -- array_slice
     | ~("\"" | "'") Child #string -- tagged_template_literal
     | Child "!" ~"=" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression

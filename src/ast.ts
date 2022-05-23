@@ -906,10 +906,20 @@ ${optional(generics)}${optional(args)}`;
   MemberAccessExpNonCall_member_access(target, _, prop) {
     return indent`PropertyAccess\n  ${target}\n  Identifier ${prop.sourceString}`;
   },
+  MemberAccessExpNonCall_member_access_indented(target, _, prop) {
+    return indent`PropertyAccess\n  ${target}\n  Identifier ${prop.sourceString}`;
+  },
   MemberAccessExpNonCall_non_null_assertion(target, _) {
     return indent`NonNullAssertion\n  ${target}`;
   },
   MemberAccessExpNonCall_optional_chaining_member_access(target, _, prop) {
+    return indent`PropertyAccess\n  [Chain]\n  ${target}\n  Identifier ${prop.sourceString}`;
+  },
+  MemberAccessExpNonCall_optional_chaining_member_access_indented(
+    target,
+    _,
+    prop
+  ) {
     return indent`PropertyAccess\n  [Chain]\n  ${target}\n  Identifier ${prop.sourceString}`;
   },
   MemberAccessExpNonCall_tagged_template_literal(fn, string) {
