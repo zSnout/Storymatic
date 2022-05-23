@@ -562,8 +562,7 @@ Storymatic {
   TypeObjectEntry_implied = ("readonly" #space)? TypeObjectEntry "?"? ":" NonLoopType
 
   FunctionType
-    = Indented<FunctionType>
-    | (GenericTypeParameterList? "(" ParameterList? ")")?
+    = (GenericTypeParameterList? "(" ParameterList? ")")?
     "->" (#(~(lineBreak ~indent)) FunctionReturnType)?
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
