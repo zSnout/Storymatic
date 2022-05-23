@@ -2035,7 +2035,20 @@ semantics.addOperation<ts.Node>("ts", {
   Method(privacy, _, name, qMark, body) {
     let fn = body.ts<ts.FunctionExpression | ts.ArrowFunction>();
 
-    let decl = ts.factory.createMethodDeclaration(
+    console.log(transpile(fn, { target: ts.ScriptTarget.ESNext }));
+
+    if (ts.isArrowFunction(fn)) {
+      return ts.factory.createPropertyDeclaration(
+        undefined,
+        privacy.sourceString ? [privacy.ts()] : [],
+        name.ts<ts.PropertyName>(),
+        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+        undefined,
+        fn
+      );
+    }
+
+    return ts.factory.createMethodDeclaration(
       undefined,
       privacy.sourceString ? [privacy.ts()] : [],
       undefined,
@@ -2044,13 +2057,8 @@ semantics.addOperation<ts.Node>("ts", {
       fn.typeParameters,
       fn.parameters,
       fn.type,
-      fn.body as ts.Block
+      fn.body
     );
-
-    if (fn.kind === ts.SyntaxKind.ArrowFunction)
-      (decl as any).__storymaticIsBoundMethod = true;
-
-    return decl;
   },
   MethodName(node) {
     return node.ts();
