@@ -495,11 +495,13 @@ Storymatic {
   NonLoopType = MappedType
 
   FunctionReturnType
-    = ("asserts" #space)? identifier "is" #postWord NonLoopType -- predicate
+    = Indented<FunctionReturnType>
+    | ("asserts" #space)? identifier "is" #postWord NonLoopType -- predicate
     | NonLoopType
 
   PrimitiveType
-    = "string" | "number" | "boolean" | "true" | "false" | "yes" | "no" | "on" | "off" | "this"
+    = Indented<PrimitiveType>
+    | "string" | "number" | "boolean" | "true" | "false" | "yes" | "no" | "on" | "off" | "this"
     | "bigint" | "symbol" | "object" | "null" | "undefined" | "void" | "any" | "unknown"
 
   Implementable
@@ -511,7 +513,8 @@ Storymatic {
   QualifiedName = identifier ("." word)*
 
   LiteralType
-    = PrimitiveType ~(id_continue | ".")
+    = Indented<LiteralType>
+    | PrimitiveType ~(id_continue | ".")
     | string_type
     | decimalNumber
     | bigint
@@ -524,7 +527,8 @@ Storymatic {
     | "(" Type ")" -- parenthesized
 
   MemberAccessType
-    = MemberAccessType "[" Type "]" -- member_access
+    = Indented<MemberAccessType>
+    | MemberAccessType "[" Type "]" -- member_access
     | MemberAccessType "[" "]" -- array
     | "[" ListOf<NamedTupleElement, #expressionTerminator> ","? "]" -- named_tuple
     | "[" ListOf<TupleElement, #expressionTerminator> ","? "]" -- tuple
@@ -558,24 +562,28 @@ Storymatic {
   TypeObjectEntry_implied = ("readonly" #space)? TypeObjectEntry "?"? ":" NonLoopType
 
   FunctionType
-    = (GenericTypeParameterList? "(" ParameterList? ")")?
+    = Indented<FunctionType>
+    | (GenericTypeParameterList? "(" ParameterList? ")")?
     "->" (#(~(lineBreak ~indent)) FunctionReturnType)?
 
   IntersectionType = NonemptyListOf<MemberAccessType, "&">
   UnionType = NonemptyListOf<IntersectionType, "|">
 
   ConditionalType
-    = ConditionalType "is" #postWord ConditionalType "?" ConditionalType ":" ConditionalType -- conditional
+    = Indented<ConditionalType>
+    | ConditionalType "is" #postWord ConditionalType "?" ConditionalType ":" ConditionalType -- conditional
     | ("if" | "unless") #postWord ConditionalType "is" #postWord ConditionalType "then" #postWord ConditionalType "else" #postWord ConditionalType -- if_then_else
     | UnionType
 
   MappedType
-    = "{" (("+" | "-")? "readonly")? "[" identifier "in" Type
+    = Indented<MappedType>
+    | "{" (("+" | "-")? "readonly")? "[" identifier "in" Type
       ("as" Type)? "]" (("+" | "-")? "?")? ":" Type "}" -- mapped
     | ConditionalType
 
   IfType
-    = MappedType ("if" | "unless") #postWord IfType "is" #postWord IfType -- if
+    = Indented<IfType>
+    | MappedType ("if" | "unless") #postWord IfType "is" #postWord IfType -- if
     | MappedType
 
   NamespaceDeclaration = ("export" #space)? "namespace" #space identifier WrappedScriptBlock
