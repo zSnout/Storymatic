@@ -84,12 +84,12 @@ window.$docsify = {
       });
 
       let imports = Promise.all([
-        import("https://esm.sh/storymatic@2.0.63"),
+        import("https://esm.sh/storymatic@2.0.64"),
         import(
           "https://esm.sh/@codemirror/lang-javascript@0.20.0?deps=@codemirror/state@0.20.0"
         ),
         import(
-          "https://esm.sh/@codemirror/basic-setup?deps=@codemirror/state@0.20.0"
+          "https://esm.sh/@codemirror/basic-setup@0.20.0?deps=@codemirror/state@0.20.0"
         ),
       ]);
     },
