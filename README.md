@@ -177,7 +177,8 @@ modify the source directory with `--src`, and modify the output directory with
 ## Using the Compiler API
 
 The Storymatic compiler exposes several functions and interfaces that can be
-used to work with Storymatic dynamically.
+used to work with Storymatic dynamically. If you need more information about
+these, it can be more helpful to look into the `index.d.ts` of Storymatic
 
 Many functions accept a list of flags that alter the behavior of the compiler,
 so let's go over these first. `Flags` is exported as a TypeScript interface with
@@ -217,19 +218,14 @@ The `compile` function takes a string of source code and returns a
 the source code cannot properly be compiled. Here's the TypeScript version:
 
 ```typescript
-
+/**
+ * Compiles a given string of Storymatic code into a {@link ts.SourceFile}.
+ * @param text - The Storymatic code to compile.
+ * @throws a SyntaxError if the code fails to parse correctly.
+ * @returns A {@link ts.SourceFile} representing the compiled code.
+ */
+function compile(text: string): ts.SourceFile;
 ```
 
 The `transpile` function takes a `ts.SourceFile` and returns a string
-representing the compile code. It also takes a second argument, `flags`, which
-has the structure described below.
-
-The compiler also exposes an interface called `Flags`. It has four optional
-members. The `typescript` property, when enabled, transpiles to TypeScript
-rather than JavaScript. It is not compatiable with any other properties. The
-`module` property is a `ts.ModuleKind` and tells `transpile` what module type to
-compile to. The `target` property is a `ts.ScriptTarget` and tells `transpile`
-what language version to target. The `jsx` property is a string and tells
-`transpile` what function JSX code should be wrapped in.
-
-TypeScript typings are bundled with the module, but here they are for reference:
+representing the compile code. It also takes a
