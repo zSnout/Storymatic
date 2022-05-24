@@ -10,7 +10,7 @@ import {
   transformSingleLineString,
 } from "./helpers.js";
 import { semantics, story } from "./semantics.js";
-import "./tsa-tsn.jsn.js";
+import "./tsa-tsn.js";
 
 export { typescriptAST } from "./ast.js";
 export { Flags, makeCompilerOptions, preCompile, prePrinted };
