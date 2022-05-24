@@ -137,6 +137,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessExpNonCall_optional_chaining_member_access_indented?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
   MemberAccessExpNonCall_computed_member_access?: (this: NonterminalNode, arg0: Node, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExpNonCall_array_slice?: (this: NonterminalNode, arg0: Node, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: IterationNode, arg6: TerminalNode) => T;
+  MemberAccessExpNonCall_array_slice_indented?: (this: NonterminalNode, arg0: Node, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: TerminalNode, arg6: IterationNode, arg7: NonterminalNode, arg8: TerminalNode) => T;
   MemberAccessExpNonCall_tagged_template_literal?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode) => T;
   MemberAccessExpNonCall_non_null_assertion?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode) => T;
   MemberAccessExpNonCall_as_expression?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
@@ -346,7 +347,9 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   InterfaceDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: NonterminalNode, arg12: TerminalNode) => T;
   IndexSignatureType?: (this: NonterminalNode, arg0: IterationNode, arg1: Node, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: TerminalNode, arg8: NonterminalNode) => T;
   TypeDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: NonterminalNode) => T;
-  GenericTypeParameter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode) => T;
+  GenericTypeParameter_parameter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode) => T;
+  GenericTypeParameter_indented?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: NonterminalNode) => T;
+  GenericTypeParameter?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   GenericTypeParameterList?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   NonemptyGenericTypeArgumentList?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   GenericTypeArgumentList_with_args?: (this: NonterminalNode, arg0: NonterminalNode) => T;

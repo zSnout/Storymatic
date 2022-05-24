@@ -533,7 +533,15 @@ ${optional(asserts.sourceString && "[Assertion]")}
   GenericTypeArgumentList_with_args(node) {
     return node.tree();
   },
-  GenericTypeParameter(ident, _0, constraint, _1, _default) {
+  GenericTypeParameter(node) {
+    return node.tree();
+  },
+  GenericTypeParameter_indented(ident, _0, _1, constraint, _2, _default, _3) {
+    return indent`TypeParameter ${ident.tree().slice(11)}\
+${optional(namespace("Constraint", constraint))}\
+${optional(namespace("Default", _default))}`;
+  },
+  GenericTypeParameter_parameter(ident, _0, constraint, _1, _default) {
     return indent`TypeParameter ${ident.tree().slice(11)}\
 ${optional(namespace("Constraint", constraint))}\
 ${optional(namespace("Default", _default))}`;

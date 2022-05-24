@@ -15,7 +15,7 @@ import {
 export { Flags, makeCompilerOptions, preCompile };
 
 /**
- * Compiles a given string of JSX into 
+ * Compiles a given string of JSX into
  * @param text
  * @returns
  */
@@ -1424,7 +1424,17 @@ semantics.addOperation<ts.Node>("ts", {
       "`GenericTypeArgumentList_with_args` nodes should never directly be evaluated."
     );
   },
-  GenericTypeParameter(name, _0, constraint, _1, defaultType) {
+  GenericTypeParameter(node) {
+    return node.ts();
+  },
+  GenericTypeParameter_indented(name, _0, _1, constraint, _2, defaultType, _3) {
+    return ts.factory.createTypeParameterDeclaration(
+      name.ts<ts.Identifier>(),
+      constraint.child(0)?.ts<ts.TypeNode>(),
+      defaultType.child(0)?.ts<ts.TypeNode>()
+    );
+  },
+  GenericTypeParameter_parameter(name, _0, constraint, _1, defaultType) {
     return ts.factory.createTypeParameterDeclaration(
       name.ts<ts.Identifier>(),
       constraint.child(0)?.ts<ts.TypeNode>(),
@@ -1901,7 +1911,47 @@ semantics.addOperation<ts.Node>("ts", {
     start,
     dotdot,
     end,
-    _2
+    _1
+  ) {
+    let endExpr = end.child(0)?.ts<ts.Expression>();
+
+    if (endExpr && dotdot.sourceString === "..") {
+      if (ts.isNumericLiteral(endExpr)) {
+        endExpr = ts.factory.createNumericLiteral(1 + +endExpr.text);
+      } else {
+        endExpr = ts.factory.createAdd(
+          endExpr,
+          ts.factory.createNumericLiteral("1")
+        );
+      }
+    }
+
+    return ts.factory.createCallExpression(
+      ts.factory.createPropertyAccessChain(
+        target.ts(),
+        qMark.tsn({
+          "?": ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+        }),
+        "slice"
+      ),
+      undefined,
+      [
+        start.child(0)?.ts<ts.Expression>() ||
+          ts.factory.createNumericLiteral(0),
+        endExpr,
+      ].filter((e) => e)
+    );
+  },
+  MemberAccessExpNonCall_array_slice_indented(
+    target,
+    qMark,
+    _0,
+    _1,
+    start,
+    dotdot,
+    end,
+    _2,
+    _3
   ) {
     let endExpr = end.child(0)?.ts<ts.Expression>();
 

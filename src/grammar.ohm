@@ -229,6 +229,7 @@ Storymatic {
     | Child indent "?." word dedent -- optional_chaining_member_access_indented
     | Child #"?"? #"[" Expression "]" -- computed_member_access
     | Child #"?"? #"[" Expression? ("..." | "..") Expression? "]" -- array_slice
+    | Child #"?"? #"[" indent Expression? ("..." | "..") Expression? dedent "]" -- array_slice_indented
     | ~("\"" | "'") Child #string -- tagged_template_literal
     | Child "!" ~"=" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
@@ -240,11 +241,17 @@ Storymatic {
 
   NCMemberAccessExp = MemberAccessExpNonCall<NCMemberAccessExp>
 
-  ArgumentList = ListOf<Argument<Expression>, #expressionTerminator>
-  ImpliedCallArgumentList = NonemptyListOf<Argument<NonLoopExpression>, ",">
+  ArgumentList
+    = Indented<ArgumentList>
+    | ListOf<Argument<Expression>, #expressionTerminator>
+
+  ImpliedCallArgumentList
+    = Indented<ImpliedCallArgumentList>
+    | NonemptyListOf<Argument<NonLoopExpression>, ",">
 
   Argument<Expr>
-    = Expr
+    = Indented<Argument<Expr>>
+    | Expr
     | "..." Expr -- spread_operator
 
   Parameter
@@ -600,11 +607,20 @@ Storymatic {
   TypeDeclaration
     = ("export" #space)? "type" #space identifier GenericTypeParameterList? "=" Type #statementTerminator
 
-  GenericTypeParameter = identifier (":" Type)? ("=" Type)?
-  GenericTypeParameterList = "<" NonemptyListOf<GenericTypeParameter, #expressionTerminator> ">"
+  GenericTypeParameter
+    = Indented<GenericTypeParameter>
+    | identifier (":" Type)? ("=" Type)? -- parameter
+    | identifier indent (":" Type)? ("=" Type)? dedent -- indented
 
-  NonemptyGenericTypeArgumentList = "<" NonemptyListOf<Type, #expressionTerminator> ">"
+  GenericTypeParameterList
+    = "<" NonemptyListOf<GenericTypeParameter, #expressionTerminator> ">"
+    | "<" Indented<NonemptyListOf<GenericTypeParameter, #expressionTerminator>> ">"
+
+  NonemptyGenericTypeArgumentList
+    = "<" NonemptyListOf<Type, #expressionTerminator> ">"
+    | "<" Indented<NonemptyListOf<Type, #expressionTerminator>> ">"
+
   GenericTypeArgumentList
-    = NonemptyGenericTypeArgumentList -- with_args
+    = (Indented<GenericTypeArgumentList> | NonemptyGenericTypeArgumentList) -- with_args
     | -- empty
 }
