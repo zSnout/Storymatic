@@ -315,6 +315,11 @@ export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   };
 }
 
+/**
+ * Modifies a TypeScript node to pretty-print some of the code within.
+ * @param node The node to transform.
+ * @returns A transformed {@link ts.Node} ready to be transpiled.
+ */
 export function prePrinted(node: ts.Node) {
   interface ObjectScope {
     isMultilineObject?: boolean;
