@@ -15,9 +15,10 @@ import {
 export { Flags, makeCompilerOptions, preCompile };
 
 /**
- * Compiles a given string of JSX into
- * @param text
- * @returns
+ * Compiles a given string of Storymatic code into a {@link ts.SourceFile}.
+ * @param text - The code to compile.
+ * @throws a SyntaxError if the code fails to parse correctly.
+ * @returns A {@link ts.SourceFile} representing the compiled code.
  */
 export function compile(text: string) {
   let match = story.match(preCompile(text));
