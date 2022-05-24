@@ -2,7 +2,6 @@
 /// <reference types="./env" />
 
 window.$docsify = {
-  routerMode: "history",
   repo: "zsnout/storymatic-docs",
   topMargin: 90,
   name: "Storymatic Docs",
