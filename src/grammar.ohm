@@ -222,7 +222,8 @@ Storymatic {
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
-    = Child "." word -- member_access
+    = Indented<MemberAccessExpNonCall<Child>>
+    | Child "." word -- member_access
     | Child "?." word -- optional_chaining_member_access
     | Child indent "." word dedent -- member_access_indented
     | Child indent "?." word dedent -- optional_chaining_member_access_indented

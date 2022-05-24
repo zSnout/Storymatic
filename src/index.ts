@@ -1965,7 +1965,7 @@ semantics.addOperation<ts.Node>("ts", {
       key.ts<ts.MemberName>()
     );
   },
-  MemberAccessExpNonCall_member_access_indented(target, _, key) {
+  MemberAccessExpNonCall_member_access_indented(target, _0, _1, key, _2) {
     return ts.factory.createPropertyAccessExpression(
       target.ts(),
       key.ts<ts.MemberName>()
@@ -1980,11 +1980,13 @@ semantics.addOperation<ts.Node>("ts", {
       ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
       key.ts<ts.MemberName>()
     );
-},
+  },
   MemberAccessExpNonCall_optional_chaining_member_access_indented(
     target,
-    _,
-    key
+    _0,
+    _1,
+    key,
+    _2
   ) {
     return ts.factory.createPropertyAccessChain(
       target.ts(),

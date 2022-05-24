@@ -906,7 +906,7 @@ ${optional(generics)}${optional(args)}`;
   MemberAccessExpNonCall_member_access(target, _, prop) {
     return indent`PropertyAccess\n  ${target}\n  Identifier ${prop.sourceString}`;
   },
-  MemberAccessExpNonCall_member_access_indented(target, _, prop) {
+  MemberAccessExpNonCall_member_access_indented(target, _0, _1, prop, _2) {
     return indent`PropertyAccess\n  ${target}\n  Identifier ${prop.sourceString}`;
   },
   MemberAccessExpNonCall_non_null_assertion(target, _) {
@@ -917,8 +917,10 @@ ${optional(generics)}${optional(args)}`;
   },
   MemberAccessExpNonCall_optional_chaining_member_access_indented(
     target,
-    _,
-    prop
+    _0,
+    _1,
+    prop,
+    _2
   ) {
     return indent`PropertyAccess\n  [Chain]\n  ${target}\n  Identifier ${prop.sourceString}`;
   },
