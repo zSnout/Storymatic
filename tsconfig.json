@@ -8,5 +8,6 @@
     "outDir": "./dist",
     "moduleResolution": "node",
     "declaration": true
-  }
+  },
+  "exclude": ["docs", "dist"]
 }
