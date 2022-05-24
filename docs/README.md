@@ -6,40 +6,6 @@ TypeScript features such as a type system, enums, interfaces, namespaces, and
 generic arguments. Additionally, you can work with NPM, Deno, and JavaScript
 modules without needing any complex code.
 
-<details>
-<summary>Table of contents</summary>
-
-- [Welcome to Storymatic!](#welcome-to-storymatic)
-- [What you should know](#what-you-should-know)
-  - [Code examples](#code-examples)
-- [Getting started](#getting-started)
-- [Internals](#internals)
-- [Primitives](#primitives)
-  - [Numbers](#numbers)
-  - [Big integers](#big-integers)
-  - [Extended numeric literals](#extended-numeric-literals)
-  - [Booleans, null, and undefined](#booleans-null-and-undefined)
-  - [Strings](#strings)
-- [Variables](#variables)
-  - [Assigning variables](#assigning-variables)
-  - [Destructuring](#destructuring)
-  - [Function scope](#function-scope)
-  - [Reserved word list](#reserved-word-list)
-- [Functions](#functions)
-  - [Automatic returning](#automatic-returning)
-  - [Calling functions](#calling-functions)
-  - [Implied function calls](#implied-function-calls)
-- [Arrays](#arrays)
-  - [Accessing and modifying arrays](#accessing-and-modifying-arrays)
-  - [Destructuring arrays](#destructuring-arrays)
-- [Objects](#objects)
-  - [Implied objects](#implied-objects)
-  - [Restructuring](#restructuring)
-  - [Embedded methods](#embedded-methods)
-  - [Accessing object properties](#accessing-object-properties)
-
-</details>
-
 # What you should know
 
 Before you start working with Storymatic, it's good to know some JavaScript.
