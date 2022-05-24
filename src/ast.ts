@@ -84,6 +84,11 @@ function syntaxKind(kind: number) {
   return "UnknownSyntaxKind";
 }
 
+/**
+ * Creates an abstract syntax tree from a TypeScript node.
+ * @param node The TypeScript node to create a tree from.
+ * @returns A string representing the TypeScript node in AST form.
+ */
 export function typescriptAST(node: ts.Node): string {
   let output = "";
   node.forEachChild((node) => {
