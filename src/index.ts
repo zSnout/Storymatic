@@ -1,18 +1,16 @@
 import * as ohm from "ohm-js";
 import * as ts from "typescript";
 import * as grammar from "./grammar.js";
-import { story, semantics } from "./semantics.js";
-export { typescriptAST } from "./ast.js";
-
 import {
-  preCompile,
   Flags,
   makeCompilerOptions,
+  preCompile,
+  prePrinted,
   transformMultiLineString,
   transformSingleLineString,
-  prePrinted,
 } from "./helpers.js";
-
+import { semantics, story } from "./semantics.js";
+export { typescriptAST } from "./ast.js";
 export { Flags, makeCompilerOptions, preCompile, prePrinted };
 
 /**

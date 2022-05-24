@@ -32,6 +32,11 @@ export interface Flags {
   jsx?: string;
 }
 
+/**
+ * Changes newlines in a string to spaces.
+ * @param node The string or template literal to adjust.
+ * @returns A converted string or template literal.
+ */
 export function transformSingleLineString(
   node: ts.StringLiteral | ts.TemplateLiteral | ts.TemplateLiteralTypeNode
 ) {
@@ -90,6 +95,13 @@ export function transformSingleLineString(
   throw new Error("Bad arguments were passed to `transformSingleLineString`");
 }
 
+/**
+ * Cuts off the beginning and end of multiline strings and removes whitespace.
+ * @param cutoff The number of columns to chop off or an {@link ohm.Interval}
+ * with the beginning index at the first character of the string.
+ * @param node The string of template literal to adjust.
+ * @returns A converted string or template literal.
+ */
 export function transformMultiLineString(
   cutoff: number | ohm.Interval,
   node: ts.StringLiteral | ts.TemplateLiteral | ts.TemplateLiteralTypeNode
@@ -174,6 +186,11 @@ export function transformMultiLineString(
   throw new Error("Bad arguments were passed to `transformMultiLineString`");
 }
 
+/**
+ * Adds indent markers and normalizes strings into a proper form.
+ * @param text The source code to modify.
+ * @returns A string containing indent/dedent markers.
+ */
 export function preCompile(text: string) {
   type Indented = { indentLevel: number; content: string };
 
@@ -273,6 +290,11 @@ export function preCompile(text: string) {
   return result;
 }
 
+/**
+ * Creates a list of options to pass to the TypeScript compiler.
+ * @param flags The list of flags to consider when creating the options.
+ * @returns A list of compiler options that should be passed to TypeScript.
+ */
 export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
   if (flags.typescript)
     throw new Error(
@@ -291,4 +313,95 @@ export function makeCompilerOptions(flags: Flags = {}): ts.CompilerOptions {
     allowSyntheticDefaultImports: true,
     moduleResolution: ts.ModuleResolutionKind.NodeJs,
   };
+}
+
+export function prePrinted(node: ts.Node) {
+  interface ObjectScope {
+    isMultilineObject?: boolean;
+  }
+
+  let result = ts.transform(node, [
+    (context) => {
+      function visit(
+        node: ts.Node,
+        objectScope: ObjectScope,
+        isLastStatement = false
+      ): ts.Node | ts.Node[] {
+        if (ts.isSourceFile(node) || ts.isBlock(node)) {
+          objectScope.isMultilineObject = true;
+          let last = node.statements[node.statements.length - 1];
+
+          return ts.visitEachChild(
+            node,
+            (node) => visit(node, objectScope, node === last),
+            context
+          );
+        }
+
+        if (ts.isArrayLiteralExpression(node)) {
+          let scope: ObjectScope = { isMultilineObject: false };
+
+          let it = ts.visitEachChild(
+            node,
+            (node) => visit(node, scope),
+            context
+          );
+
+          if (scope.isMultilineObject) {
+            it = ts.factory.createArrayLiteralExpression(it.elements, true);
+            objectScope.isMultilineObject = true;
+          }
+
+          return it;
+        }
+
+        if (ts.isObjectLiteralExpression(node)) {
+          let scope: ObjectScope = { isMultilineObject: false };
+
+          let it = ts.visitEachChild(
+            node,
+            (node) => visit(node, scope),
+            context
+          );
+
+          if (scope.isMultilineObject) {
+            it = ts.factory.createObjectLiteralExpression(it.properties, true);
+            objectScope.isMultilineObject = true;
+          }
+
+          return it;
+        }
+
+        if (ts.isArrowFunction(node)) {
+          let { body } = node;
+
+          if (ts.isBlock(body) && body.statements.length === 1) {
+            let stmt = body.statements[0];
+
+            if (ts.isReturnStatement(stmt)) {
+              node = ts.factory.updateArrowFunction(
+                node,
+                node.modifiers,
+                node.typeParameters,
+                node.parameters,
+                node.type,
+                node.equalsGreaterThanToken,
+                stmt.expression || ts.factory.createBlock([], false)
+              );
+            }
+          }
+        }
+
+        return ts.visitEachChild(
+          node,
+          (node) => visit(node, objectScope),
+          context
+        );
+      }
+
+      return (node) => visit(node, {}) as ts.Node;
+    },
+  ]);
+
+  return result.transformed[0];
 }
