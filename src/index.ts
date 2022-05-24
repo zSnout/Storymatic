@@ -10,13 +10,14 @@ import {
   makeCompilerOptions,
   transformMultiLineString,
   transformSingleLineString,
+  prePrinted,
 } from "./helpers.js";
 
-export { Flags, makeCompilerOptions, preCompile };
+export { Flags, makeCompilerOptions, preCompile, prePrinted };
 
 /**
  * Compiles a given string of Storymatic code into a {@link ts.SourceFile}.
- * @param text - The code to compile.
+ * @param text - The Storymatic code to compile.
  * @throws a SyntaxError if the code fails to parse correctly.
  * @returns A {@link ts.SourceFile} representing the compiled code.
  */
@@ -28,6 +29,12 @@ export function compile(text: string) {
   return file;
 }
 
+/**
+ * Gets the abstract syntax tree of some Storymatic code.
+ * @param text The Storymatic code to compile.
+ * @throws a SyntaxError if the code fails to parse correctly.
+ * @returns A string containing the abstract syntax tree of the compiled code.
+ */
 export function ast(text: string) {
   let match = story.match(preCompile(text));
   if (match.failed()) throw new SyntaxError(match.message);
@@ -35,6 +42,12 @@ export function ast(text: string) {
   return semantics(match).tree();
 }
 
+/**
+ * Transpiles a TypeScript node into a string of valid JavaScript.
+ * @param node A TypeScript node representing the code to be transpiled.
+ * @param flags A set of flags to modify the resulting output.
+ * @returns The printed JavaScript or TypeScript code of the output.
+ */
 export function transpile(node: ts.Node, flags: Flags = {}) {
   if (flags.typescript && flags.module)
     throw new Error("Module and TypeScript options are mutually exclusive.");
@@ -54,7 +67,11 @@ export function transpile(node: ts.Node, flags: Flags = {}) {
   );
 
   let printer = ts.createPrinter({});
-  let text = printer.printNode(ts.EmitHint.Unspecified, node, source);
+  let text = printer.printNode(
+    ts.EmitHint.Unspecified,
+    prePrinted(node),
+    source
+  );
   if (flags.typescript) return text;
 
   return ts.transpileModule(text, {
