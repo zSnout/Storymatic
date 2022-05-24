@@ -11,8 +11,14 @@ import {
   transformMultiLineString,
   transformSingleLineString,
 } from "./helpers.js";
-export * from "./helpers.js";
 
+export { Flags, makeCompilerOptions, preCompile };
+
+/**
+ * Compiles a given string of JSX into 
+ * @param text
+ * @returns
+ */
 export function compile(text: string) {
   let match = story.match(preCompile(text));
   if (match.failed()) throw new SyntaxError(match.message);

@@ -5,10 +5,30 @@ let newlines = /\s*\n+\s*/g;
 let begin = /^\s*\n+\s*/g;
 let end = /\s*\n+\s*$/g;
 
+/** A set of flags that Storymatic should consider when compiling. */
 export interface Flags {
+  /**
+   * Whether the transpiler should output raw TypeScript code. Conflicts with
+   * the `module`, `target`, and `jsx` flags.
+   */
   typescript?: boolean;
+
+  /**
+   * The module format the transpiler should output, such as
+   * `ts.ModuleKind.ESNext`. Conflicts with the `typescript` flag.
+   */
   module?: ts.ModuleKind;
+
+  /**
+   * The version of ECMAScript to output, such as `ts.ScriptTarget.ESNext`.
+   * Conflicts with the `typescript` flag.
+   */
   target?: ts.ScriptTarget;
+
+  /**
+   * The name of the JSX runtime compiler, such as `React.createElement`.
+   * Conflicts with the `typescript` flag.
+   */
   jsx?: string;
 }
 

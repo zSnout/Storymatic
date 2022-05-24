@@ -176,11 +176,49 @@ modify the source directory with `--src`, and modify the output directory with
 
 ## Using the Compiler API
 
-The compiler exposes two functions: `compile` and `transpile`.
+The Storymatic compiler exposes several functions and interfaces that can be
+used to work with Storymatic dynamically.
+
+Many functions accept a list of flags that alter the behavior of the compiler,
+so let's go over these first. `Flags` is exported as a TypeScript interface with
+the following structure.
+
+```typescript
+/** A set of flags that Storymatic should consider when compiling. */
+interface Flags {
+  /**
+   * Whether the transpiler should output raw TypeScript code. Conflicts with
+   * the `module`, `target`, and `jsx` flags.
+   */
+  typescript?: boolean;
+
+  /**
+   * The module format the transpiler should output, such as
+   * `ts.ModuleKind.ESNext`. Conflicts with the `typescript` flag.
+   */
+  module?: ts.ModuleKind;
+
+  /**
+   * The version of ECMAScript to output, such as `ts.ScriptTarget.ESNext`.
+   * Conflicts with the `typescript` flag.
+   */
+  target?: ts.ScriptTarget;
+
+  /**
+   * The name of the JSX runtime compiler, such as `React.createElement`.
+   * Conflicts with the `typescript` flag.
+   */
+  jsx?: string;
+}
+```
 
 The `compile` function takes a string of source code and returns a
 `ts.SourceFile` from the TypeScript compiler. It may also throw a SyntaxError if
-the source code cannot properly be compiled.
+the source code cannot properly be compiled. Here's the TypeScript version:
+
+```typescript
+
+```
 
 The `transpile` function takes a `ts.SourceFile` and returns a string
 representing the compile code. It also takes a second argument, `flags`, which
@@ -195,17 +233,3 @@ what language version to target. The `jsx` property is a string and tells
 `transpile` what function JSX code should be wrapped in.
 
 TypeScript typings are bundled with the module, but here they are for reference:
-
-```typescript
-export function compile(text: string): ts.SourceFile;
-
-export function transpile(node: ts.Node, flags?: Flags): string;
-
-import * as ts from "typescript";
-export interface Flags {
-  typescript?: boolean;
-  module?: ts.ModuleKind;
-  target?: ts.ScriptTarget;
-  jsx?: string;
-}
-```
