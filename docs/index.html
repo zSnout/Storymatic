@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Storymatic Docs</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="Description" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css"
+    />
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <style>
+      .sidebar ul li a {
+        padding: 3px 0;
+      }
+
+      .sidebar ul li {
+        margin: 0;
+      }
+
+      .cm-editor * {
+        font-family: Roboto Mono, Monaco, courier, monospace !important;
+        line-height: 24px !important;
+        -webkit-font-smoothing: initial !important;
+      }
+
+      .markdown-section pre > code.lang-coffee,
+      .markdown-section pre > code.lang-javascript {
+        padding: 2.2em 5px 2.2em 3px;
+      }
+
+      .lang-coffee .cm-editor.cm-focused,
+      .lang-javascript .cm-editor.cm-focused {
+        outline: none;
+      }
+
+      .cm-editor .cm-activeLine {
+        background-color: transparent;
+      }
+
+      .cm-editor .cm-gutters {
+        display: none;
+      }
+
+      .cm-editor .cm-content {
+        padding: 0;
+      }
+
+      details {
+        display: none;
+      }
+    </style>
+
+    <script src="/index.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1.28.0/components/prism-coffeescript.min.js"></script>
+  </body>
+</html>

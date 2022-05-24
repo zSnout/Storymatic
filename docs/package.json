@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@codemirror/basic-setup": "^0.20.0",
+    "@codemirror/lang-javascript": "^0.20.0",
+    "storymatic": "file:.."
+  }
+}
