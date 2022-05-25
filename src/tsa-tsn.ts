@@ -25,6 +25,9 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
     return ts.factory.createNodeArray(children.map((e) => e.ts()));
   },
 
+  ArgumentList(node) {
+    return node.tsa();
+  },
   GenericTypeArgumentList(node) {
     return node.tsa();
   },
@@ -36,6 +39,9 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   },
   GenericTypeParameterList(_0, params, _1) {
     return params.tsa();
+  },
+  ImpliedCallArgumentList(node) {
+    return node.tsa();
   },
   Indented(_0, node, _1) {
     return node.tsa();
