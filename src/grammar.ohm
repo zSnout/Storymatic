@@ -151,9 +151,11 @@ Storymatic {
     | "(" Expression ")" -- parenthesized
     | "[" ListOf<ArrayEntry, #expressionTerminator> ","? "]" -- array
     | "{" ListOf<ObjectEntry, #expressionTerminator> ","? "}" -- object
+    | "[" indent ListOf<ArrayEntry, #expressionTerminator> ","? dedent "]" -- array_indented
+    | "{" indent ListOf<ObjectEntry, #expressionTerminator> ","? dedent "}" -- object_indented
     | "@" ~(id_continue | "[" | ".") -- self
     | "%" -- topic_token
-    | "with" #space Expression SingleStatementBlock<"then"> -- with
+    | "with" #postWord Expression SingleStatementBlock<"then"> -- with
     | "do" Expression -- do
     | NonemptyListOf<ObjectEntry_implied, ("," | #lineBreak)> -- object_implied
     | InlineClassDeclaration

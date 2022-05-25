@@ -1671,10 +1671,16 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralExp_array(_0, entries, _1, _2) {
     return ts.factory.createArrayLiteralExpression(entries.tsa());
   },
+  LiteralExp_array_indented(_0, _1, entries, _2, _3, _4) {
+    return ts.factory.createArrayLiteralExpression(entries.tsa());
+  },
   LiteralExp_do(_, expr) {
     return ts.factory.createCallExpression(expr.ts(), undefined, undefined);
   },
   LiteralExp_object(_0, entries, _1, _2) {
+    return ts.factory.createObjectLiteralExpression(entries.tsa());
+  },
+  LiteralExp_object_indented(_0, _1, entries, _2, _3, _4) {
     return ts.factory.createObjectLiteralExpression(entries.tsa());
   },
   LiteralExp_object_implied(entries) {

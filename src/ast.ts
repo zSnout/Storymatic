@@ -766,10 +766,16 @@ ${optional(attributes)}`;
   LiteralExp_array(_0, elements, _1, _2) {
     return indent`Array${optional(elements)}`;
   },
+  LiteralExp_array_indented(_0, _1, elements, _2, _3, _4) {
+    return indent`Array${optional(elements)}`;
+  },
   LiteralExp_do(_, expr) {
     return namespace("Do", expr);
   },
   LiteralExp_object(_0, members, _1, _2) {
+    return indent`Object${optional(members)}`;
+  },
+  LiteralExp_object_indented(_0, _1, members, _2, _3, _4) {
     return indent`Object${optional(members)}`;
   },
   LiteralExp_object_implied(members) {
