@@ -540,5 +540,5 @@ identifier.
 ```coffee
 person = name: "Steve", age: 43
 
-person.name # "Steve"
+console.log person.name
 ```

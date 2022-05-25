@@ -1,6 +1,8 @@
 // @ts-check
 /// <reference types="./env" />
 
+let $eval = (code) => window.eval(code);
+
 window.$docsify = {
   repo: "zsnout/storymatic-docs",
   topMargin: 90,
@@ -20,32 +22,108 @@ window.$docsify = {
         }
       }
 
+      let observer = new ResizeObserver((entries) => {
+        entries.forEach(({ contentBoxSize: [entry], target }) => {
+          if (entry.inlineSize <= 550) {
+            target.classList.remove("dual");
+          } else {
+            target.classList.add("dual");
+          }
+        });
+      });
+
+      let { console } = window;
+
       hook.doneEach(async () => {
         let [
           Storymatic,
           { javascript },
           { EditorView, EditorState, basicSetup },
+          { keymap },
+          { inspect },
         ] = await imports;
 
         for (let el of document.querySelectorAll("[data-lang='coffee'] code")) {
           let { textContent } = el;
           el.replaceChildren();
 
-          let js = document.createElement("pre");
-          js.setAttribute("v-pre", "");
-          js.dataset.lang = "javascript";
+          let pre = el.parentElement;
+          let decl = getComputedStyle(pre);
+          if (
+            parseFloat(decl.inlineSize) -
+              parseFloat(decl.paddingInlineStart) -
+              parseFloat(decl.paddingInlineEnd) >
+            550
+          ) {
+            pre.classList.add("dual");
+          }
+
+          delete pre.dataset.lang;
+          pre.classList.add("storymatic");
 
           let jsc = document.createElement("code");
           jsc.className = "lang-javascript";
-          js.append(jsc);
+          pre.append(jsc);
 
-          el.parentElement.insertAdjacentElement("afterend", js);
+          let jsconsole = document.createElement("div");
+          jsconsole.className = "console";
+          pre.append(jsconsole);
+
+          let jsp = document.createElement("p");
+          jsp.className = "run-code-para";
+          jsconsole.append(jsp);
+
+          let jsb = document.createElement("button");
+          jsb.className = "run-code";
+          jsb.textContent = "Run Code";
+          jsp.append(jsb);
+
+          let code = compile(Storymatic, textContent);
+
+          jsb.addEventListener("click", () => {
+            jsconsole.replaceChildren(jsp);
+
+            function makeParagraph(/** @type {any[]} */ data) {
+              let p = document.createElement("p");
+
+              p.innerHTML = Prism.highlight(
+                data.map((e) => inspect(e, undefined, 2, false)).join(" "),
+                Prism.languages.javascript,
+                "javascript"
+              );
+
+              return jsconsole.appendChild(p);
+            }
+
+            window.console = {
+              ...console,
+              error(...data) {
+                let p = makeParagraph(data);
+                p.className = "console-error";
+              },
+              log(...data) {
+                makeParagraph(data);
+              },
+              warn(...data) {
+                let p = makeParagraph(data);
+                p.className = "console-warn";
+              },
+            };
+
+            let result = $eval(code);
+            if (result !== undefined) {
+              window.console.log(result);
+            }
+
+            window.console = console;
+          });
+
+          observer.observe(pre, { box: "content-box" });
 
           let editor = new EditorView({
             state: EditorState.create({
               doc: textContent,
               extensions: [
-                basicSetup,
                 javascript({ jsx: true, typescript: true }),
                 EditorView.updateListener.of(() => {
                   jsEditor.dispatch(
@@ -53,15 +131,25 @@ window.$docsify = {
                       changes: {
                         from: 0,
                         to: jsEditor.state.doc.length,
-                        insert: compile(
+                        insert: (code = compile(
                           Storymatic,
                           editor.state.doc.sliceString(0)
-                        ),
+                        )),
                       },
                     })
                   );
                 }),
                 EditorState.tabSize.of(2),
+                EditorView.lineWrapping,
+                keymap.of([
+                  {
+                    run: () => (jsb.click(), true),
+                    key: "Ctrl-Enter",
+                    mac: "Cmd-Enter",
+                    preventDefault: true,
+                  },
+                ]),
+                basicSetup,
               ],
             }),
             parent: el,
@@ -69,12 +157,13 @@ window.$docsify = {
 
           let jsEditor = new EditorView({
             state: EditorState.create({
-              doc: compile(Storymatic, textContent),
+              doc: code,
               extensions: [
                 basicSetup,
                 javascript({ jsx: true, typescript: true }),
                 EditorState.readOnly.of(true),
                 EditorState.tabSize.of(2),
+                EditorView.lineWrapping,
               ],
             }),
             parent: jsc,
@@ -90,6 +179,10 @@ window.$docsify = {
         import(
           "https://esm.sh/@codemirror/basic-setup@0.20.0?deps=@codemirror/state@0.20.0"
         ),
+        import(
+          "https://esm.sh/@codemirror/view@0.20.6?deps=@codemirror/state@0.20.0"
+        ),
+        import("https://esm.sh/util@0.12.4"),
       ]);
     },
   ],

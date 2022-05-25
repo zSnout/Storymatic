@@ -53,6 +53,96 @@
       .cm-editor .cm-content {
         padding: 0;
       }
+
+      .storymatic:not(.dual) code:first-of-type {
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid #d0d0d0;
+        border-radius: 0;
+      }
+
+      .storymatic:not(.dual) code:last-of-type {
+        padding-top: 0.8rem;
+        padding-bottom: 0.8rem;
+      }
+
+      .storymatic.dual {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        grid-template-rows: auto auto;
+      }
+
+      .storymatic.dual code:first-of-type {
+        border-right: 1px solid #d0d0d0;
+        margin-right: 0;
+        padding-right: 1.5em;
+      }
+
+      .storymatic.dual code:last-of-type {
+        padding-left: 1.5em;
+      }
+
+      .storymatic.dual code[class] {
+        padding-top: 0.7em;
+        margin-top: 1.5em;
+        padding-bottom: 1.6em;
+      }
+
+      .storymatic .console {
+        white-space: normal;
+        font-size: 0.8rem;
+        grid-column: 1 / span 2;
+      }
+
+      .storymatic .console > :last-child {
+        margin-bottom: 1rem;
+      }
+
+      .storymatic .run-code-para {
+        margin: 0;
+        margin-bottom: 0.5em;
+      }
+
+      .storymatic .run-code-para {
+        margin: 0;
+        margin-bottom: 1em;
+      }
+
+      .storymatic .run-code-para:last-child {
+        margin: 0;
+        margin-bottom: 1.8em;
+      }
+
+      .storymatic p {
+        margin: 0;
+      }
+
+      .storymatic .run-code {
+        border: 0;
+        margin: 0;
+        font-size: 1em;
+        padding: 0.5em 1em;
+        background: #e4e4e4;
+        border-radius: 0.25em;
+        margin-left: auto;
+        cursor: pointer;
+        font-family: Roboto Mono, Monaco, courier, monospace;
+      }
+
+      .storymatic .run-code:hover {
+        background: #d0d0d0;
+      }
+
+      .console .console-warn {
+        background: #ffff00;
+      }
+
+      .token.string {
+        color: #a11;
+      }
+
+      .token.number {
+        color: #164;
+      }
     </style>
 
     <script src="/index.js"></script>
