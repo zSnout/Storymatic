@@ -156,8 +156,8 @@ Storymatic {
     | "@" ~(id_continue | "[" | ".") -- self
     | "%" -- topic_token
     | "with" #postWord Expression SingleStatementBlock<"then"> -- with
-    | "do" Expression -- do
-    | NonemptyListOf<ObjectEntry_implied, ("," | #lineBreak)> -- object_implied
+    | "do" #postWord Expression -- do
+    | LiteralExp_object_implied
     | InlineClassDeclaration
     | decimalNumber
     | unitNumber
@@ -170,6 +170,9 @@ Storymatic {
     | string
     | null
     | Statement -- statement
+
+  LiteralExp_object_implied
+    = NonemptyListOf<ObjectEntry_implied, ("," | #lineBreak)>
 
   InlineClassDeclaration
     = "class" GenericTypeParameterList?
@@ -221,6 +224,7 @@ Storymatic {
       #(~lineBreak) "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
     | MemberAccessExp #(whitespace ~(lineBreak | "#" | "(" | "<")) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #lineBreak Indented<LiteralExp_object_implied> -- implied_call_object
     | MemberAccessExpNonCall<MemberAccessExp>
 
   MemberAccessExpNonCall<Child>
@@ -237,7 +241,10 @@ Storymatic {
     | Child "as" #postWord Type -- as_expression
     | "new" #postWord NCMemberAccessExp #(~lineBreak) GenericTypeArgumentList
       #(~lineBreak) "(" ArgumentList ")" -- class_creation_symbolic
-    | "new" #postWord NCMemberAccessExp #(whitespace ~(lineBreak | "#" | "(" | "<")) ImpliedCallArgumentList -- class_creation_implied
+    | "new" #postWord NCMemberAccessExp #(whitespace
+      ~(lineBreak | "#" | "(" | "<")) ImpliedCallArgumentList -- class_creation_implied
+    | "new" #postWord NCMemberAccessExp
+      #lineBreak Indented<LiteralExp_object_implied> -- class_creation_implied_object
     | "new" #postWord NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
     | LiteralExp
 

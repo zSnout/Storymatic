@@ -1674,7 +1674,7 @@ semantics.addOperation<ts.Node>("ts", {
   LiteralExp_array_indented(_0, _1, entries, _2, _3, _4) {
     return ts.factory.createArrayLiteralExpression(entries.tsa());
   },
-  LiteralExp_do(_, expr) {
+  LiteralExp_do(_0, _1, expr) {
     return ts.factory.createCallExpression(expr.ts(), undefined, undefined);
   },
   LiteralExp_object(_0, entries, _1, _2) {
@@ -1927,6 +1927,15 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExpNonCall_class_creation_implied(_0, _1, target, _2, args) {
     return ts.factory.createNewExpression(target.ts(), undefined, args.tsa());
   },
+  MemberAccessExpNonCall_class_creation_implied_object(
+    _0,
+    _1,
+    target,
+    _2,
+    arg
+  ) {
+    return ts.factory.createNewExpression(target.ts(), undefined, [arg.ts()]);
+  },
   MemberAccessExpNonCall_class_creation_no_args(_0, _1, target) {
     return ts.factory.createNewExpression(target.ts(), undefined, []);
   },
@@ -2012,6 +2021,9 @@ semantics.addOperation<ts.Node>("ts", {
   },
   MemberAccessExp_implied_call(target, _, args) {
     return ts.factory.createCallExpression(target.ts(), undefined, args.tsa());
+  },
+  MemberAccessExp_implied_call_object(target, _, arg) {
+    return ts.factory.createCallExpression(target.ts(), undefined, [arg.ts()]);
   },
   MemberAccessExp_optional_chaining_function_call(
     target,

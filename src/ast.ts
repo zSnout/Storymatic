@@ -769,7 +769,7 @@ ${optional(attributes)}`;
   LiteralExp_array_indented(_0, _1, elements, _2, _3, _4) {
     return indent`Array${optional(elements)}`;
   },
-  LiteralExp_do(_, expr) {
+  LiteralExp_do(_0, _1, expr) {
     return namespace("Do", expr);
   },
   LiteralExp_object(_0, members, _1, _2) {
@@ -896,10 +896,38 @@ ${optional(end.tree())}`.trimStart();
   ${target}
   ${namespace("Range", range)}`;
   },
+  MemberAccessExpNonCall_array_slice_indented(
+    target,
+    qMark,
+    _0,
+    _1,
+    start,
+    dots,
+    end,
+    _2,
+    _3
+  ) {
+    let range = `${start.tree()}
+${dots.sourceString === "..." ? "Through" : "To"}\
+${optional(end.tree())}`.trimStart();
+
+    return indent`ArraySlice${optional(qMark.sourceString && "[Chain]")}
+  ${target}
+  ${namespace("Range", range)}`;
+  },
   MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
     return indent`TypeAssertion\n  ${expr}\n  ${type}`;
   },
   MemberAccessExpNonCall_class_creation_implied(_0, _1, target, _2, args) {
+    return indent`ClassCreation\n  ${target}\n  ${args}`;
+  },
+  MemberAccessExpNonCall_class_creation_implied_object(
+    _0,
+    _1,
+    target,
+    _2,
+    args
+  ) {
     return indent`ClassCreation\n  ${target}\n  ${args}`;
   },
   MemberAccessExpNonCall_class_creation_no_args(_0, _1, target) {
@@ -951,6 +979,9 @@ ${optional(generics)}${optional(args)}`;
 ${optional(generics)}${optional(args)}`;
   },
   MemberAccessExp_implied_call(target, _, args) {
+    return indent`FunctionCall\n  ${target}${optional(args)}`;
+  },
+  MemberAccessExp_implied_call_object(target, _, args) {
     return indent`FunctionCall\n  ${target}${optional(args)}`;
   },
   MemberAccessExp_optional_chaining_function_call(

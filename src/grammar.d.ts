@@ -101,10 +101,10 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   LiteralExp_self?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp_topic_token?: (this: NonterminalNode, arg0: TerminalNode) => T;
   LiteralExp_with?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
-  LiteralExp_do?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
-  LiteralExp_object_implied?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  LiteralExp_do?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   LiteralExp_statement?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   LiteralExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  LiteralExp_object_implied?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   InlineClassDeclaration?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: IterationNode, arg12: TerminalNode) => T;
   ArrayEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   ArrayEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -132,6 +132,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessExp_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExp_optional_chaining_function_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: TerminalNode, arg4: NonterminalNode, arg5: TerminalNode) => T;
   MemberAccessExp_implied_call?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
+  MemberAccessExp_implied_call_object?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   MemberAccessExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MemberAccessExpNonCall_member_access?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode) => T;
   MemberAccessExpNonCall_optional_chaining_member_access?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode) => T;
@@ -145,6 +146,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessExpNonCall_as_expression?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
   MemberAccessExpNonCall_class_creation_symbolic?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: TerminalNode) => T;
   MemberAccessExpNonCall_class_creation_implied?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
+  MemberAccessExpNonCall_class_creation_implied_object?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
   MemberAccessExpNonCall_class_creation_no_args?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: NonterminalNode) => T;
   MemberAccessExpNonCall?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   NCMemberAccessExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;

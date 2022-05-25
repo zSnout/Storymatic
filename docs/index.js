@@ -11,13 +11,15 @@ window.$docsify = {
     (hook) => {
       function compile(
         /** @type {typeof import("storymatic")} */ Storymatic,
-        /** @type {string} */ text
+        /** @type {string} */ text,
+        throws = false
       ) {
         try {
           return Storymatic.transpile(Storymatic.compile(text), {
             typescript: true,
           }).trim();
         } catch (e) {
+          if (throws) throw "" + e;
           return "" + e;
         }
       }
@@ -78,7 +80,53 @@ window.$docsify = {
           jsb.textContent = "Run Code";
           jsp.append(jsb);
 
-          let code = compile(Storymatic, textContent);
+          let code = "";
+          try {
+            code = compile(Storymatic, textContent, true);
+          } catch (e) {
+            code = "" + e;
+            let el = pre.previousElementSibling;
+            while (!el?.tagName.startsWith("H")) {
+              el = el.previousElementSibling;
+            }
+
+            if (el) {
+              let els = /** @type {NodeListOf<HTMLAnchorElement>} */ (
+                document.querySelectorAll(
+                  `a[href="${el.children[0].getAttribute("href")}"`
+                )
+              );
+
+              if (els[0].textContent.includes("(error)")) {
+                els[0].textContent = els[0].textContent.replace(
+                  "(error)",
+                  "(2 errors)"
+                );
+
+                els[1].children[0].textContent =
+                  els[1].children[0].textContent.replace(
+                    "(error)",
+                    "(2 errors)"
+                  );
+              } else if (els[0].textContent.includes("errors)")) {
+                els[0].textContent = els[0].textContent.replace(
+                  /\d+ errors/,
+                  (match) => `${+match.split(" ")[0] + 1} errors`
+                );
+
+                els[1].children[0].textContent =
+                  els[1].children[0].textContent.replace(
+                    /\d+ errors/,
+                    (match) => `${+match.split(" ")[0] + 1} errors`
+                  );
+              } else {
+                els[0].textContent += " (error)";
+                els[1].children[0].textContent += " (error)";
+              }
+
+              els[0].style.color = "red";
+            }
+          }
 
           jsb.addEventListener("click", () => {
             jsconsole.replaceChildren(jsp);
@@ -172,7 +220,7 @@ window.$docsify = {
       });
 
       let imports = Promise.all([
-        import("https://esm.sh/storymatic@2.0.64"),
+        import("https://esm.sh/storymatic@2.0.70"),
         import(
           "https://esm.sh/@codemirror/lang-javascript@0.20.0?deps=@codemirror/state@0.20.0"
         ),

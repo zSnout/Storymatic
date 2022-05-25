@@ -270,7 +270,11 @@ export function preCompile(text: string) {
     let prev: string | Tree | undefined;
 
     for (let child of node.content) {
-      if (typeof prev === "string" && typeof child === "object") {
+      if (
+        typeof prev === "string" &&
+        typeof child === "object" &&
+        !prev.endsWith(",")
+      ) {
         child = `⇨${traverse(child)}⇦`;
       }
 
