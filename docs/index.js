@@ -225,6 +225,18 @@ window.$docsify = {
 
             window.console = {
               ...console,
+              assert(condition, ...data) {
+                if (!condition) {
+                  if (data.length) {
+                    window.console.error("Assertion failed");
+                  } else {
+                    window.console.error("Assertion failed:", ...data);
+                  }
+                }
+              },
+              clear() {
+                jsconsole.replaceChildren(jsp);
+              },
               error(...data) {
                 let els = makeElements(data);
                 els.forEach((el) => (el.className += " console-error"));
@@ -238,6 +250,9 @@ window.$docsify = {
               },
             };
 
+            Object.assign(window, window.console);
+            window.Storymatic = Storymatic;
+
             let result = $eval(
               compile(Storymatic, editor.state.doc.sliceString(0), {
                 typescript: false,
@@ -247,8 +262,6 @@ window.$docsify = {
             if (result !== undefined) {
               window.console.log(result);
             }
-
-            window.console = console;
           });
 
           observer.observe(pre, { box: "content-box" });
@@ -305,7 +318,7 @@ window.$docsify = {
       });
 
       let imports = Promise.all([
-        import("https://esm.sh/storymatic@2.0.72"),
+        import("https://esm.sh/storymatic@2.0.75"),
         import(
           "https://esm.sh/@codemirror/lang-javascript@0.20.0?deps=@codemirror/state@0.20.0"
         ),

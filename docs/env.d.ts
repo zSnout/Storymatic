@@ -34,3 +34,5 @@ declare var jsx: {
 declare interface Node {
   className: string;
 }
+
+declare var Storymatic: typeof import("storymatic");

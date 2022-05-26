@@ -586,5 +586,6 @@ console.log "spread before", { ...oldPerson, age: 7 }
 console.log "spread after", { age: 7, ...oldPerson }
 ```
 
-Notice how to `spread after` doesn't have the new age. This is because the
-spread literal overrides the previous `age: 7` property.
+Notice how the second object doesn't have the new age. This is because spreading
+`oldPerson` overrides the previous `age: 7` property.
+
