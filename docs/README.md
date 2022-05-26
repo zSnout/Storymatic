@@ -394,32 +394,72 @@ comma. It may also contain spread elements.
 
 ## Accessing and modifying arrays
 
-To get an element from an array, use `arr[index]` syntax. You may also use
-`arr[start..end]` syntax to capture a section of an array. You may also use
-three dots as in `arr[start...end]` to exclude the final element.
+To get an element from an array, use `arr[index]` syntax.
 
 !> Storymatic uses a system called zero-based arrays, which means that the first
-element of an array has an index of 1, the second element has an index of 1, and
+element of an array has an index of 0, the second element has an index of 1, and
 so on.
 
 ```coffee
 namesInDocument = ["Bob", "Jack", "Celia", "Jones", "Kelo"]
-console.log namesInDocument[4] # Kelo
-console.log namesInDocument[0..2] # ["Bob", "Jack", "Celia"]
-console.log namesInDocument[0...2] # ["Bob", "Jack"]
+
+namesInDocument[4]
 ```
 
-To change elements within arrays, set an index to a value. You can also set a
-section of elements to a value using range syntax.
+To change elements within arrays, set an index to a value.
 
 ```coffee
 namesInDocument = ["Bob", "Jack", "Celia", "Jones", "Kelo"]
 
 namesInDocument[4] = "Pablo"
-console.log namesInDocument[4] # Pablo
 
-namesInDocument[0..2] = "Frida"
-console.log namesInDocument # ["Frida", "Jones", "Kelo"]
+namesInDocument[4]
+```
+
+## Slice and splice syntax
+
+Storymatic supports the experimental
+[slice notation proposal](https://github.com/tc39/proposal-slice-notation) as
+well as CoffeeScript-like splice notation. However, the proposed colon-based
+syntax is already valid in Storymatic, so we replace it with `..` syntax.
+
+!> CoffeeScript's `..` operator is inclusive, whereas Storymatic's is exclusive.
+This means that `0..3` captures 3 elements in Storymatic where it would capture
+4 in CoffeeScript. Using exclusive syntax allows us to maintain compatiability
+with the slice notation proposal, which is very important to Storymatic.
+
+```coffee
+namesInDocument = ["Bob", "Jack", "Celia", "Jones", "Kelo"]
+
+# Captures the 0th, 1st, and 2nd elements
+console.log namesInDocument[0..3]
+
+# Captures the 2nd and 3rd elements
+namesInDocument[2..4]
+```
+
+We also support a splice syntax which is similar to CoffeeScript syntax, except
+that we use exclusive ranges to maintain consistency with proposals.
+
+```coffee
+console.log namesInDocument =
+  ["Bob", "Jack", "Celia", "Jones", "Kelo"]
+
+# Replace the 0th-2nd elements with "Fred"
+namesInDocument[0..3] = "Fred"
+
+namesInDocument
+```
+
+## Array spread syntax
+
+Storymatic supports spread syntax, which allows you to make a copy of array
+elements and spread them into a new array literal.
+
+```coffee
+namesInDocument = ["Bob", "Jack", "Celia", "Jones", "Kelo"]
+
+newNames = ["Raile", ...namesInDocument, "Jehosephat"]
 ```
 
 ## Destructuring arrays
@@ -497,7 +537,7 @@ A common pattern is to turn a list of variables into an object like so:
 name = "Steve"
 age = 43
 
-console.log { name: name, age: age }
+{ name: name, age: age }
 ```
 
 You can use object shorthand to reduce the amount of code here. The previous
@@ -507,7 +547,7 @@ example and this one are identical.
 name = "Steve"
 age = 43
 
-console.log { name, age }
+{ name, age }
 ```
 
 ## Accessing object properties
@@ -518,5 +558,33 @@ identifier.
 ```coffee
 person = name: "Steve", age: 43
 
-console.log person.name
+person.name
 ```
+
+## Object spread syntax
+
+If you quickly want to copy an object's properties into a new literal, use
+spread syntax like this:
+
+```coffee
+oldPerson = name: "Steve", age: 43
+
+newPerson = {
+  email: "fake@exaple.com",
+  ...oldPerson,
+  age: 7
+}
+```
+
+The positioning of a spread literal matters, as new properties in a spread
+literal override previous properties. Here's an example of the difference:
+
+```coffee
+oldPerson = name: "Steve", age: 43
+
+console.log "spread before", { ...oldPerson, age: 7 }
+console.log "spread after", { age: 7, ...oldPerson }
+```
+
+Notice how to `spread after` doesn't have the new age. This is because the
+spread literal overrides the previous `age: 7` property.

@@ -202,7 +202,7 @@ window.$docsify = {
 
                   els.push(el);
                 } else if (content) {
-                  content += inspect(el, undefined, 2, false);
+                  content += " " + inspect(el, undefined, 2, false);
                 } else {
                   content = inspect(el, undefined, 2, false);
                 }
