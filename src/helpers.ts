@@ -333,21 +333,14 @@ export function prePrinted(node: ts.Node) {
     (context) => {
       function visit(
         node: ts.Node,
-        objectScope: ObjectScope,
-        isLastStatement = false
+        objectScope: ObjectScope
       ): ts.Node | ts.Node[] {
-        if (ts.isSourceFile(node) || ts.isBlock(node)) {
-          objectScope.isMultilineObject = true;
-          let last = node.statements[node.statements.length - 1];
-
-          return ts.visitEachChild(
-            node,
-            (node) => visit(node, objectScope, node === last),
-            context
-          );
-        }
-
-        if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
+        if (
+          ts.isSourceFile(node) ||
+          ts.isBlock(node) ||
+          ts.isClassDeclaration(node) ||
+          ts.isClassExpression(node)
+        ) {
           objectScope.isMultilineObject = true;
         }
 
