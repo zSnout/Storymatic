@@ -201,7 +201,7 @@ export function preCompile(text: string) {
   };
 
   text = text.replace(/\t/g, "  ").replace(/[⇦⇨]+/g, "") + "\n";
-  let sections: Indented[] = text.split(/[\r\n]+/g).map((e) => ({
+  let sections: Indented[] = text.split(/[\r\n]/g).map((e) => ({
     indentLevel: e.match(/^\s+/)?.[0].length || 0,
     content: e,
   }));
@@ -216,12 +216,8 @@ export function preCompile(text: string) {
     let prev = sections[sections.length - 1];
     let last = embeddings[embeddings.length - 1];
 
-    if (last === "'" || last === '"') {
-      if (prev) {
-        prev.content += "\n" + node.content;
-      } else {
-        sections.push(node);
-      }
+    if ((last === "'" || last === '"') && prev) {
+      prev.content += "\n" + node.content;
     } else {
       sections.push(node);
     }
@@ -262,6 +258,8 @@ export function preCompile(text: string) {
       return reduce(prev.parent, next);
     } else throw new Error("Unexpected indentation error");
   }, top);
+
+  console.log(top);
 
   let result = (function traverse(node): string {
     delete node.parent;
