@@ -1,7 +1,54 @@
 // @ts-check
 /// <reference types="./env" />
 
-let $eval = (code) => window.eval(code);
+let $eval = (code) => {
+  try {
+    return window.eval(code);
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+window.jsx = (tag, attrs, ...children) => {
+  if (typeof tag === "string") {
+    let el = document.createElement(tag);
+
+    for (let attr in attrs) {
+      if (attr === "style") {
+        for (let prop in attrs.style) {
+          el.style[prop] = attrs.style[prop];
+        }
+      } else if (attr.startsWith("data")) {
+        el.dataset[attr.slice(4)] = attrs[attr];
+      } else if (attr.startsWith("on")) {
+        el.addEventListener(
+          attr.slice(2, 3).toUpperCase() + attr.slice(3),
+          attrs[attr]
+        );
+      } else {
+        el[attr] = attrs[attr];
+      }
+    }
+
+    for (let child of children.flat(Infinity)) {
+      if (child instanceof Node || typeof child === "string") {
+        el.append(child);
+      } else {
+        el.append("" + child);
+      }
+    }
+
+    return el;
+  }
+
+  try {
+    // @ts-ignore
+    return tag(children.length ? { ...attrs, children } : attrs);
+  } catch {
+    // @ts-ignore
+    return new tag(children.length ? { ...attrs, children } : attrs);
+  }
+};
 
 window.$docsify = {
   repo: "zsnout/storymatic-docs",
@@ -12,11 +59,12 @@ window.$docsify = {
       function compile(
         /** @type {typeof import("storymatic")} */ Storymatic,
         /** @type {string} */ text,
-        throws = false
+        { throws = false, typescript = true } = {}
       ) {
         try {
           return Storymatic.transpile(Storymatic.compile(text), {
-            typescript: true,
+            typescript,
+            jsx: typescript ? undefined : "window.jsx",
           }).trim();
         } catch (e) {
           if (throws) throw "" + e;
@@ -37,6 +85,10 @@ window.$docsify = {
       let { console } = window;
 
       hook.doneEach(async () => {
+        let codes = /** @type {NodeListOf<HTMLElement>} */ (
+          document.querySelectorAll("[data-lang='coffee'] code")
+        );
+
         let [
           Storymatic,
           { javascript },
@@ -45,7 +97,7 @@ window.$docsify = {
           { inspect },
         ] = await imports;
 
-        for (let el of document.querySelectorAll("[data-lang='coffee'] code")) {
+        for (let el of codes) {
           let { textContent } = el;
           el.replaceChildren();
 
@@ -82,7 +134,7 @@ window.$docsify = {
 
           let code = "";
           try {
-            code = compile(Storymatic, textContent, true);
+            code = compile(Storymatic, textContent, { throws: true });
           } catch (e) {
             code = "" + e;
             let el = pre.previousElementSibling;
@@ -93,7 +145,7 @@ window.$docsify = {
             if (el) {
               let els = /** @type {NodeListOf<HTMLAnchorElement>} */ (
                 document.querySelectorAll(
-                  `a[href="${el.children[0].getAttribute("href")}"`
+                  `a[href="${el.children[0].getAttribute("href")}"]`
                 )
               );
 
@@ -131,34 +183,67 @@ window.$docsify = {
           jsb.addEventListener("click", () => {
             jsconsole.replaceChildren(jsp);
 
-            function makeParagraph(/** @type {any[]} */ data) {
-              let p = document.createElement("p");
+            function makeElements(/** @type {any[]} */ data) {
+              let els = [];
+              let content = "";
 
-              p.innerHTML = Prism.highlight(
-                data.map((e) => inspect(e, undefined, 2, false)).join(" "),
-                Prism.languages.javascript,
-                "javascript"
-              );
+              for (let el of data) {
+                if (el instanceof Node) {
+                  if (content) {
+                    let p = document.createElement("p");
+                    p.innerHTML = Prism.highlight(
+                      content,
+                      Prism.languages.javascript,
+                      "javascript"
+                    );
 
-              return jsconsole.appendChild(p);
+                    els.push(p);
+                  }
+
+                  els.push(el);
+                } else if (content) {
+                  content += inspect(el, undefined, 2, false);
+                } else {
+                  content = inspect(el, undefined, 2, false);
+                }
+              }
+
+              if (content) {
+                let p = document.createElement("p");
+                p.innerHTML = Prism.highlight(
+                  content,
+                  Prism.languages.javascript,
+                  "javascript"
+                );
+
+                els.push(p);
+              }
+
+              jsconsole.append(...els);
+              return els;
             }
 
             window.console = {
               ...console,
               error(...data) {
-                let p = makeParagraph(data);
-                p.className = "console-error";
+                let els = makeElements(data);
+                els.forEach((el) => (el.className += " console-error"));
               },
               log(...data) {
-                makeParagraph(data);
+                makeElements(data);
               },
               warn(...data) {
-                let p = makeParagraph(data);
-                p.className = "console-warn";
+                let els = makeElements(data);
+                els.forEach((el) => (el.className += " console-warn"));
               },
             };
 
-            let result = $eval(code);
+            let result = $eval(
+              compile(Storymatic, editor.state.doc.sliceString(0), {
+                typescript: false,
+              })
+            );
+
             if (result !== undefined) {
               window.console.log(result);
             }

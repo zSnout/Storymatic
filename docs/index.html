@@ -94,7 +94,7 @@
       }
 
       .storymatic .console > :last-child {
-        margin-bottom: 1rem;
+        margin-bottom: max(1rem, 0.75em);
       }
 
       .storymatic .run-code-para {
@@ -112,20 +112,23 @@
         margin-bottom: 1.8em;
       }
 
-      .storymatic p {
+      .storymatic .console * {
         margin: 0;
+        font-family: Roboto Mono, Monaco, courier, monospace;
+      }
+
+      .storymatic .console :is(h1, h2, h3, h4, h5, h6) {
+        margin-top: 0.5em;
       }
 
       .storymatic .run-code {
         border: 0;
-        margin: 0;
         font-size: 1em;
         padding: 0.5em 1em;
         background: #e4e4e4;
         border-radius: 0.25em;
         margin-left: auto;
         cursor: pointer;
-        font-family: Roboto Mono, Monaco, courier, monospace;
       }
 
       .storymatic .run-code:hover {

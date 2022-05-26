@@ -286,25 +286,19 @@ ${optional(members)}`;
   ClassElement_index_signature(signature, _) {
     return signature.tree();
   },
-  ClassElement_method(node) {
-    return node.tree();
-  },
   ClassElement_property(node, _) {
     return node.tree();
   },
   ClassElement_static_index_signature(node, _) {
     return modify("Static", node.tree());
   },
-  ClassElement_static_method(node) {
-    return node.tree();
-  },
   ClassElement_static_property(node, _) {
     return node.tree();
   },
   ClassProperty(privacy, readonly, _0, prefix, name, mark, _1, type, _2, init) {
     let prop = indent`Property\n  ${name}\
-${optional(namespace("Type", type))}\
-${optional(namespace("Initializer", init))}`;
+      ${optional(namespace("Type", type))}\
+      ${optional(init)}`;
 
     if (mark.sourceString === "?") prop = modify("Optional", prop);
     if (mark.sourceString === "!") prop = modify("DefinitelyAssigned", prop);
@@ -1022,15 +1016,6 @@ ${optional(generics)}${optional(args)}`;
   MemberAccessType_tuple(_0, members, _1, _2) {
     return indent`Tuple\n  ${members}`;
   },
-  Method(privacy, prefix, name, qMark, fn) {
-    let prop = indent`Method\n  ${name}\n  ${fn}`;
-
-    if (qMark.sourceString === "?") prop = modify("Optional", prop);
-    if (prefix.sourceString === "@") prop = modify("Static", prop);
-    if (privacy.sourceString) prop = modify(privacy.tree(), prop);
-
-    return prop;
-  },
   MethodName(node) {
     return node.tree();
   },
@@ -1133,9 +1118,6 @@ ${optional(block)}`;
   },
   ObjectEntry_key_value(key, _, value) {
     return indent`Property\n  ${key}\n  ${value}`;
-  },
-  ObjectEntry_object_method(name, fn) {
-    return fn.tree().replace("Function", indent`Method\n  ${name}`);
   },
   ObjectEntry_restructure(node) {
     return indent`Property\n  [Shorthand]\n  ${node}`;
@@ -1589,15 +1571,6 @@ ${optional(generics)}\n  ${type}`;
 
     if (qMark.sourceString) text = modify("Optional", text);
     if (readonly.sourceString) text = modify("Readonly", text);
-
-    return text;
-  },
-  TypeObjectEntry_method(name, qMark, node) {
-    let text = node.tree().replace("FunctionType", indent`Method\n  ${name}`);
-
-    if (qMark.sourceString) {
-      text = modify("Optional", name);
-    }
 
     return text;
   },

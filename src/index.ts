@@ -971,15 +971,76 @@ semantics.addOperation<ts.Node>("ts", {
   ClassElement_index_signature(signature, _) {
     return signature.ts();
   },
-  ClassElement_method(method) {
-    return method.ts();
-  },
   ClassElement_property(property, _) {
-    return property.ts();
+    let prop = property.ts<ts.PropertyDeclaration>();
+    let init = prop.initializer;
+
+    // The checks here are because we only convert properties to methods if they
+    // aren't marked as private, protected, or if they have a type.
+    if (
+      init &&
+      !prop.type &&
+      !prop.modifiers?.some(
+        (value) =>
+          value.kind === ts.SyntaxKind.PrivateKeyword ||
+          value.kind === ts.SyntaxKind.ProtectedKeyword ||
+          value.kind === ts.SyntaxKind.ReadonlyKeyword
+      ) &&
+      ts.isFunctionExpression(init)
+    ) {
+      let mods = prop.modifiers?.filter(
+        (node) => node.kind !== ts.SyntaxKind.PublicKeyword
+      );
+
+      return ts.factory.createMethodDeclaration(
+        init.decorators,
+        init.modifiers?.concat(mods || []) || mods,
+        init.asteriskToken,
+        prop.name,
+        init.questionToken,
+        init.typeParameters,
+        init.parameters,
+        init.type,
+        init.body
+      );
+    }
+
+    return prop;
   },
   ClassElement_static_property(property, _) {
     let prop = property.ts<ts.PropertyDeclaration>();
+    let init = prop.initializer;
     let keyword = ts.factory.createToken(ts.SyntaxKind.StaticKeyword);
+
+    // The checks here are because we only convert properties to methods if they
+    // aren't marked as private, protected, or if they have a type.
+    if (
+      init &&
+      !prop.type &&
+      !prop.modifiers?.some(
+        (value) =>
+          value.kind === ts.SyntaxKind.PrivateKeyword ||
+          value.kind === ts.SyntaxKind.ProtectedKeyword ||
+          value.kind === ts.SyntaxKind.ReadonlyKeyword
+      ) &&
+      ts.isFunctionExpression(init)
+    ) {
+      let mods = prop.modifiers
+        ?.filter((node) => node.kind !== ts.SyntaxKind.PublicKeyword)
+        ?.concat(keyword) || [keyword];
+
+      return ts.factory.createMethodDeclaration(
+        init.decorators,
+        init.modifiers?.concat(mods) || mods,
+        init.asteriskToken,
+        prop.name,
+        init.questionToken,
+        init.typeParameters,
+        init.parameters,
+        init.type,
+        init.body
+      );
+    }
 
     return ts.factory.createPropertyDeclaration(
       prop.decorators,
@@ -992,9 +1053,6 @@ semantics.addOperation<ts.Node>("ts", {
   },
   ClassElement_static_index_signature(signature, _) {
     return signature.ts();
-  },
-  ClassElement_static_method(method) {
-    return method.ts();
   },
   ClassProperty(
     privacy,
@@ -2073,34 +2131,6 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessType_tuple(_0, elements, _1, _2) {
     return ts.factory.createTupleTypeNode(elements.tsa());
   },
-  Method(privacy, _, name, qMark, body) {
-    let fn = body.ts<ts.FunctionExpression | ts.ArrowFunction>();
-
-    console.log(transpile(fn, { target: ts.ScriptTarget.ESNext }));
-
-    if (ts.isArrowFunction(fn)) {
-      return ts.factory.createPropertyDeclaration(
-        undefined,
-        privacy.sourceString ? [privacy.ts()] : [],
-        name.ts<ts.PropertyName>(),
-        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-        undefined,
-        fn
-      );
-    }
-
-    return ts.factory.createMethodDeclaration(
-      undefined,
-      privacy.sourceString ? [privacy.ts()] : [],
-      undefined,
-      name.ts<ts.PropertyName>(),
-      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-      fn.typeParameters,
-      fn.parameters,
-      fn.type,
-      fn.body
-    );
-  },
   MethodName(node) {
     return node.ts();
   },
@@ -2230,32 +2260,27 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   ObjectEntry_key_value(key, _, value) {
-    return ts.factory.createPropertyAssignment(
+    let prop = ts.factory.createPropertyAssignment(
       key.ts<ts.PropertyName>(),
       value.ts()
     );
-  },
-  ObjectEntry_object_method(name, expr) {
-    let fn = expr.ts<ts.FunctionExpression | ts.ArrowFunction>();
 
-    if (fn.kind === ts.SyntaxKind.ArrowFunction) {
-      return ts.factory.createPropertyAssignment(
-        name.ts<ts.PropertyName>(),
-        fn
+    let init = prop.initializer;
+    if (ts.isFunctionExpression(init)) {
+      return ts.factory.createMethodDeclaration(
+        init.decorators,
+        init.modifiers,
+        init.asteriskToken,
+        key.ts<ts.PropertyName>(),
+        init.questionToken,
+        init.typeParameters,
+        init.parameters,
+        init.type,
+        init.body
       );
     }
 
-    return ts.factory.createMethodDeclaration(
-      undefined,
-      undefined,
-      undefined,
-      name.ts<ts.PropertyName>(),
-      undefined,
-      fn.typeParameters,
-      fn.parameters,
-      fn.type,
-      fn.body
-    );
+    return prop;
   },
   ObjectEntry_restructure(ident) {
     return ts.factory.createShorthandPropertyAssignment(
@@ -2984,27 +3009,28 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   TypeObjectEntry_key_value(readonly, _0, key, qMark, _1, value) {
-    return ts.factory.createPropertySignature(
-      readonly.sourceString
-        ? [ts.factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)]
-        : undefined,
-      key.ts<ts.PropertyName>(),
-      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-      value.ts<ts.TypeNode>()
-    );
-  },
-  TypeObjectEntry_method(name, qMark, call) {
-    let fn = call.ts<ts.FunctionTypeNode>();
+    let name = key.ts<ts.PropertyName>();
+    let val = value.ts<ts.TypeNode>();
+    let mods = readonly.sourceString
+      ? [ts.factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)]
+      : undefined;
 
-    return ts.factory.createMethodSignature(
-      undefined,
-      name.ts<ts.PropertyName>(),
-      qMark
-        .child(0)
-        ?.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
-      fn.typeParameters,
-      fn.parameters,
-      fn.type
+    if (ts.isFunctionTypeNode(val) && !mods) {
+      return ts.factory.createMethodSignature(
+        mods,
+        name,
+        qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+        val.typeParameters,
+        val.parameters,
+        val.type
+      );
+    }
+
+    return ts.factory.createPropertySignature(
+      mods,
+      name,
+      qMark.tsn({ "?": ts.factory.createToken(ts.SyntaxKind.QuestionToken) }),
+      val
     );
   },
   TypeObjectKey(node) {

@@ -19,3 +19,18 @@ declare module "https://esm.sh/util*" {
 }
 
 declare var $docsify: any;
+
+declare var jsx: {
+  (
+    tag:
+      | string
+      | ((props: Record<string, any>) => Node)
+      | (new (props: Record<string, any>) => Node),
+    attrs?: Record<string, any> | null,
+    ...children: any[]
+  ): Node;
+};
+
+declare interface Node {
+  className: string;
+}

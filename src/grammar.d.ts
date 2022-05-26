@@ -58,8 +58,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   Rescopable_identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Rescopable?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: IterationNode, arg11: IterationNode, arg12: IterationNode, arg13: IterationNode, arg14: TerminalNode, arg15: IterationNode, arg16: TerminalNode) => T;
-  ClassElement_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ClassElement_static_method?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ClassElement_property?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   ClassElement_static_property?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   ClassElement_index_signature?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
@@ -109,7 +107,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   ArrayEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   ArrayEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Function?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode, arg5: IterationNode, arg6: TerminalNode, arg7: IterationNode) => T;
-  Method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: Node, arg2: NonterminalNode, arg3: IterationNode, arg4: NonterminalNode) => T;
   ClassProperty?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: Node, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode) => T;
   PrivacyLevel_public?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   PrivacyLevel_protected?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
@@ -123,7 +120,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MethodName_numerical_key?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   MethodName_computed_key?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode) => T;
   MethodName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ObjectEntry_object_method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   ObjectEntry_key_value?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   ObjectEntry_spread_operator?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   ObjectEntry_restructure?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -334,7 +330,6 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   TypeObjectEntry_key_value?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
   TypeObjectEntry_construct_signature?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
   TypeObjectEntry_call_signature?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  TypeObjectEntry_method?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: NonterminalNode) => T;
   TypeObjectEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TypeObjectEntry_implied?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: NonterminalNode) => T;
   FunctionType?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: TerminalNode, arg5: IterationNode) => T;
@@ -348,7 +343,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   IfType_if?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: NonterminalNode) => T;
   IfType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   NamespaceDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: NonterminalNode) => T;
-  InterfaceDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: TerminalNode, arg11: NonterminalNode, arg12: TerminalNode) => T;
+  InterfaceDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: IterationNode, arg7: IterationNode, arg8: IterationNode, arg9: IterationNode, arg10: NonterminalNode | TerminalNode, arg11: NonterminalNode, arg12: NonterminalNode | TerminalNode) => T;
   IndexSignatureType?: (this: NonterminalNode, arg0: IterationNode, arg1: Node, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode, arg5: NonterminalNode, arg6: TerminalNode, arg7: TerminalNode, arg8: NonterminalNode) => T;
   TypeDeclaration?: (this: NonterminalNode, arg0: IterationNode, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode, arg5: IterationNode, arg6: TerminalNode, arg7: NonterminalNode, arg8: NonterminalNode) => T;
   GenericTypeParameter_parameter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode, arg2: IterationNode, arg3: IterationNode, arg4: IterationNode) => T;

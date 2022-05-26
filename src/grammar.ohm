@@ -80,9 +80,7 @@ Storymatic {
       "{" ClassElement* "}"
 
   ClassElement
-    = Method<""> -- method
-    | Method<"@"> -- static_method
-    | ClassProperty<""> #statementTerminator -- property
+    = ClassProperty<""> #statementTerminator -- property
     | ClassProperty<"@"> #statementTerminator -- static_property
     | IndexSignatureType<""> #statementTerminator -- index_signature
     | IndexSignatureType<"@"> #statementTerminator -- static_index_signature
@@ -188,9 +186,6 @@ Storymatic {
     = (GenericTypeParameterList? "(" ParameterList? ")"
       (":" FunctionReturnType)?)? ("->" | "=>") (#(~(lineBreak ~indent)) FunctionBody)?
 
-  Method<prefix>
-    = PrivacyLevel prefix MethodName "?"? Function
-
   ClassProperty<prefix>
     = PrivacyLevel ("readonly" #postWord)? prefix MethodName ("?" | "!")? (":" Type)? ("=" Expression)?
 
@@ -211,8 +206,7 @@ Storymatic {
     | "[" Expression "]" -- computed_key
 
   ObjectEntry
-    = MethodName Function -- object_method
-    | MethodName ":" Expression -- key_value
+    = MethodName ":" Expression -- key_value
     | "..." Expression -- spread_operator
     | identifier -- restructure
 
@@ -223,7 +217,7 @@ Storymatic {
     | MemberAccessExp #(~lineBreak) GenericTypeArgumentList
       #(~lineBreak) "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp #(whitespace ~(lineBreak | "#" | "(" | "<")) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #(whitespace ~(lineBreak | "#" | "(" | "<" id_continue)) ImpliedCallArgumentList -- implied_call
     | MemberAccessExp #lineBreak Indented<LiteralExp_object_implied> -- implied_call_object
     | MemberAccessExpNonCall<MemberAccessExp>
 
@@ -242,7 +236,7 @@ Storymatic {
     | "new" #postWord NCMemberAccessExp #(~lineBreak) GenericTypeArgumentList
       #(~lineBreak) "(" ArgumentList ")" -- class_creation_symbolic
     | "new" #postWord NCMemberAccessExp #(whitespace
-      ~(lineBreak | "#" | "(" | "<")) ImpliedCallArgumentList -- class_creation_implied
+      ~(lineBreak | "#" | "(" | "<" id_continue)) ImpliedCallArgumentList -- class_creation_implied
     | "new" #postWord NCMemberAccessExp
       #lineBreak Indented<LiteralExp_object_implied> -- class_creation_implied_object
     | "new" #postWord NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args
@@ -575,22 +569,23 @@ Storymatic {
     = ("readonly" #space)? TypeObjectKey "?"? ":" Type -- key_value
     | "new" FunctionType -- construct_signature
     | FunctionType -- call_signature
-    | ~("new" ~"?") TypeObjectKey "?"? FunctionType -- method
     | IndexSignatureType<"">
 
   TypeObjectEntry_implied = ("readonly" #space)? TypeObjectEntry "?"? ":" NonLoopType
 
   FunctionType
     = (GenericTypeParameterList? "(" ParameterList? ")")?
-    "->" (#(~(lineBreak ~indent)) FunctionReturnType)?
+      "->" (#(~(lineBreak ~indent)) FunctionReturnType)?
 
-  IntersectionType = NonemptyListOf<MemberAccessType, "&">
-  UnionType = NonemptyListOf<IntersectionType, "|">
+  IntersectionType = Indented<IntersectionType> | NonemptyListOf<MemberAccessType, "&">
+  UnionType = Indented<UnionType> | NonemptyListOf<IntersectionType, "|">
 
   ConditionalType
     = Indented<ConditionalType>
-    | ConditionalType "is" #postWord ConditionalType "?" ConditionalType ":" ConditionalType -- conditional
-    | ("if" | "unless") #postWord ConditionalType "is" #postWord ConditionalType "then" #postWord ConditionalType "else" #postWord ConditionalType -- if_then_else
+    | ConditionalType "is" #postWord ConditionalType
+      "?" ConditionalType ":" ConditionalType -- conditional
+    | ("if" | "unless") #postWord ConditionalType "is" #postWord ConditionalType
+      "then" #postWord ConditionalType "else" #postWord ConditionalType -- if_then_else
     | UnionType
 
   MappedType
@@ -610,6 +605,9 @@ Storymatic {
     = ("export" #space)? "interface" #space identifier GenericTypeParameterList?
       (#space "extends" #space NonemptyListOf<Implementable, #expressionTerminator>)?
       "{" ListOf<TypeObjectEntry, #typeTerminator> "}"
+    | ("export" #space)? "interface" #space identifier GenericTypeParameterList?
+      (#space "extends" #space NonemptyListOf<Implementable, #expressionTerminator>)?
+      /**/ indent NonemptyListOf<TypeObjectEntry, #typeTerminator> dedent
 
   IndexSignatureType<prefix> = "readonly"? prefix "[" identifier ":" Type "]" ":" Type
 
