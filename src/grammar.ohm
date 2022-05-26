@@ -111,8 +111,8 @@ Storymatic {
 
   terminator
     = spaces &("}" | "]" | ")" | dedent | end | reserved_block)
-    | whitespace? "\n"
-    | whitespace? "#"
+    | whitespace? &"\n"
+    | whitespace? &"#"
 
   TopLevelIfExp
     = Indented<TopLevelIfExp>
@@ -217,7 +217,7 @@ Storymatic {
     | MemberAccessExp #(~lineBreak) GenericTypeArgumentList
       #(~lineBreak) "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp #(whitespace ~(lineBreak | "#" | "(" | "<" ~id_continue)) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #whitespace ~(#lineBreak | "#" | "(" | "<" ~id_continue) ImpliedCallArgumentList -- implied_call
     | MemberAccessExp #lineBreak Indented<LiteralExp_object_implied> -- implied_call_object
     | MemberAccessExpNonCall<MemberAccessExp>
 

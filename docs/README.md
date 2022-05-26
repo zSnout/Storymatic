@@ -280,15 +280,6 @@ greet = (name = "defaultValue") ->
 
 # Parameters may be destructured.
 greet = ({ name, age }) ->
-
-# If the `--typescript` flag is used in the compiler, types are preserved.
-greet = (name: string) ->
-
-# Type arguments precede arguments and are only preserved with the `--ts` flag.
-greet = <T>(name: string) ->
-
-# Return types are specified between the arguments and arrow.
-greet = (name: string): void ->
 ```
 
 To add statements to a function, indent them after an arrow. You may also
@@ -529,27 +520,6 @@ age: 43
 alive: true
 ```
 
-## Restructuring
-
-A common pattern is to turn a list of variables into an object like so:
-
-```coffee
-name = "Steve"
-age = 43
-
-{ name: name, age: age }
-```
-
-You can use object shorthand to reduce the amount of code here. The previous
-example and this one are identical.
-
-```coffee
-name = "Steve"
-age = 43
-
-{ name, age }
-```
-
 ## Accessing object properties
 
 To get a property from an object, write the object followed by a dot and an
@@ -582,10 +552,39 @@ literal override previous properties. Here's an example of the difference:
 ```coffee
 oldPerson = name: "Steve", age: 43
 
-console.log "spread before", { ...oldPerson, age: 7 }
-console.log "spread after", { age: 7, ...oldPerson }
+console.log "spread before", {
+  ...oldPerson,
+  age: 7
+}
+
+console.log "spread after", {
+  age: 7,
+  ...oldPerson
+}
 ```
 
 Notice how the second object doesn't have the new age. This is because spreading
 `oldPerson` overrides the previous `age: 7` property.
 
+## Restructuring
+
+A common pattern is to turn a list of variables into an object like so:
+
+```coffee
+name = "Steve"
+age = 43
+
+{ name: name, age: age }
+```
+
+You can use object shorthand to reduce the amount of code here. The previous
+example and this one are identical.
+
+```coffee
+name = "Steve"
+age = 43
+
+{ name, age }
+```
+
+## Object destructuring
