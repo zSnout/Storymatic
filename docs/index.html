@@ -93,6 +93,15 @@
         grid-column: 1 / span 2;
       }
 
+      .storymatic .console * {
+        margin: 0;
+        font-family: Roboto Mono, Monaco, courier, monospace;
+      }
+
+      .storymatic .console :is(h1, h2, h3, h4, h5, h6) {
+        margin-top: 0.75em;
+      }
+
       .storymatic .console > :last-child {
         margin-bottom: max(1rem, 0.75em);
       }
@@ -110,15 +119,6 @@
       .storymatic .run-code-para:last-child {
         margin: 0;
         margin-bottom: 1.8em;
-      }
-
-      .storymatic .console * {
-        margin: 0;
-        font-family: Roboto Mono, Monaco, courier, monospace;
-      }
-
-      .storymatic .console :is(h1, h2, h3, h4, h5, h6) {
-        margin-top: 0.5em;
       }
 
       .storymatic .run-code {
