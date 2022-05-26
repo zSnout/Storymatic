@@ -129,7 +129,7 @@ export function transformMultiLineString(
     }
   }
 
-  let newlines = new RegExp(`\\n\\s{0,${cutoff}}`, "g");
+  let newlines = new RegExp(`\\n[ ]{0,${cutoff}}`, "g");
 
   if (ts.isStringLiteral(node)) {
     return ts.factory.createStringLiteral(
