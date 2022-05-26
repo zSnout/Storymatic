@@ -347,6 +347,10 @@ export function prePrinted(node: ts.Node) {
           );
         }
 
+        if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) {
+          objectScope.isMultilineObject = true;
+        }
+
         if (ts.isArrayLiteralExpression(node)) {
           let scope: ObjectScope = { isMultilineObject: false };
 
