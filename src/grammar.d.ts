@@ -134,9 +134,9 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   MemberAccessExpNonCall_optional_chaining_member_access?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode) => T;
   MemberAccessExpNonCall_member_access_indented?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
   MemberAccessExpNonCall_optional_chaining_member_access_indented?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
-  MemberAccessExpNonCall_computed_member_access?: (this: NonterminalNode, arg0: Node, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExpNonCall_array_slice?: (this: NonterminalNode, arg0: Node, arg1: IterationNode, arg2: TerminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: IterationNode, arg6: TerminalNode) => T;
   MemberAccessExpNonCall_array_slice_indented?: (this: NonterminalNode, arg0: Node, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: IterationNode, arg5: TerminalNode, arg6: IterationNode, arg7: NonterminalNode, arg8: TerminalNode) => T;
+  MemberAccessExpNonCall_computed_member_access?: (this: NonterminalNode, arg0: Node, arg1: IterationNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: TerminalNode) => T;
   MemberAccessExpNonCall_tagged_template_literal?: (this: NonterminalNode, arg0: Node, arg1: NonterminalNode) => T;
   MemberAccessExpNonCall_non_null_assertion?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode) => T;
   MemberAccessExpNonCall_as_expression?: (this: NonterminalNode, arg0: Node, arg1: TerminalNode, arg2: NonterminalNode, arg3: NonterminalNode) => T;
