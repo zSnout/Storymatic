@@ -217,7 +217,7 @@ Storymatic {
     | MemberAccessExp #(~lineBreak) GenericTypeArgumentList
       #(~lineBreak) "(" ArgumentList ")" -- function_call
     | MemberAccessExp "?" GenericTypeArgumentList "(" ArgumentList ")" -- optional_chaining_function_call
-    | MemberAccessExp #(whitespace ~(lineBreak | "#" | "(" | "<" id_continue)) ImpliedCallArgumentList -- implied_call
+    | MemberAccessExp #(whitespace ~(lineBreak | "#" | "(" | "<" ~id_continue)) ImpliedCallArgumentList -- implied_call
     | MemberAccessExp #lineBreak Indented<LiteralExp_object_implied> -- implied_call_object
     | MemberAccessExpNonCall<MemberAccessExp>
 
@@ -236,7 +236,7 @@ Storymatic {
     | "new" #postWord NCMemberAccessExp #(~lineBreak) GenericTypeArgumentList
       #(~lineBreak) "(" ArgumentList ")" -- class_creation_symbolic
     | "new" #postWord NCMemberAccessExp #(whitespace
-      ~(lineBreak | "#" | "(" | "<" id_continue)) ImpliedCallArgumentList -- class_creation_implied
+      ~(lineBreak | "#" | "(" | "<" ~id_continue)) ImpliedCallArgumentList -- class_creation_implied
     | "new" #postWord NCMemberAccessExp
       #lineBreak Indented<LiteralExp_object_implied> -- class_creation_implied_object
     | "new" #postWord NCMemberAccessExp ~(NonemptyGenericTypeArgumentList | "(") -- class_creation_no_args

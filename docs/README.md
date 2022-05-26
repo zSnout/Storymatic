@@ -479,8 +479,7 @@ key. If `key: value` pairs are seperated by newlines, commas are not required.
 ## Implied objects
 
 If an object only contains key-value pairs, you may write it without braces.
-This does not work with restructuring (see below) or embedded methods (again,
-see below).
+This does not work with restructuring (see below) or spread syntax.
 
 ```coffee
 number: 23, string: "23"
@@ -510,27 +509,6 @@ age = 43
 
 console.log { name, age }
 ```
-
-## Embedded methods
-
-To add a method to an object, you may either use a standard property or use an
-embedded method. Here are the different syntaxes:
-
-```coffee
-{
-  hello: ->
-    console.log "Hello, world!"
-
-  hello ->
-    console.log "Hello, world!"
-
-  increment: (value) -> value++
-
-  increment(value) -> value++
-}
-```
-
-While both syntaxes are valid, the colon-less syntax is preferred in general.
 
 ## Accessing object properties
 
