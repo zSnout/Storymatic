@@ -1,13 +1,13 @@
 // @ts-check
 /// <reference types="./env" />
 
-let $eval = (code) => {
+function $eval(code) {
   try {
     return window.eval(code);
   } catch (e) {
     console.error(e);
   }
-};
+}
 
 window.jsx = (tag, attrs, ...children) => {
   if (typeof tag === "string") {
@@ -49,6 +49,36 @@ window.jsx = (tag, attrs, ...children) => {
     return new tag(children.length ? { ...attrs, children } : attrs);
   }
 };
+
+function addError(/** @type {string} */ href) {
+  let els = /** @type {NodeListOf<HTMLAnchorElement>} */ (
+    document.querySelectorAll(`a[href="${href}"]`)
+  );
+
+  if (els[0].textContent.includes("(error)")) {
+    els[0].textContent = els[0].textContent.replace("(error)", "(2 errors)");
+
+    els[1].children[0].textContent = els[1].children[0].textContent.replace(
+      "(error)",
+      "(2 errors)"
+    );
+  } else if (els[0].textContent.includes("errors)")) {
+    els[0].textContent = els[0].textContent.replace(
+      /\d+ errors/,
+      (match) => `${+match.split(" ")[0] + 1} errors`
+    );
+
+    els[1].children[0].textContent = els[1].children[0].textContent.replace(
+      /\d+ errors/,
+      (match) => `${+match.split(" ")[0] + 1} errors`
+    );
+  } else {
+    els[0].textContent += " (error)";
+    els[1].children[0].textContent += " (error)";
+  }
+
+  els[0].style.color = "red";
+}
 
 window.$docsify = {
   repo: "zsnout/storymatic-docs",
@@ -142,42 +172,7 @@ window.$docsify = {
               el = el.previousElementSibling;
             }
 
-            if (el) {
-              let els = /** @type {NodeListOf<HTMLAnchorElement>} */ (
-                document.querySelectorAll(
-                  `a[href="${el.children[0].getAttribute("href")}"]`
-                )
-              );
-
-              if (els[0].textContent.includes("(error)")) {
-                els[0].textContent = els[0].textContent.replace(
-                  "(error)",
-                  "(2 errors)"
-                );
-
-                els[1].children[0].textContent =
-                  els[1].children[0].textContent.replace(
-                    "(error)",
-                    "(2 errors)"
-                  );
-              } else if (els[0].textContent.includes("errors)")) {
-                els[0].textContent = els[0].textContent.replace(
-                  /\d+ errors/,
-                  (match) => `${+match.split(" ")[0] + 1} errors`
-                );
-
-                els[1].children[0].textContent =
-                  els[1].children[0].textContent.replace(
-                    /\d+ errors/,
-                    (match) => `${+match.split(" ")[0] + 1} errors`
-                  );
-              } else {
-                els[0].textContent += " (error)";
-                els[1].children[0].textContent += " (error)";
-              }
-
-              els[0].style.color = "red";
-            }
+            if (el) addError(el.children[0].getAttribute("href"));
           }
 
           jsb.addEventListener("click", () => {
