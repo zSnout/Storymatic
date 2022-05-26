@@ -344,6 +344,18 @@ export function prePrinted(node: ts.Node) {
           objectScope.isMultilineObject = true;
         }
 
+        if (ts.isComputedPropertyName(node)) {
+          let expr = node.expression;
+
+          if (ts.isStringLiteral(expr)) {
+            return expr;
+          }
+
+          if (ts.isNoSubstitutionTemplateLiteral(expr)) {
+            return ts.factory.createStringLiteralFromNode(expr);
+          }
+        }
+
         if (ts.isArrayLiteralExpression(node)) {
           let scope: ObjectScope = { isMultilineObject: false };
 
