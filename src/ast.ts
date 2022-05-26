@@ -178,15 +178,42 @@ ${optional(members)}${optional(namespace("Rest", rest))}`;
   AssignmentExp_assignment(assignable, _, expr) {
     return indent`Assignment =\n  ${assignable}\n  ${expr}`;
   },
-  AssignmentExp_splice(accessor, _0, start, dots, end, _1, _2, expr) {
-    let range = `${start.tree()}
-${dots.sourceString === "..." ? "Through" : "To"}\
-${optional(end.tree())}`.trimStart();
+  AssignmentExp_splice(accessor, _0, start, _1, end, _2, _3, expr) {
+    let startTree = start.tree();
+    let endTree = end.tree();
 
-    return indent`ArraySplice
-  ${accessor}
-  ${namespace("Range", range)}
+    let text = indent`ArraySplice
+  ${accessor}${optional(startTree)}${optional(endTree)}
   ${expr}`;
+
+    if (!endTree) text = modify("NoEnd", text);
+    if (!startTree) text = modify("NoStart", text);
+
+    return text;
+  },
+  AssignmentExp_splice_indented(
+    accessor,
+    _0,
+    _1,
+    start,
+    _2,
+    end,
+    _3,
+    _4,
+    _5,
+    expr
+  ) {
+    let startTree = start.tree();
+    let endTree = end.tree();
+
+    let text = indent`ArraySplice
+  ${accessor}${optional(startTree)}${optional(endTree)}
+  ${expr}`;
+
+    if (!endTree) text = modify("NoEnd", text);
+    if (!startTree) text = modify("NoStart", text);
+
+    return text;
   },
   AssignmentExp_update_assignment(accessor, op, expr) {
     return indent`Assignment ${op.sourceString
@@ -881,14 +908,18 @@ ${optional(namespace("Constraint", constraint))}`;
   MemberAccessExpNonCall(node) {
     return node.tree();
   },
-  MemberAccessExpNonCall_array_slice(target, qMark, _0, start, dots, end, _1) {
-    let range = `${start.tree()}
-${dots.sourceString === "..." ? "Through" : "To"}\
-${optional(end.tree())}`.trimStart();
+  MemberAccessExpNonCall_array_slice(target, qMark, _0, start, _1, end, _2) {
+    let startTree = start.tree();
+    let endTree = end.tree();
 
-    return indent`ArraySlice${optional(qMark.sourceString && "[Chain]")}
-  ${target}
-  ${namespace("Range", range)}`;
+    let text = indent`ArraySlice
+  ${target}${optional(startTree)}${optional(endTree)}`;
+
+    if (!endTree) text = modify("NoEnd", text);
+    if (!startTree) text = modify("NoStart", text);
+    if (qMark) text = modify("Chain", text);
+
+    return text;
   },
   MemberAccessExpNonCall_array_slice_indented(
     target,
@@ -896,18 +927,22 @@ ${optional(end.tree())}`.trimStart();
     _0,
     _1,
     start,
-    dots,
-    end,
     _2,
-    _3
+    end,
+    _3,
+    _4
   ) {
-    let range = `${start.tree()}
-${dots.sourceString === "..." ? "Through" : "To"}\
-${optional(end.tree())}`.trimStart();
+    let startTree = start.tree();
+    let endTree = end.tree();
 
-    return indent`ArraySlice${optional(qMark.sourceString && "[Chain]")}
-  ${target}
-  ${namespace("Range", range)}`;
+    let text = indent`ArraySlice
+  ${target}${optional(startTree)}${optional(endTree)}`;
+
+    if (!endTree) text = modify("NoEnd", text);
+    if (!startTree) text = modify("NoStart", text);
+    if (qMark) text = modify("Chain", text);
+
+    return text;
   },
   MemberAccessExpNonCall_as_expression(expr, _0, _1, type) {
     return indent`TypeAssertion\n  ${expr}\n  ${type}`;

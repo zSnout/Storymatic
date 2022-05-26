@@ -746,23 +746,72 @@ semantics.addOperation<ts.Node>("ts", {
 
     return ts.factory.createAssignment(bound, expr.ts());
   },
-  AssignmentExp_splice(accessor, _0, start, dotdot, end, _2, _3, target) {
+  AssignmentExp_splice(accessor, _0, start, _1, end, _2, _3, target) {
     let startExpr =
       start.child(0)?.ts<ts.Expression>() || ts.factory.createNumericLiteral(0);
 
     let endExpr = end.child(0)?.ts<ts.Expression>();
     let targetExpr = target.ts<ts.Expression>();
 
-    if (endExpr && dotdot.sourceString === "..") {
-      if (ts.isNumericLiteral(endExpr)) {
-        endExpr = ts.factory.createNumericLiteral(1 + +endExpr.text);
-      } else {
-        endExpr = ts.factory.createAdd(
-          endExpr,
-          ts.factory.createNumericLiteral(1)
-        );
-      }
+    let ref: ts.Expression = ts.factory.createIdentifier("$ref");
+    let assignment: ts.Expression = ts.factory.createAssignment(
+      ref,
+      targetExpr
+    );
+
+    if (ts.isLiteralExpression(targetExpr) || ts.isIdentifier(targetExpr)) {
+      ref = assignment = targetExpr;
     }
+
+    let range: ts.Expression = endExpr
+      ? ts.factory.createSubtract(endExpr, startExpr)
+      : ts.factory.createNumericLiteral("9e9");
+
+    if (
+      endExpr &&
+      ts.isNumericLiteral(startExpr) &&
+      ts.isNumericLiteral(endExpr)
+    ) {
+      range = ts.factory.createNumericLiteral(+endExpr.text - +startExpr.text);
+    }
+
+    return ts.factory.createComma(
+      ts.factory.createCallExpression(
+        ts.factory.createPropertyAccessExpression(accessor.ts(), "splice"),
+        undefined,
+        [
+          ts.factory.createSpreadElement(
+            ts.factory.createCallExpression(
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createArrayLiteralExpression([startExpr, range]),
+                "concat"
+              ),
+              undefined,
+              [assignment]
+            )
+          ),
+        ]
+      ),
+      ref
+    );
+  },
+  AssignmentExp_splice_indented(
+    accessor,
+    _0,
+    _1,
+    start,
+    _2,
+    end,
+    _3,
+    _4,
+    _5,
+    target
+  ) {
+    let startExpr =
+      start.child(0)?.ts<ts.Expression>() || ts.factory.createNumericLiteral(0);
+
+    let endExpr = end.child(0)?.ts<ts.Expression>();
+    let targetExpr = target.ts<ts.Expression>();
 
     let ref: ts.Expression = ts.factory.createIdentifier("$ref");
     let assignment: ts.Expression = ts.factory.createAssignment(
@@ -1901,27 +1950,8 @@ semantics.addOperation<ts.Node>("ts", {
   MemberAccessExpNonCall(node) {
     return node.ts();
   },
-  MemberAccessExpNonCall_array_slice(
-    target,
-    qMark,
-    _0,
-    start,
-    dotdot,
-    end,
-    _1
-  ) {
+  MemberAccessExpNonCall_array_slice(target, qMark, _0, start, _1, end, _2) {
     let endExpr = end.child(0)?.ts<ts.Expression>();
-
-    if (endExpr && dotdot.sourceString === "..") {
-      if (ts.isNumericLiteral(endExpr)) {
-        endExpr = ts.factory.createNumericLiteral(1 + +endExpr.text);
-      } else {
-        endExpr = ts.factory.createAdd(
-          endExpr,
-          ts.factory.createNumericLiteral("1")
-        );
-      }
-    }
 
     return ts.factory.createCallExpression(
       ts.factory.createPropertyAccessChain(
@@ -1945,23 +1975,12 @@ semantics.addOperation<ts.Node>("ts", {
     _0,
     _1,
     start,
-    dotdot,
-    end,
     _2,
-    _3
+    end,
+    _3,
+    _4
   ) {
     let endExpr = end.child(0)?.ts<ts.Expression>();
-
-    if (endExpr && dotdot.sourceString === "..") {
-      if (ts.isNumericLiteral(endExpr)) {
-        endExpr = ts.factory.createNumericLiteral(1 + +endExpr.text);
-      } else {
-        endExpr = ts.factory.createAdd(
-          endExpr,
-          ts.factory.createNumericLiteral("1")
-        );
-      }
-    }
 
     return ts.factory.createCallExpression(
       ts.factory.createPropertyAccessChain(

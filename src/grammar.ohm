@@ -228,8 +228,8 @@ Storymatic {
     | Child indent "." word dedent -- member_access_indented
     | Child indent "?." word dedent -- optional_chaining_member_access_indented
     | Child #"?"? #"[" Expression "]" -- computed_member_access
-    | Child #"?"? #"[" Expression? ("..." | "..") Expression? "]" -- array_slice
-    | Child #"?"? #"[" indent Expression? ("..." | "..") Expression? dedent "]" -- array_slice_indented
+    | Child #"?"? #"[" Expression? ":" Expression? "]" -- array_slice
+    | Child #"?"? #"[" indent Expression? ":" Expression? dedent "]" -- array_slice_indented
     | ~("\"" | "'") Child #string -- tagged_template_literal
     | Child "!" ~"=" -- non_null_assertion
     | Child "as" #postWord Type -- as_expression
@@ -353,7 +353,9 @@ Storymatic {
   AssignmentExp
     = Indented<AssignmentExp>
     | AssignableOrAccessor "=" AssignmentExp -- assignment
-    | (Accessor | identifier) "[" Expression? ("..." | "..") Expression? "]" "=" AssignmentExp -- splice
+    | (Accessor | identifier) "[" Expression? ":" Expression? "]" "=" AssignmentExp -- splice
+    | (Accessor | identifier) "[" indent Expression?
+      ":" Expression? dedent "]" "=" AssignmentExp -- splice_indented
     | (Accessor | identifier) ("+=" | "-=" | "*=" | "/=" | "%=" | "^=" | "&&=" | "||=" | "??=" | "and=" | "or=" | "<<=" | ">>=" | ">>>=") AssignmentExp -- update_assignment
     | "yield" #space "from" #postWord AssignmentExp -- yield_from
     | "yield" #space AssignmentExp? -- yield

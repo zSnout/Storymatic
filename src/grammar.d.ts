@@ -209,6 +209,7 @@ export interface StorymaticActionDict<T> extends ActionDict<T> {
   PipeExp?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   AssignmentExp_assignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AssignmentExp_splice?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: IterationNode, arg3: TerminalNode, arg4: IterationNode, arg5: TerminalNode, arg6: TerminalNode, arg7: NonterminalNode) => T;
+  AssignmentExp_splice_indented?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode, arg3: IterationNode, arg4: TerminalNode, arg5: IterationNode, arg6: NonterminalNode, arg7: TerminalNode, arg8: TerminalNode, arg9: NonterminalNode) => T;
   AssignmentExp_update_assignment?: (this: NonterminalNode, arg0: NonterminalNode, arg1: TerminalNode, arg2: NonterminalNode) => T;
   AssignmentExp_yield_from?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: TerminalNode, arg3: NonterminalNode, arg4: NonterminalNode) => T;
   AssignmentExp_yield?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode, arg2: IterationNode) => T;
