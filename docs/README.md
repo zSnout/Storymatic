@@ -588,3 +588,5 @@ age = 43
 ```
 
 ## Object destructuring
+
+A common operation is to assign 

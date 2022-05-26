@@ -259,8 +259,6 @@ export function preCompile(text: string) {
     } else throw new Error("Unexpected indentation error");
   }, top);
 
-  console.log(top);
-
   let result = (function traverse(node): string {
     delete node.parent;
 
