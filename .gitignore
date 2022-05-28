@@ -106,3 +106,5 @@ dist
 # MacOS special files
 .DS_Store
 Icon?
+
+**/tsconfig.tsbuildinfo

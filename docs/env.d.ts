@@ -1,17 +1,21 @@
-declare module "https://esm.sh/storymatic*" {
-  export * from "storymatic";
+declare module "https://esm.sh/@codemirror/basic-setup*" {
+  export * from "@codemirror/basic-setup";
 }
 
 declare module "https://esm.sh/@codemirror/lang-javascript*" {
   export * from "@codemirror/lang-javascript";
 }
 
-declare module "https://esm.sh/@codemirror/basic-setup*" {
-  export * from "@codemirror/basic-setup";
+declare module "https://esm.sh/@codemirror/state*" {
+  export * from "@codemirror/state";
 }
 
 declare module "https://esm.sh/@codemirror/view*" {
   export * from "@codemirror/view";
+}
+
+declare module "https://esm.sh/storymatic*" {
+  export * from "storymatic";
 }
 
 declare module "https://esm.sh/util*" {
@@ -20,19 +24,8 @@ declare module "https://esm.sh/util*" {
 
 declare var $docsify: any;
 
-declare var jsx: {
-  (
-    tag:
-      | string
-      | ((props: Record<string, any>) => Node)
-      | (new (props: Record<string, any>) => Node),
-    attrs?: Record<string, any> | null,
-    ...children: any[]
-  ): Node;
-};
-
 declare interface Node {
   className: string;
 }
 
-declare var Storymatic: typeof import("storymatic");
+declare var Prism: typeof import("prismjs");

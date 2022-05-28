@@ -43,7 +43,36 @@ You'll notice that Storymatic has automatic variable scoping and cleaner
 function definitions that JavaScript. Storymatic also has easy string
 interpolating and includes many other features you'll discover.
 
-# Getting started
+# The playground
+
+Throughout this website, you'll see code blocks like these:
+
+```coffee
+2 + 3
+```
+
+Each block has two windows. The left window includes editable Storymatic code.
+The right side shows the compiled JavaScript or TypeScript code. On mobile,
+these are stacked to preserve window space. You may experiment with the code and
+view the corresponding JS/TS for any Storymatic code. If some code is invalid,
+an error will show up in the right side.
+
+You can also run your code by clicking the "Run Code" button. When using this
+feature, methods of the `console` object are automatically added to the global
+scope, allowing you to use `log ...` to print things to the console. The
+`assert`, `clear`, `error`, `log`, and `warn` methods also redirect to a text
+console located beneath the "Run Code" button. Additionally, the last expression
+is printed unless it is `undefined`. Try the console below:
+
+```coffee ast
+23
+```
+
+# Installing Storymatic
+
+?> The following guide is meant for users who want to download Storymatic using
+NPM. If you're using Yarn or an alternative package manager, make sure that you
+replace these commands with the proper ones for your manager.
 
 Make sure you have NPM installed on your computer before using Storymatic. Once
 NPM is available, install the `storymatic` package globally to your system.
@@ -74,37 +103,6 @@ $ sm -w
 Starting watch process...
 myfile.sm compiled at 08:00:00 AM.
 ```
-
-# Internals
-
-For people who want to get into the nitty-gritty details of the Storymatic
-compiler, here's how we compile your code.
-
-First, we execute the pre-transform steps.
-
-1. Tabs are standardized to two spaces.
-2. `⇦` and `⇨` characters are removed.
-3. Lines are split based on their indentation levels.
-4. Pairs of lines that include strings are joined together.
-5. All other lines are grouped by indentation level.
-6. `⇦` and `⇨` are added around lines to represent indentation.
-7. Lines are joined together after indent markers have been added.
-
-After transforming the source code, we compile using these steps:
-
-1. The source code is passed to the Ohm compiler. To output the code at this
-   step, pass the `-a` or `--ast` flag to the CLI.
-2. Each node in the AST is converted to a corresponding TypeScript node.
-3. The TypeScript AST is traversed to create variable declarations, change
-   top-level IIFEs to statements, add `async` and `*` modifiers to containing
-   functions, transform generator arrow functions to bound functions, and add
-   automatic returns. You may output the code after this step with the `-A` or
-   `--typescript-ast` flag.
-4. The TypeScript AST is passed to the TS compiler, unused imports are removed,
-   module types are transformed, and code is updated to the correct ES version.
-   This code is available via the `-o` or `--output` flag.
-
-Once these have completed, the Storymatic process is done!
 
 # Primitives
 
@@ -589,4 +587,69 @@ age = 43
 
 ## Object destructuring
 
-A common operation is to assign 
+A common operation is to assign object keys to a variable of the same name.
+
+```coffee
+person = name: "Steve", age: 43
+
+name = person.name
+age = person.age
+
+console.log name, age
+```
+
+Storymatic supports a special syntax for this called destructuring. Here's the
+same example above rewritten to use the new syntax.
+
+```coffee
+person = name: "Steve", age: 43
+
+{ name, age } = person
+
+console.log name, age
+```
+
+You can also capture other properties in an object using rest syntax, or
+`...rest`.
+
+```coffee
+person =
+  name: "Steve"
+  age: 43
+  email: "hello@example.com"
+  address: "123 Example Street"
+
+{ name, age, ...rest } = person
+
+console.log name, age, rest
+```
+
+You can rename a destructured element using colon syntax:
+
+```coffee
+person = name: "Steve", age: 43
+
+{ name: myName } = person
+
+console.log myName
+```
+
+You can use the rename syntax to destructure sub-elements of an object. For
+example, we can find properties of the first and second people in a list.
+
+```coffee
+people = [
+  name: "Steve"
+  age: 43
+,
+  name: "Celia"
+  age: 23
+]
+
+[
+  { name: firstName }
+  { name: secondName }
+] = people
+
+console.log firstName, secondName
+```

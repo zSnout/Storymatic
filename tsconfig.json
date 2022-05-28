@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ES6",
-    "lib": ["ES6"],
+    "target": "ES2017",
+    "lib": ["ES2017"],
     "module": "CommonJS",
     "rootDir": "./src",
     "outDir": "./dist",
     "moduleResolution": "node",
     "declaration": true
   },
-  "exclude": ["docs", "dist"]
+  "exclude": ["docs", "dist"],
+  "references": [{ "path": "docs/tsconfig.json" }]
 }
