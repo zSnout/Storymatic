@@ -703,6 +703,21 @@ semantics.addOperation<ts.Node>("ts", {
 
     return ts.factory.createArrayBindingPattern(members);
   },
+  Assignable_array_indented(_0, _1, elements, _2, _3, spreadable, _4, _5, _6) {
+    let members = elements.tsa<ts.BindingElement>().slice();
+
+    if (spreadable.sourceString) {
+      members.push(
+        ts.factory.createBindingElement(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          undefined,
+          spreadable.child(0).ts<ts.BindingName>()
+        )
+      );
+    }
+
+    return ts.factory.createArrayBindingPattern(members);
+  },
   Assignable_identifier(node) {
     return ts.factory.createBindingElement(
       undefined,
@@ -711,6 +726,21 @@ semantics.addOperation<ts.Node>("ts", {
     );
   },
   Assignable_object(_0, elements, _1, _2, spreadable, _3, _4) {
+    let members = elements.tsa<ts.BindingElement>().slice();
+
+    if (spreadable.sourceString) {
+      members.push(
+        ts.factory.createBindingElement(
+          ts.factory.createToken(ts.SyntaxKind.DotDotDotToken),
+          undefined,
+          spreadable.child(0).ts<ts.BindingName>()
+        )
+      );
+    }
+
+    return ts.factory.createObjectBindingPattern(members);
+  },
+  Assignable_object_indented(_0, _1, elements, _2, _3, spreadable, _4, _5, _6) {
     let members = elements.tsa<ts.BindingElement>().slice();
 
     if (spreadable.sourceString) {
@@ -980,9 +1010,7 @@ semantics.addOperation<ts.Node>("ts", {
     _7,
     _8,
     implementTargets,
-    _9,
-    elements,
-    _10
+    elements
   ) {
     let heritage: ts.HeritageClause[] = [];
 
@@ -1606,9 +1634,7 @@ semantics.addOperation<ts.Node>("ts", {
     _5,
     _6,
     implementTargets,
-    _7,
-    elements,
-    _8
+    elements
   ) {
     let heritage: ts.HeritageClause[] = [];
 
@@ -1943,6 +1969,9 @@ semantics.addOperation<ts.Node>("ts", {
       type.ts<ts.TypeNode>(),
       undefined
     );
+  },
+  MaybeIndented(node) {
+    return node.ts();
   },
   MemberAccessExp(node) {
     return node.ts();

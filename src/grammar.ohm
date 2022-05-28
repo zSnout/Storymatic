@@ -5,6 +5,7 @@ Storymatic {
   WrappedScriptBlock = Wrapped<TopLevelStatement*>
   Indented<Element> = indent Element dedent
   Wrapped<Element> = "{" Element "}" | indent Element dedent | "{" Indented<Element> "}"
+  MaybeIndented<Element> = Element | Indented<Element>
 
   SingleStatementBlock<prefix>
     = WrappedStatementBlock
@@ -77,7 +78,7 @@ Storymatic {
     = ("export" #space)? "class" #space identifier GenericTypeParameterList?
       (#space "extends" #space (Extendable | Expression))?
       (#space "implements" #space NonemptyListOf<Implementable, ",">)?
-      "{" ClassElement* "}"
+      /**/ Wrapped<ClassElement*>
 
   ClassElement
     = ClassProperty<""> #statementTerminator -- property
@@ -174,9 +175,9 @@ Storymatic {
 
   InlineClassDeclaration
     = "class" GenericTypeParameterList?
-      (#space "extends" #space (Extendable | Expression))?
+      (#space "extends" #postWord (Extendable | Expression))?
       (#space "implements" #space NonemptyListOf<Implementable, ",">)?
-      "{" ClassElement* "}"
+      /**/ Wrapped<ClassElement*>
 
   ArrayEntry
     = Expression
@@ -383,26 +384,34 @@ Storymatic {
   AssignableOrAccessor = Accessor | Assignable ~("." | "[")
 
   AssignableWithDefault
-    = Assignable "=" Expression -- with_default
+    = Indented<AssignableWithDefault>
+    | Assignable "=" Expression -- with_default
     | Assignable
 
   AssignableKeyWithRewrite
-    = MethodName ":" AssignableWithDefault -- rewrite
+    = Indented<AssignableKeyWithRewrite>
+    | MethodName ":" AssignableWithDefault -- rewrite
     | AssignableWithDefault
 
   Assignable
-    = identifier -- identifier
+    = Indented<Assignable>
+    | identifier -- identifier
     | "[" ListOf<AssignableWithDefault, #expressionTerminator>
       (#expressionTerminator "..." Assignable)? ","? "]" -- array
+    | "[" indent ListOf<AssignableWithDefault, #expressionTerminator>
+      (#expressionTerminator "..." Assignable)? ","? dedent "]" -- array_indented
     | "{" ListOf<AssignableKeyWithRewrite, #expressionTerminator>
       (#expressionTerminator "..." Assignable)? ","? "}" -- object
+    | "{" indent ListOf<AssignableKeyWithRewrite, #expressionTerminator>
+      (#expressionTerminator "..." Assignable)? ","? dedent "}" -- object_indented
 
   Accessor
     = (identifier | Property) AccessorAddon+
     | Property AccessorAddon*
 
   AccessorAddon
-    = "." word -- member_access
+    = Indented<AccessorAddon>
+    | "." word -- member_access
     | "[" Expression "]" -- computed_member_access
 
   whitespace = (~("\n" | line_comment | block_comment) space)+

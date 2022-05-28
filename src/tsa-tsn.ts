@@ -46,6 +46,9 @@ semantics.addOperation<ts.NodeArray<ts.Node>>("tsa", {
   Indented(_0, node, _1) {
     return node.tsa();
   },
+  MaybeIndented(node) {
+    return node.tsa();
+  },
   NonemptyGenericTypeArgumentList(_0, typeArgs, _1) {
     return typeArgs.tsa();
   },

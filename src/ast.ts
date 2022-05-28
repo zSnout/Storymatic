@@ -165,10 +165,18 @@ semantics.addOperation<string>("tree", {
     return indent`DestructuredIterable\
   ${optional(members)}${optional(namespace("Rest", rest))}`;
   },
+  Assignable_array_indented(_0, _1, members, _2, _3, rest, _4, _5, _6) {
+    return indent`DestructuredIterable\
+  ${optional(members)}${optional(namespace("Rest", rest))}`;
+  },
   Assignable_identifier(node) {
     return node.tree();
   },
   Assignable_object(_0, members, _1, _2, rest, _3, _4) {
+    return indent`DestructuredObject\
+${optional(members)}${optional(namespace("Rest", rest))}`;
+  },
+  Assignable_object_indented(_0, _1, members, _2, _3, rest, _4, _5, _6) {
     return indent`DestructuredObject\
 ${optional(members)}${optional(namespace("Rest", rest))}`;
   },
@@ -296,9 +304,7 @@ ${optional(members)}${optional(namespace("Rest", rest))}`;
     _7,
     _8,
     implemented,
-    _9,
-    members,
-    _10
+    members
   ) {
     return indent`ClassDeclaration ${ident.tree().slice(11)}\
 ${optional(_export.sourceString && "[Exported]")}\
@@ -652,9 +658,7 @@ ${optional(readonly.sourceString && "[Readonly]")}
     _5,
     _6,
     implemented,
-    _7,
-    members,
-    _8
+    members
   ) {
     return indent`ClassExpression\
 ${optional(generics)}\
@@ -901,6 +905,9 @@ ${optional(namespace("Constraint", constraint))}`;
     }
 
     return text;
+  },
+  MaybeIndented(node) {
+    return node.tree();
   },
   MemberAccessExp(node) {
     return node.tree();

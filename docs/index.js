@@ -313,7 +313,7 @@ window.$docsify = {
       });
 
       let imports = Promise.all([
-        import("https://esm.sh/storymatic@2.0.77"),
+        import("https://esm.sh/storymatic@2.0.79"),
         import(
           "https://esm.sh/@codemirror/lang-javascript@0.20.0?deps=@codemirror/state@0.20.0"
         ),
