@@ -1,5 +1,6 @@
 import * as ohm from "ohm-js";
 import * as ts from "typescript";
+import "./esm-sh.js";
 import * as grammar from "./grammar.js";
 import {
   Flags,

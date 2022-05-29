@@ -3,7 +3,7 @@ import { basicSetup, EditorState, EditorView, } from "https://esm.sh/@codemirror
 import { javascript } from "https://esm.sh/@codemirror/lang-javascript@0.20.0?deps=@codemirror/state@0.20.0";
 import { Facet } from "https://esm.sh/@codemirror/state@0.20.0";
 import { keymap } from "https://esm.sh/@codemirror/view@0.20.6?deps=@codemirror/state@0.20.0";
-import * as Storymatic from "https://esm.sh/storymatic@2.0.80";
+import * as Storymatic from "https://esm.sh/storymatic@2.0.83";
 import { inspect } from "https://esm.sh/util@0.12.4";
 function __eval(code) {
     try {
