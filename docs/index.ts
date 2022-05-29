@@ -222,11 +222,11 @@ window.$docsify = {
             jsconsole.replaceChildren(jsp);
 
             function makeElements(data: any[]) {
-              let els = [];
+              let els: Element[] = [];
               let content = "";
 
               for (let el of data) {
-                if (el instanceof Node) {
+                if (el instanceof Element) {
                   if (content) {
                     let p = document.createElement("p");
                     p.innerHTML = Prism.highlight(

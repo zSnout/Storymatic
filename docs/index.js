@@ -170,7 +170,7 @@ window.$docsify = {
                             let els = [];
                             let content = "";
                             for (let el of data) {
-                                if (el instanceof Node) {
+                                if (el instanceof Element) {
                                     if (content) {
                                         let p = document.createElement("p");
                                         p.innerHTML = Prism.highlight(content, Prism.languages.javascript, "javascript");

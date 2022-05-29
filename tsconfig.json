@@ -2,7 +2,7 @@
   "compilerOptions": {
     "strict": true,
     "target": "ES2017",
-    "lib": ["ES2017"],
+    "lib": ["ES2017", "DOM", "DOM.Iterable"],
     "module": "CommonJS",
     "rootDir": "./src",
     "outDir": "./dist",

@@ -6,7 +6,7 @@
   "version": "2.0.79",
   "scripts": {
     "grammar": "[ ! -d './dist' ] && mkdir dist; ohm generateBundles --withTypes src/grammar.ohm; mv src/grammar.ohm-bundle.js dist/grammar.js; mv src/grammar.ohm-bundle.d.ts src/grammar.d.ts; cat src/grammar.d.ts > dist/grammar.d.ts",
-    "build": "npm run grammar; tsc -b",
+    "build": "npm run grammar; tsc -b; tsc -b docs/tsconfig.json",
     "pretest": "node ./dist/sm.js -b --src test --dist dist/test --module commonjs",
     "test": "mocha dist/test",
     "prepublishOnly": "npm run build"
@@ -26,9 +26,14 @@
     "yargs": "^17.4.1"
   },
   "devDependencies": {
+    "@codemirror/basic-setup": "^0.20.0",
+    "@codemirror/lang-javascript": "^0.20.0",
+    "@codemirror/state": "^0.20.0",
+    "@codemirror/view": "^0.20.6",
     "@ohm-js/cli": "^1.1.0",
     "@types/mocha": "^9.1.1",
     "@types/node": "^17.0.29",
+    "@types/prismjs": "^1.26.0",
     "@types/yargs": "^17.0.10"
   }
 }
