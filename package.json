@@ -10,7 +10,7 @@
     "pretest": "node ./dist/sm.js -b --src test --dist dist/test --module commonjs",
     "test": "mocha dist/test",
     "prepublishOnly": "npm run build",
-    "dev": "tsc -w | npx static-server docs"
+    "dev": "npm run grammar; tsc -w | tsc -w -p docs/tsconfig.json | npx static-server docs"
   },
   "repository": {
     "type": "git",

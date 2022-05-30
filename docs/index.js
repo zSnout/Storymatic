@@ -1,10 +1,10 @@
 /// <reference types="./env" />
-import { basicSetup, EditorState, EditorView, } from "https://esm.sh/@codemirror/basic-setup@0.20.0?deps=@codemirror/state@0.20.0";
-import { javascript } from "https://esm.sh/@codemirror/lang-javascript@0.20.0?deps=@codemirror/state@0.20.0";
-import { Facet } from "https://esm.sh/@codemirror/state@0.20.0";
-import { keymap } from "https://esm.sh/@codemirror/view@0.20.6?deps=@codemirror/state@0.20.0";
-import * as Storymatic from "https://esm.sh/storymatic@2.0.84";
-import { inspect } from "https://esm.sh/util@0.12.4";
+import { basicSetup, EditorState, EditorView, } from "https://esm.sh/@codemirror/basic-setup@0.20.0?pin=v83&deps=@codemirror/state@0.20.0";
+import { javascript } from "https://esm.sh/@codemirror/lang-javascript@0.20.0?pin=v83&deps=@codemirror/state@0.20.0";
+import { Facet } from "https://esm.sh/@codemirror/state@0.20.0?pin=v83";
+import { keymap } from "https://esm.sh/@codemirror/view@0.20.6?pin=v83&deps=@codemirror/state@0.20.0";
+import * as Storymatic from "https://esm.sh/storymatic@2.0.84?pin=v83";
+import { inspect } from "https://esm.sh/util@0.12.4?pin=v83";
 function __eval(code) {
     try {
         return window.eval(code);
@@ -225,16 +225,17 @@ window.$docsify = {
                         }
                     });
                     observer.observe(pre, { box: "content-box" });
+                    let exts = [
+                        basicSetup,
+                        javascript({ jsx: true, typescript: true }),
+                        EditorState.readOnly.of(true),
+                        EditorState.tabSize.of(2),
+                        EditorView.lineWrapping,
+                    ];
                     let jsEditor = new EditorView({
                         state: EditorState.create({
                             doc: code,
-                            extensions: [
-                                basicSetup,
-                                javascript({ jsx: true, typescript: true }),
-                                EditorState.readOnly.of(true),
-                                EditorState.tabSize.of(2),
-                                EditorView.lineWrapping,
-                            ],
+                            extensions: exts,
                         }),
                         parent: jsc,
                     });
@@ -266,6 +267,8 @@ window.$docsify = {
     ],
 };
 if (typeof navigator.serviceWorker !== "undefined" &&
-    location.port !== "3000") {
-    navigator.serviceWorker.register("sw.js");
+    location.port !== "3000" &&
+    !location.href.includes("webcontainer.io") &&
+    !location.href.includes("stackblitz.com")) {
+    navigator.serviceWorker.register("sw.js").catch(() => { });
 }
