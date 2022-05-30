@@ -346,7 +346,8 @@ window.$docsify = {
 
 if (
   typeof navigator.serviceWorker !== "undefined" &&
-  location.port !== "3000"
+  location.port !== "3000" &&
+  location.href.includes("webcontainer.io")
 ) {
   navigator.serviceWorker.register("sw.js");
 }
