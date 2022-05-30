@@ -5,7 +5,7 @@
   "license": "GPL-3",
   "version": "2.0.84",
   "scripts": {
-    "grammar": "[ ! -d './dist' ] && mkdir dist; ohm generateBundles --withTypes src/grammar.ohm; mv src/grammar.ohm-bundle.js dist/grammar.js; mv src/grammar.ohm-bundle.d.ts src/grammar.d.ts; cat src/grammar.d.ts > dist/grammar.d.ts",
+    "grammar": "mkdir dist; ohm generateBundles --withTypes src/grammar.ohm; mv src/grammar.ohm-bundle.js dist/grammar.js; mv src/grammar.ohm-bundle.d.ts src/grammar.d.ts; cat src/grammar.d.ts > dist/grammar.d.ts",
     "build": "npm run grammar; tsc -b; tsc -b docs/tsconfig.json",
     "pretest": "node ./dist/sm.js -b --src test --dist dist/test --module commonjs",
     "test": "mocha dist/test",
