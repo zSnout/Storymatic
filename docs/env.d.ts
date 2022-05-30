@@ -23,3 +23,4 @@ declare module "https://esm.sh/util*" {
 }
 
 declare var $docsify: any;
+declare var Prism: typeof import("prismjs");

@@ -4,12 +4,24 @@ import {
   basicSetup,
   EditorState,
   EditorView,
-} from "https://esm.sh/@codemirror/basic-setup@0.20.0?deps=@codemirror/state@0.20.0";
-import { javascript } from "https://esm.sh/@codemirror/lang-javascript@0.20.0?deps=@codemirror/state@0.20.0";
-import { Facet } from "https://esm.sh/@codemirror/state@0.20.0";
-import { keymap } from "https://esm.sh/@codemirror/view@0.20.6?deps=@codemirror/state@0.20.0";
+} from "https://esm.sh/@codemirror/basic-setup@0.20.0\
+?deps=@codemirror/state@0.20.0,@codemirror/view@0.20.6";
+import { javascript } from "https://esm.sh/@codemirror/lang-javascript@0.20.0\
+?deps=@codemirror/state@0.20.0,@codemirror/view@0.20.6";
+import { Facet } from "https://esm.sh/@codemirror/state@0.20.0\
+?deps=@codemirror/view@0.20.6";
+import { keymap } from "https://esm.sh/@codemirror/view@0.20.6\
+?deps=@codemirror/state@0.20.0,@codemirror/view@0.20.6";
 import * as Storymatic from "https://esm.sh/storymatic@2.0.84";
 import { inspect } from "https://esm.sh/util@0.12.4";
+
+console.log(
+  javascript(),
+  basicSetup,
+  EditorState.readOnly.of(true),
+  EditorState.tabSize.of(2),
+  EditorView.lineWrapping
+);
 
 function __eval(code: string) {
   try {

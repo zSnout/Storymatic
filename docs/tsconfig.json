@@ -7,7 +7,6 @@
     "moduleResolution": "node",
     "declaration": true,
     "composite": true,
-    "allowUmdGlobalAccess": true,
     "paths": {
       "storymatic": [".."]
     }
