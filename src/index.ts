@@ -14,7 +14,7 @@ import { semantics, story } from "./semantics.js";
 import "./tsa-tsn.js";
 
 export { typescriptAST } from "./ast.js";
-export { Flags, makeCompilerOptions, preCompile, prePrinted };
+export { type Flags, makeCompilerOptions, preCompile, prePrinted };
 
 /**
  * Compiles a given string of Storymatic code into a {@link ts.SourceFile}.
